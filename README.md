@@ -1,5 +1,5 @@
 ## webpack-to-vite
-transfer a webpack project to vite project
+convert a webpack project to vite project
 
 ## Quick start
 
@@ -20,7 +20,7 @@ with yarn, run
 yarn
 yarn build
 ```
-3. transfer
+3. convert
 ```
 node ./bin/index --rootDir <project path>
 ```
