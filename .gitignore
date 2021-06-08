@@ -1,1 +1,6 @@
 .idea/
+node_modules/
+tests/out
+dist
+.settings
+yarn.lock

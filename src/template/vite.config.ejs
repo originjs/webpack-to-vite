@@ -1,0 +1,10 @@
+import { defineConfig } from 'vite;
+import path from 'path';
+<% IMPORT_LIST.forEach(function (im) { %>
+<%- im %>
+<% }); %>
+
+// https://vitejs.dev/config/
+export default defineConfig(
+  <%- USER_CONFIG %>
+)
