@@ -1,5 +1,5 @@
 ## webpack-to-vite
-convert a webpack project to vite project
+convert a webpack project to a vite project
 
 ## Quick start
 
