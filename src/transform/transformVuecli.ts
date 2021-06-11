@@ -34,7 +34,7 @@ export class VueCliTransformer implements Transformer {
         //Base public path
         config.base =
             process.env.PUBLIC_URL || vueConfig.publicPath || vueConfig.baseUrl;
-        
+
         // css options
         if (css.loaderOptions) {
             config.css = {};
@@ -70,7 +70,7 @@ export class VueCliTransformer implements Transformer {
             process.env.GENERATE_SOURCEMAP === 'true' ||
             vueConfig.productionSourceMap ||
             css.sourceMap;
-        
+
         // alias
         const chainableConfig = new Config();
         if (vueConfig.chainWebpack) {
@@ -151,7 +151,7 @@ export class VueCliTransformer implements Transformer {
             plugins.push(new RawValue('vue()'));
             if (context.jsx) {
                 context.importList.push('import vueJsx from \'@vitejs/plugin-vue-jsx\';');
-                plugins.push(new RawValue('envCompatible()'));
+                plugins.push(new RawValue('vueJsx()'));
             }
         }
 
