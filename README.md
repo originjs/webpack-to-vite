@@ -1,7 +1,7 @@
 ## webpack-to-vite
 convert a webpack project to a vite project
 
-## Quick start
+## Quick Start
 
 1. download
 ```
@@ -25,7 +25,7 @@ yarn build
 node ./bin/index --rootDir <project path>
 ```
 
-## projects
+## Projects
 
 The following is a list of projects that successfully converted from a webpack project to a vite project using the tool
 
