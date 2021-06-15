@@ -41,7 +41,7 @@ export function start(rootDir: string) {
 
     genPackageJson(path.resolve(rootDir, "package.json"));
 
-    geneViteConfig(path.resolve(rootDir, "vue.config.js"), rootDir);
+    geneViteConfig(rootDir, rootDir);
 
     console.log("************************ Done ! ************************");
     const pkgManager = fs.existsSync(path.resolve(rootDir, "yarn.lock"))

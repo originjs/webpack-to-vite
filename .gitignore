@@ -4,3 +4,4 @@ tests/out
 dist
 .settings
 yarn.lock
+.DS_Store
