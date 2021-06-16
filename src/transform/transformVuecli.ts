@@ -90,26 +90,17 @@ export class VueCliTransformer implements Transformer {
                 return (originConfig.resolve && originConfig.resolve.alias) || {};
             }
         })();
-        const finalAlias = [];
-        finalAlias.push({ find: new RawValue('/^~/'), replacement: ''});
-        finalAlias.push({
-            find: '@',
-            replacement: new RawValue('path.resolve(__dirname,\'src\')'),
-        });
+        const defaultAlias = {};
+        defaultAlias['/^~/'] = '';
+        defaultAlias['@'] = 'path.resolve(__dirname,\'src\')';
         const alias = {
+            ...defaultAlias,
             ...aliasOfConfigureWebpackObjectMode,
             ...aliasOfConfigureFunctionMode,
             ...aliasOfChainWebpack,
         }
-        Object.keys(alias).forEach((key) => {
-            finalAlias.push({
-                find: key,
-                replacement: path.relative(process.cwd(), alias[key]),
-            });
-        });
 
         config.resolve = {};
-        config.resolve.alias = finalAlias;
         config.resolve.extensions = [
             '.mjs',
             '.js',
@@ -119,7 +110,13 @@ export class VueCliTransformer implements Transformer {
             '.json',
             '.vue',
         ];
-
+        config.resolve.alias = [];
+        Object.keys(alias).forEach((key) => {
+            config.resolve.alias.push({
+                find: key,
+                replacement: path.relative(process.cwd(), alias[key]),
+            });
+        });
         config = removeUndefined(config);
         return config;
     }
