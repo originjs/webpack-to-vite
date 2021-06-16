@@ -114,7 +114,7 @@ export class VueCliTransformer implements Transformer {
         Object.keys(alias).forEach((key) => {
             config.resolve.alias.push({
                 find: key,
-                replacement: path.relative(process.cwd(), alias[key]),
+                replacement: alias[key],
             });
         });
         config = removeUndefined(config);
