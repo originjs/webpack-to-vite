@@ -10,7 +10,7 @@ export class RawValue {
     }
 }
 
-export declare interface genViteConfig
+export declare interface ViteConfig
     extends Omit<UserConfig, "plugins" | "resolve"> {
     plugins?: RawValue[];
 

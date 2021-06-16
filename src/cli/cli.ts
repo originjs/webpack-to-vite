@@ -2,8 +2,7 @@ import path from "path";
 import fs from "fs";
 import { genIndexHtml } from "../generate/geneIndexHtml";
 import { genePackageJson as genPackageJson } from "../generate/genePackageJson";
-import { genViteConfig } from "../generate/geneViteConfig";
-
+import { geneViteConfig } from "../generate/geneViteConfig";
 import { Command } from "commander";
 import { Config } from "../config/config";
 
@@ -14,10 +13,10 @@ export function run() {
         .option("--rootDir <path>", "the directory of project to be transfered")
         .parse(process.argv);
 
-    var keys = ["rootDir"];
-    var config: Config = {};
+    const keys = ['rootDir'];
+    const config: Config = {};
     keys.forEach(function (k) {
-        if (program.opts().hasOwnProperty(k)) {
+        if (Object.prototype.hasOwnProperty.call(program.opts(), k)) {
             config[k] = program.opts()[k];
         }
     });
@@ -42,7 +41,7 @@ export function start(rootDir: string) {
 
     genPackageJson(path.resolve(rootDir, "package.json"));
 
-    genViteConfig(path.resolve(rootDir, "vue.config.js"), rootDir);
+    geneViteConfig(rootDir, rootDir);
 
     console.log("************************ Done ! ************************");
     const pkgManager = fs.existsSync(path.resolve(rootDir, "yarn.lock"))
