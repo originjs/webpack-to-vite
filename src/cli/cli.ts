@@ -8,8 +8,9 @@ import { Config } from "../config/config";
 
 export function run() {
     const program = new Command();
+    const version = require("../../package.json").version;
     program
-        .version("0.0.1")
+        .version(version, "-v, --version", "output the version number")        
         .option("--rootDir <path>", "the directory of project to be transfered")
         .parse(process.argv);
 
@@ -25,14 +26,14 @@ export function run() {
 
 export function start(rootDir: string) {
     console.log("******************* Webpack to Vite *******************");
-    console.log(`project path: ${rootDir}`);
-
-    const cwd = process.cwd();
+    console.log(`Project path: ${rootDir}`);
+    
     if (!fs.existsSync(rootDir)) {
-        console.error(`project path is not correct : ${rootDir}`);
+        console.error(`Project path is not correct : ${rootDir}`);
         return;
     }
 
+    const cwd = process.cwd();
     rootDir = path.resolve(rootDir);
 
     //TODO:how to deal with the index.html in the project,
