@@ -20,6 +20,7 @@ export function genePackageJson (packageJsonPath: string): void {
   if (vueVersion === 3) {
     packageJson.devDependencies['@vue/compiler-sfc'] = constants.VUE_COMPILER_SFC_VERSION
     packageJson.devDependencies['@vitejs/plugin-vue'] = constants.VITE_PLUGIN_VUE_VERSION
+    packageJson.devDependencies['@vitejs/plugin-vue-jsx'] = constants.VITE_PLUGIN_VUE_JSX_VERSION
   } else if (vueVersion === 2) {
     packageJson.devDependencies['vite-plugin-vue2'] = constants.VITE_PLUGIN_VUE_TWO_VERSION
   }
