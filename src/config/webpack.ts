@@ -1,4 +1,4 @@
-import { Config, DevServer } from "./config";
+import { Config, DevServer } from './config';
 
 export interface WebpackConfig extends Config {
     mode?: string;

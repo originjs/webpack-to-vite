@@ -12,8 +12,8 @@ export function removeUndefined(obj: unknown):unknown {
 }
 
 export function getVueVersion(rootDir: string): number {
-    let vueVersion = DEFAULT_VUE_VERSION;
-    const jsonPath = path.resolve(rootDir, "package.json");
+    const vueVersion = DEFAULT_VUE_VERSION;
+    const jsonPath = path.resolve(rootDir, 'package.json');
     if (!fs.existsSync(jsonPath)) {
         return vueVersion;
     }
@@ -24,7 +24,7 @@ export function getVueVersion(rootDir: string): number {
     }
     let dep = getVueDependency(jsonObj);
     if (dep['vue'] == undefined) {
-        const nodePath = path.resolve(rootDir, "node_modules/vue/package.json");
+        const nodePath = path.resolve(rootDir, 'node_modules/vue/package.json');
         if (!fs.existsSync(nodePath)) {
             return vueVersion;
         }

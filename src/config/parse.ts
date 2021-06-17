@@ -1,6 +1,6 @@
-import fs from "fs";
-import { WebpackConfig } from "./webpack";
-import { VueCliConfig } from "./vuecli";
+import fs from 'fs';
+import { WebpackConfig } from './webpack';
+import { VueCliConfig } from './vuecli';
 
 export async function parseWebpackConfig(
     configPath: string

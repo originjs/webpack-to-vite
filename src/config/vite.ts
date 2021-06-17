@@ -1,4 +1,4 @@
-import type { UserConfig, ResolveOptions } from "vite";
+import type { UserConfig, ResolveOptions } from 'vite';
 
 export class RawValue {
     value: string;
@@ -11,7 +11,7 @@ export class RawValue {
 }
 
 export declare interface ViteConfig
-    extends Omit<UserConfig, "plugins" | "resolve"> {
+    extends Omit<UserConfig, 'plugins' | 'resolve'> {
     plugins?: RawValue[];
 
     resolve?: ResolveOptions & {

@@ -1,4 +1,4 @@
-import { TransformContext } from "./context";
+import { TransformContext } from './context';
 import { ViteConfig } from '../config/vite';
 /**
  * general implementation for vue.config.js and webpack.config.js

@@ -91,7 +91,7 @@ export class VueCliTransformer implements Transformer {
             }
         })();
         const defaultAlias = {};
-        defaultAlias['/^~/'] = '';
+        defaultAlias['/^~/'] = 'path.resolve(__dirname,\'src\')';
         defaultAlias['@'] = 'path.resolve(__dirname,\'src\')';
         const alias = {
             ...defaultAlias,
@@ -132,7 +132,7 @@ export class VueCliTransformer implements Transformer {
         return false;
     }
 
-    public transformVue(context: TransformContext) {
+    public transformVue(context: TransformContext) : void {
         const plugins: RawValue[] = [];
         if (context.vueVersion === 2) {
             context.importList.push(
