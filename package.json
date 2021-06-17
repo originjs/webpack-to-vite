@@ -51,5 +51,15 @@
     "webpack-chain": "6.3.1",
     "webpack-merge": "4.2.2",
     "yargs": "^17.0.1"
+  },
+  "gitHooks": {
+    "pre-commit": "lint-staged",
+    "commit-msg": "node scripts/verifyCommit.js"
+  },
+  "lint-staged": {
+    "*.{js,jsx,vue,ts,tsx}": [
+        "eslint --fix",
+        "git add"
+    ]
   }
 }
