@@ -4,7 +4,7 @@ import path from 'path'
 import * as constants from '../constants/constants'
 
 // TODO: compatible with vue2 and vue3
-export function genePackageJson(packageJsonPath: string): void {
+export function genePackageJson (packageJsonPath: string): void {
   const rootDir = path.dirname(packageJsonPath)
   const source = readSync(packageJsonPath)
   if (source === '') {
@@ -25,11 +25,11 @@ export function genePackageJson(packageJsonPath: string): void {
   }
 
   packageJson.devDependencies['vite-plugin-env-compatible'] = constants.VITE_PLUGIN_ENV_COMPATIBLE
-  packageJson.devDependencies['vite'] = constants.VITE_VERSION
+  packageJson.devDependencies.vite = constants.VITE_VERSION
 
   // sass support
-  if (packageJson.devDependencies['node-sass'] && !packageJson.devDependencies['sass']) {
-    packageJson.devDependencies['sass'] = constants.SASS_VERSION
+  if (packageJson.devDependencies['node-sass'] && !packageJson.devDependencies.sass) {
+    packageJson.devDependencies.sass = constants.SASS_VERSION
   }
 
   // add vite dev script

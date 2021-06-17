@@ -5,14 +5,14 @@ import { writeSync } from '../utils/file'
 import { TemplateData } from '../config/config'
 import { RawValue } from '../config/vite'
 
-function isObject(obj) {
+function isObject (obj) {
   return obj !== null && (typeof obj === 'object' || typeof obj === 'function')
 }
 
-export function serializeObject(val: unknown): string {
-  const seen = [];
+export function serializeObject (val: unknown): string {
+  const seen = []
 
-  function serializeInternal(val, pad) {
+  function serializeInternal (val, pad) {
     const newLine = '\n'
     const indent = '    '
     pad = pad || ''
@@ -109,7 +109,7 @@ export function serializeObject(val: unknown): string {
   return serializeInternal(val, '')
 }
 
-export function render(outDir: string, templatePath: string, data: TemplateData): void {
+export function render (outDir: string, templatePath: string, data: TemplateData): void {
   const template = fs.readFileSync(templatePath, 'utf-8')
   const outputCode = ejs.compile(template, {})(data)
   const outputFilePath = path.resolve(outDir, 'vite.config.js')
