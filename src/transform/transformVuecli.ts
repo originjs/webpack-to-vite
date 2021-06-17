@@ -1,7 +1,7 @@
 import { parseVueCliConfig } from '../config/parse';
 import Config from 'webpack-chain';
 import merge from 'webpack-merge';
-import { Transformer } from './transformer';
+import { initViteConfig, Transformer, useJsx } from './transformer';
 import { ViteConfig, RawValue } from '../config/vite';
 import path from 'path';
 import { TransformContext } from './context';
@@ -15,8 +15,8 @@ export class VueCliTransformer implements Transformer {
 
     context : TransformContext = {
         vueVersion: DEFAULT_VUE_VERSION,
-        jsx: this.useJsx(),
-        config: {},
+        jsx: useJsx(),
+        config: initViteConfig(),
         importList: [],
     }
 
@@ -30,7 +30,7 @@ export class VueCliTransformer implements Transformer {
 
         const css = vueConfig.css || {};
 
-        //Base public path
+        // base public path
         config.base =
             process.env.PUBLIC_URL || vueConfig.publicPath || vueConfig.baseUrl;
 
@@ -57,7 +57,7 @@ export class VueCliTransformer implements Transformer {
             config.server.proxy = devServer.proxy;
         }
 
-        //build options
+        // build options
         config.build = config.build || {};
         config.build.outDir = vueConfig.outputDir;
         const cssCodeSplit = Boolean(css.extract);
@@ -89,8 +89,7 @@ export class VueCliTransformer implements Transformer {
                 return (originConfig.resolve && originConfig.resolve.alias) || {};
             }
         })();
-        const finalAlias = [];
-        finalAlias.push({ find: new RawValue('/^~/'), replacement: ''});
+        const defaultAlias = [];
         const alias = {
             '@':`${rootDir}/src`,
             ...aliasOfConfigureWebpackObjectMode,
@@ -99,37 +98,14 @@ export class VueCliTransformer implements Transformer {
         }
         Object.keys(alias).forEach((key) => {
             const relativePath = path.relative(rootDir,alias[key]).replace(/\\/g,'/');
-            finalAlias.push({
+            defaultAlias.push({
                 find: key,
                 replacement: new RawValue(`path.resolve(__dirname,'${relativePath}')`),
             });
         });
 
-        config.resolve = {};
-        config.resolve.alias = finalAlias;
-    
-
-        config.resolve.extensions = [
-            '.mjs',
-            '.js',
-            '.ts',
-            '.jsx',
-            '.tsx',
-            '.json',
-            '.vue',
-        ];
+        config.resolve.alias = defaultAlias;
         return config;
-    }
-
-    public useJsx() : boolean {
-        try {
-            const jsx = require('babel-plugin-transform-vue-jsx');
-            if (jsx) {
-                return true;
-            }
-        } catch (error) {} //eslint-disable-line no-empty
-
-        return false;
     }
 
     public transformVue(context: TransformContext) : void {
