@@ -1,7 +1,7 @@
 import path from 'path';
-import { geneViteConfig } from "../src/generate/geneViteConfig";
+import { geneViteConfig } from '../src/generate/geneViteConfig';
 import fs from 'fs';
-import { serializeObject } from "../src/generate/render";
+import { serializeObject } from '../src/generate/render';
 
 test('geneViteConfig from non exist file', async() => {
     const outputFilePath = path.resolve('tests/out/vite.config.js');
@@ -19,6 +19,21 @@ test('geneViteConfig from vue.config.js', async() => {
    expect(result).toContain('@components');
 });
 
+test('serialize string', () => {
+    const objA = {
+        key1: '\r\n \\src',
+        key2: '\'src\'',
+        key3: '"src"',
+        key4: `newline
+        src`
+    }
+    const resultA = serializeObject(objA);
+    expect(resultA).toMatch('key1: \'\r\n \\src\'');
+    expect(resultA).toMatch('key2: \'\'src\'\'');
+    expect(resultA).toMatch('key3: \'"src"\'');
+    expect(resultA).toMatch('key4: \'newline\n');
+});
+
 test('serializeObject', () => {
     const abbreviatedKey = 'abbreviatedKey'
     const objA = {
@@ -29,7 +44,7 @@ test('serializeObject', () => {
         key5: '0',
         abbreviatedKey
     }
-    let resultA = serializeObject(objA);
+    const resultA = serializeObject(objA);
     expect(resultA).not.toMatch('key1: undefined');
     expect(resultA).not.toMatch('key2: null');
     expect(resultA).toMatch('key3: false');

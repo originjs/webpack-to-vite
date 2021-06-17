@@ -1,15 +1,7 @@
-import {transform, isObject} from 'lodash';
 import path from 'path';
 import { readSync } from './file';
 import { DEFAULT_VUE_VERSION } from '../constants/constants';
 import fs from 'fs';
-
-export function removeUndefined(obj: unknown):unknown {
-    return transform(obj, (result, value, key) => {
-        if (value === undefined || value === null) return;
-        result[key] = isObject(value) ? removeUndefined(value) : value;
-    });
-}
 
 export function getVueVersion(rootDir: string): number {
     const vueVersion = DEFAULT_VUE_VERSION;

@@ -103,9 +103,6 @@ export function serializeObject(val: unknown): string {
       return ret
     }
 
-    val = String(val).replace(/[\r\n]/g, (x) => (x === '\n' ? '\\n' : '\\r'))
-    val = val.replace(/\\?'/g, '\\\'').replace(/\\/g, '\\\\')
-
     return `'${val}'`
   }
 

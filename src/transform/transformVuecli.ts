@@ -1,5 +1,4 @@
 import { parseVueCliConfig } from '../config/parse';
-import { removeUndefined } from '../utils/version';
 import Config from 'webpack-chain';
 import merge from 'webpack-merge';
 import { Transformer } from './transformer';
@@ -24,7 +23,7 @@ export class VueCliTransformer implements Transformer {
     public async transform(rootDir: string): Promise<ViteConfig> {
         this.context.vueVersion = getVueVersion(rootDir);
         this.transformVue(this.context);
-        let config = this.context.config;
+        const config = this.context.config;
 
         const vueConfigFile = path.resolve(rootDir, 'vue.config.js');
         const vueConfig = await parseVueCliConfig(vueConfigFile);
@@ -90,17 +89,26 @@ export class VueCliTransformer implements Transformer {
                 return (originConfig.resolve && originConfig.resolve.alias) || {};
             }
         })();
-        const defaultAlias = {};
-        defaultAlias['/^~/'] = 'path.resolve(__dirname,\'src\')';
-        defaultAlias['@'] = 'path.resolve(__dirname,\'src\')';
+        const finalAlias = [];
+        finalAlias.push({ find: new RawValue('/^~/'), replacement: ''});
         const alias = {
-            ...defaultAlias,
+            '@':`${rootDir}/src`,
             ...aliasOfConfigureWebpackObjectMode,
             ...aliasOfConfigureFunctionMode,
             ...aliasOfChainWebpack,
         }
+        Object.keys(alias).forEach((key) => {
+            const relativePath = path.relative(rootDir,alias[key]).replace(/\\/g,'/');
+            finalAlias.push({
+                find: key,
+                replacement: new RawValue(`path.resolve(__dirname,'${relativePath}')`),
+            });
+        });
 
         config.resolve = {};
+        config.resolve.alias = finalAlias;
+    
+
         config.resolve.extensions = [
             '.mjs',
             '.js',
@@ -110,14 +118,6 @@ export class VueCliTransformer implements Transformer {
             '.json',
             '.vue',
         ];
-        config.resolve.alias = [];
-        Object.keys(alias).forEach((key) => {
-            config.resolve.alias.push({
-                find: key,
-                replacement: alias[key],
-            });
-        });
-        config = removeUndefined(config);
         return config;
     }
 
