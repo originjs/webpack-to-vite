@@ -6,6 +6,7 @@ import path from 'path';
 import { DEFAULT_VUE_VERSION } from '../constants/constants';
 
 // convert webpack.config.js => vite.config.js
+<<<<<<< HEAD
 export class WebpackTransformer implements Transformer {
 
     context : TransformContext = {
@@ -44,3 +45,8 @@ export class WebpackTransformer implements Transformer {
     }
     
 }
+=======
+export class WebpackTransformer {
+
+}
+>>>>>>> 0ab32c6eba2269917a295346b261c66c4bb36889

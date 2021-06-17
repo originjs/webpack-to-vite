@@ -2,7 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import { readSync, writeSync } from '../utils/file'
 
-export function genIndexHtml(root: string): void {
+export function genIndexHtml (root: string): void {
   const filePath = path.resolve(root, 'index.html')
   let htmlContent
   if (fs.existsSync(filePath)) {
@@ -15,7 +15,7 @@ export function genIndexHtml(root: string): void {
   writeSync(filePath, injectedContent)
 }
 
-export function injectHtml(source: string, entries: string[]): string {
+export function injectHtml (source: string, entries: string[]): string {
   const bodyRegex = /<body[^>]*>((.|[\n\r])*)<\/body>/im
   let body = '  <body>\n'
   body += '    <div id="app"></div>\n'
@@ -27,7 +27,7 @@ export function injectHtml(source: string, entries: string[]): string {
   return result
 }
 
-function getVuecliEntries(root: string): string[] {
+function getVuecliEntries (root: string): string[] {
   const entries = []
   const mainFile = path.resolve(root, 'src/main.ts')
   if (fs.existsSync(mainFile)) {
@@ -38,4 +38,3 @@ function getVuecliEntries(root: string): string[] {
   // TODO: vue-cli pages config
   return entries
 }
-

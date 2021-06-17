@@ -13,7 +13,6 @@ describe('transform vue-cli config', () => {
     test('transform vue3', async () => {
         const rootDir = path.resolve('./tests/testdata/transform/vue3')
         const transformer = new VueCliTransformer();
-        transformer.context.jsx = true;
         const viteConfig = await transformer.transform(rootDir);
         expect(viteConfig.plugins).toContainEqual(new RawValue('vue()'));
         expect(viteConfig.plugins).toContainEqual(new RawValue('vueJsx()'));
@@ -22,7 +21,6 @@ describe('transform vue-cli config', () => {
     test('transform vue2 with jsx', async() => {
        const rootDir = path.resolve('./tests/testdata/transform/vue2');
        const transformer = new VueCliTransformer();
-       transformer.context.jsx = true;
        const viteConfig = await transformer.transform(rootDir);
        expect(viteConfig.plugins).toContainEqual(new RawValue('createVuePlugin({jsx:true})'));
     });

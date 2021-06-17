@@ -1,8 +1,9 @@
 import { TransformContext } from './context';
 import { RawValue, ViteConfig } from '../config/vite';
+
 /**
  * general implementation for vue.config.js and webpack.config.js
- * 
+ *
  */
 export interface Transformer{
     context: TransformContext;
@@ -32,15 +33,4 @@ export function initViteConfig() : ViteConfig {
 
     return config;
 
-}
-
-export function useJsx() : boolean {
-    try {
-        const jsx = require('babel-plugin-transform-vue-jsx');
-        if (jsx) {
-            return true;
-        }
-    } catch (error) {} //eslint-disable-line no-empty
-
-    return false;
 }
