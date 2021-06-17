@@ -15,7 +15,6 @@ export class VueCliTransformer implements Transformer {
 
     context : TransformContext = {
         vueVersion: DEFAULT_VUE_VERSION,
-        jsx: this.useJsx(),
         config: {},
         importList: [],
     }
@@ -107,7 +106,7 @@ export class VueCliTransformer implements Transformer {
 
         config.resolve = {};
         config.resolve.alias = finalAlias;
-    
+
 
         config.resolve.extensions = [
             '.mjs',
@@ -121,35 +120,18 @@ export class VueCliTransformer implements Transformer {
         return config;
     }
 
-    public useJsx() : boolean {
-        try {
-            const jsx = require('babel-plugin-transform-vue-jsx');
-            if (jsx) {
-                return true;
-            }
-        } catch (error) {} //eslint-disable-line no-empty
-
-        return false;
-    }
-
     public transformVue(context: TransformContext) : void {
         const plugins: RawValue[] = [];
         if (context.vueVersion === 2) {
             context.importList.push(
                 'import { createVuePlugin } from \'vite-plugin-vue2\';'
             );
-            if (context.jsx) {
-                plugins.push(new RawValue('createVuePlugin({jsx:true})'));
-            } else {
-                plugins.push(new RawValue('createVuePlugin()'));
-            }
+            plugins.push(new RawValue('createVuePlugin({jsx:true})'));
         } else {
             context.importList.push('import vue from \'@vitejs/plugin-vue\';');
             plugins.push(new RawValue('vue()'));
-            if (context.jsx) {
-                context.importList.push('import vueJsx from \'@vitejs/plugin-vue-jsx\';');
-                plugins.push(new RawValue('vueJsx()'));
-            }
+            context.importList.push('import vueJsx from \'@vitejs/plugin-vue-jsx\';');
+            plugins.push(new RawValue('vueJsx()'));
         }
 
         context.importList.push('import envCompatible from \'vite-plugin-env-compatible\';');
