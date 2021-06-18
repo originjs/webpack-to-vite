@@ -1,17 +1,15 @@
 import { parseWebpackConfig } from '../config/parse';
 import { RawValue, ViteConfig } from '../config/vite';
 import { TransformContext } from './context';
-import { initViteConfig, Transformer, useJsx } from './transformer';
+import { initViteConfig, Transformer } from './transformer';
 import path from 'path';
 import { DEFAULT_VUE_VERSION } from '../constants/constants';
 
 // convert webpack.config.js => vite.config.js
-<<<<<<< HEAD
 export class WebpackTransformer implements Transformer {
 
     context : TransformContext = {
         vueVersion: DEFAULT_VUE_VERSION,
-        jsx: useJsx(),
         config: initViteConfig(),
         importList: [],
     }
@@ -45,8 +43,3 @@ export class WebpackTransformer implements Transformer {
     }
     
 }
-=======
-export class WebpackTransformer {
-
-}
->>>>>>> 0ab32c6eba2269917a295346b261c66c4bb36889
