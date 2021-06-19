@@ -36,7 +36,7 @@ export class VueCliTransformer implements Transformer {
       if (css.loaderOptions) {
         config.css = {}
         config.css.preprocessorOptions = css.loaderOptions
-        if (config.css.preprocessorOptions?.sass?.additionalData?.indexOf('scss') && Object.prototype.hasOwnProperty.call(config.css.preprocessorOptions, 'scss')) {
+        if (config.css.preprocessorOptions?.sass?.additionalData?.indexOf('scss') && !Object.prototype.hasOwnProperty.call(config.css.preprocessorOptions, 'scss')) {
           config.css.preprocessorOptions.scss = JSON.parse(JSON.stringify(css.loaderOptions.sass))
         }
       }
