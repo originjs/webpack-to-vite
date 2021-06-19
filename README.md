@@ -29,4 +29,6 @@ node ./bin/index --rootDir <project path>
 
 The following is a list of projects that successfully converted from a webpack project to a vite project using the tool
 
-- [helloworld](https://github.com/originjs/webpack-to-vite-demos/tree/main/helloworld-vue2)
+- [helloworld-vue2](https://github.com/originjs/webpack-to-vite-demos/tree/main/helloworld-vue2)
+- [helloworld-vue3](https://github.com/originjs/webpack-to-vite-demos/tree/main/helloworld-vue3)
+- [helloworld-webpack](https://github.com/originjs/webpack-to-vite-demos/tree/main/helloworld-webpack)
