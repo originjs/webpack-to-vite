@@ -1,5 +1,6 @@
 export interface Config {
     rootDir?: string;
+    type?: string;
 }
 
 export interface DevServer {

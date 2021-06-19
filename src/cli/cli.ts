@@ -11,30 +11,31 @@ export function run (): void {
   const version = require('../../package.json').version
   program
     .version(version, '-v, --version', 'output the version number')
-    .option('--rootDir <path>', 'the directory of project to be transfered')
+    .option('-d --rootDir <path>', 'the directory of project to be transfered')
+    .option('-t --type <type>', 'the type of the project, use vue-cli or webpack')
     .parse(process.argv)
 
-  const keys = ['rootDir']
+  const keys = ['rootDir', 'type']
   const config: Config = {}
   keys.forEach(function (k) {
     if (Object.prototype.hasOwnProperty.call(program.opts(), k)) {
       config[k] = program.opts()[k]
     }
   })
-  start(config.rootDir)
+  start(config)
 }
 
-export function start (rootDir: string): void {
+export function start (config : Config): void {
   console.log('******************* Webpack to Vite *******************')
-  console.log(`Project path: ${rootDir}`)
+  console.log(`Project path: ${config.rootDir}`)
 
-  if (!fs.existsSync(rootDir)) {
-    console.error(`Project path is not correct : ${rootDir}`)
+  if (!fs.existsSync(config.rootDir)) {
+    console.error(`Project path is not correct : ${config.rootDir}`)
     return
   }
 
   const cwd = process.cwd()
-  rootDir = path.resolve(rootDir)
+  const rootDir = path.resolve(config.rootDir)
 
   // TODO:how to deal with the index.html in the project,
   // notice that this will not choose the root directory in non-vite projects
