@@ -1,7 +1,7 @@
 import { parseVueCliConfig } from '../config/parse'
 import Config from 'webpack-chain'
 import merge from 'webpack-merge'
-import { initViteConfig, Transformer } from './transformer'
+import { initViteConfig, Transformer, transformImporters } from './transformer'
 import { ViteConfig, RawValue } from '../config/vite'
 import path from 'path'
 import { TransformContext } from './context'
@@ -20,7 +20,7 @@ export class VueCliTransformer implements Transformer {
 
     public async transform (rootDir: string): Promise<ViteConfig> {
       this.context.vueVersion = getVueVersion(rootDir)
-      this.transformVue(this.context)
+      transformImporters(this.context)
       const config = this.context.config
 
       const vueConfigFile = path.resolve(rootDir, 'vue.config.js')
@@ -92,38 +92,8 @@ export class VueCliTransformer implements Transformer {
         })
       })
 
-      config.resolve = {}
       config.resolve.alias = defaultAlias
-      config.resolve.extensions = [
-        '.mjs',
-        '.js',
-        '.ts',
-        '.jsx',
-        '.tsx',
-        '.json',
-        '.vue'
-      ]
       return config
-    }
-
-    public transformVue (context: TransformContext) : void {
-      const plugins: RawValue[] = []
-      if (context.vueVersion === 2) {
-        context.importList.push(
-          'import { createVuePlugin } from \'vite-plugin-vue2\';'
-        )
-        plugins.push(new RawValue('createVuePlugin({jsx:true})'))
-      } else {
-        context.importList.push('import vue from \'@vitejs/plugin-vue\';')
-        plugins.push(new RawValue('vue()'))
-        context.importList.push('import vueJsx from \'@vitejs/plugin-vue-jsx\';')
-        plugins.push(new RawValue('vueJsx()'))
-      }
-
-      context.importList.push('import envCompatible from \'vite-plugin-env-compatible\';')
-      plugins.push(new RawValue('envCompatible()'))
-
-      context.config.plugins = plugins
     }
 
     public transformDevServer (vueConfig, config): void {

@@ -1,7 +1,7 @@
 import { parseWebpackConfig } from '../config/parse'
 import { RawValue, ViteConfig } from '../config/vite'
 import { TransformContext } from './context'
-import { initViteConfig, Transformer } from './transformer'
+import { initViteConfig, Transformer, transformImporters } from './transformer'
 import path from 'path'
 import { DEFAULT_VUE_VERSION } from '../constants/constants'
 
@@ -15,6 +15,7 @@ export class WebpackTransformer implements Transformer {
 
     public async transform (rootDir: string): Promise<ViteConfig> {
       const webpackConfig = await parseWebpackConfig(path.resolve(rootDir, 'webpack.config.js'))
+      transformImporters(this.context)
       const config = this.context.config
 
       // convert base config
@@ -53,8 +54,6 @@ export class WebpackTransformer implements Transformer {
           replacement: new RawValue(`path.resolve(__dirname,'${relativePath}')`)
         })
       })
-
-      config.resolve = {}
       config.resolve.alias = defaultAlias
 
       return config
