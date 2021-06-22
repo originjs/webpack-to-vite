@@ -36,9 +36,9 @@ export class VueCliTransformer implements Transformer {
       if (css.loaderOptions) {
         config.css = {}
         config.css.preprocessorOptions = css.loaderOptions
-        if (config.css.preprocessorOptions?.sass?.additionalData?.indexOf('scss') && !Object.prototype.hasOwnProperty.call(config.css.preprocessorOptions, 'scss')) {
-          config.css.preprocessorOptions.scss = JSON.parse(JSON.stringify(css.loaderOptions.sass))
-        }
+        if (config.css.preprocessorOptions?.sass?.additionalData?.indexOf('scss') && !Object.prototype.hasOwnProperty.call(config.css.preprocessorOptions, 'scss')) {
+          config.css.preprocessorOptions.scss = JSON.parse(JSON.stringify(css.loaderOptions.sass))
+        }
       }
 
       // server options
@@ -77,6 +77,7 @@ export class VueCliTransformer implements Transformer {
         }
       })()
       const defaultAlias = []
+      defaultAlias.push({ find: new RawValue('/^~/'), replacement: '' })
       const alias = {
         '@': `${rootDir}/src`,
         ...aliasOfConfigureWebpackObjectMode,
@@ -93,7 +94,15 @@ export class VueCliTransformer implements Transformer {
 
       config.resolve = {}
       config.resolve.alias = defaultAlias
-
+      config.resolve.extensions = [
+        '.mjs',
+        '.js',
+        '.ts',
+        '.jsx',
+        '.tsx',
+        '.json',
+        '.vue'
+      ]
       return config
     }
 
