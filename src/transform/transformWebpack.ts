@@ -27,7 +27,20 @@ export class WebpackTransformer implements Transformer {
       //      pc: './wap/index.js'
       // }
       config.mode = webpackConfig.mode
+      config.build = {}
 
+      // convert entry
+      if (webpackConfig.entry !== '' && webpackConfig.entry?.length !== 0) {
+        config.build.rollupOptions = {}
+        config.build.rollupOptions.input = webpackConfig.entry
+      }
+      // convert output
+      if (webpackConfig.output?.path !== '') {
+        const relativePath = path.relative(rootDir, webpackConfig.output.path).replace(/\\/g, '/')
+        config.build.outDir = new RawValue(`path.resolve(__dirname, '${relativePath}')`)
+      }
+
+      // convert alias
       const defaultAlias = []
 
       const alias = {
@@ -44,6 +57,6 @@ export class WebpackTransformer implements Transformer {
       config.resolve = {}
       config.resolve.alias = defaultAlias
 
-      return null
+      return config
     }
 }

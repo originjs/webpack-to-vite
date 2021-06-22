@@ -12,10 +12,10 @@ export function run (): void {
   program
     .version(version, '-v, --version', 'output the version number')
     .option('-d --rootDir <path>', 'the directory of project to be transfered')
-    .option('-t --type <type>', 'the type of the project, use vue-cli or webpack')
+    .option('-t --projectType <type>', 'the type of the project, use vue-cli or webpack')
     .parse(process.argv)
 
-  const keys = ['rootDir', 'type']
+  const keys = ['rootDir', 'projectType']
   const config: Config = {}
   keys.forEach(function (k) {
     if (Object.prototype.hasOwnProperty.call(program.opts(), k)) {
@@ -43,7 +43,7 @@ export function start (config : Config): void {
 
   genPackageJson(path.resolve(rootDir, 'package.json'))
 
-  geneViteConfig(rootDir, rootDir)
+  geneViteConfig(rootDir, rootDir, config.projectType)
 
   console.log('************************ Done ! ************************')
   const pkgManager = fs.existsSync(path.resolve(rootDir, 'yarn.lock'))

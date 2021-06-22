@@ -1,6 +1,6 @@
 export interface Config {
     rootDir?: string;
-    type?: string;
+    projectType?: string;
 }
 
 export interface DevServer {

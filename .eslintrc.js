@@ -3,7 +3,9 @@ module.exports = {
     es2021: true,
     node: true
   },
-  extends: 'standard',
+  extends: [
+    'standard'
+  ],
   parser: '@typescript-eslint/parser',
   parserOptions: {
     ecmaVersion: 12,
@@ -13,5 +15,6 @@ module.exports = {
     '@typescript-eslint'
   ],
   rules: {
+    semi: 0
   }
 }
