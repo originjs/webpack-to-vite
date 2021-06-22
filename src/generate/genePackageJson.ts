@@ -35,7 +35,7 @@ export function genePackageJson (packageJsonPath: string): void {
 
   // add vite dev script
   packageJson.scripts['serve-vite'] = 'vite'
-  packageJson.scripts['build-vite'] = 'build vite'
+  packageJson.scripts['build-vite'] = 'vite build'
 
   writeSync(packageJsonPath, JSON.stringify(packageJson, null, 2))
 }
