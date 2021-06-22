@@ -94,7 +94,15 @@ export class VueCliTransformer implements Transformer {
 
       config.resolve = {}
       config.resolve.alias = defaultAlias
-
+      config.resolve.extensions = [
+        '.mjs',
+        '.js',
+        '.ts',
+        '.jsx',
+        '.tsx',
+        '.json',
+        '.vue'
+      ]
       return config
     }
 
