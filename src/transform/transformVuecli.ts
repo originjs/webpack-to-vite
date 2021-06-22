@@ -1,12 +1,12 @@
-import { parseVueCliConfig } from '../config/parse';
-import Config from 'webpack-chain';
-import merge from 'webpack-merge';
-import { initViteConfig, Transformer } from './transformer';
-import { ViteConfig, RawValue } from '../config/vite';
-import path from 'path';
-import { TransformContext } from './context';
-import { getVueVersion } from '../utils/version';
-import { DEFAULT_VUE_VERSION } from '../constants/constants';
+import { parseVueCliConfig } from '../config/parse'
+import Config from 'webpack-chain'
+import merge from 'webpack-merge'
+import { initViteConfig, Transformer } from './transformer'
+import { ViteConfig, RawValue } from '../config/vite'
+import path from 'path'
+import { TransformContext } from './context'
+import { getVueVersion } from '../utils/version'
+import { DEFAULT_VUE_VERSION } from '../constants/constants'
 
 /**
  * parse vue.config.js options and transform to vite.config.js
@@ -42,21 +42,7 @@ export class VueCliTransformer implements Transformer {
       }
 
       // server options
-      if (vueConfig.devServer) {
-        const devServer = vueConfig.devServer
-        config.server = {}
-        config.server.strictPort = false
-        config.server.port = Number(process.env.PORT) || devServer.port
-        const host = process.env.DEV_HOST || devServer.public || devServer.host
-        if (host) {
-          config.server.host = host
-            .replace('http://', '')
-            .replace('https://', '')
-        }
-        config.server.open = devServer.open
-        config.server.https = devServer.https
-        config.server.proxy = devServer.proxy
-      }
+      vueConfig.devServer && this.transformDevServer(vueConfig, config)
 
       // build options
       config.build = config.build || {}
@@ -129,5 +115,43 @@ export class VueCliTransformer implements Transformer {
       plugins.push(new RawValue('envCompatible()'))
 
       context.config.plugins = plugins
+    }
+
+    public transformDevServer (vueConfig, config): void {
+      const devServer = vueConfig.devServer
+      config.server = {}
+      config.server.strictPort = false
+      config.server.port = Number(process.env.PORT) || devServer.port
+      const host = process.env.DEV_HOST || devServer.public || devServer.host
+      if (host) {
+        config.server.host = host
+          .replace('http://', '')
+          .replace('https://', '')
+      }
+      config.server.open = devServer.open
+      config.server.https = devServer.https
+      const proxy = devServer.proxy
+      if (typeof proxy === 'object') {
+        for (const proxyKey in proxy) {
+          if (Object.prototype.hasOwnProperty.call(proxy, proxyKey)) {
+            const pathRewrite = proxy[proxyKey].pathRewrite
+            if (!pathRewrite) {
+              break
+            }
+            if (typeof pathRewrite === 'object') {
+              Object.keys(pathRewrite).forEach(key => {
+                const content = new RegExp(key)
+                const replaceContent = pathRewrite[key] || "''"
+                proxy[proxyKey].rewrite = new RawValue(`(path) => path.replace(${content}, ${replaceContent})`)
+              })
+            }
+            if (typeof pathRewrite === 'function') {
+              proxy[proxyKey].rewrite = proxy[proxyKey].pathRewrite
+            }
+            delete proxy[proxyKey].pathRewrite
+          }
+        }
+      }
+      config.server.proxy = proxy
     }
 }

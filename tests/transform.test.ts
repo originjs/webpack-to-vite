@@ -1,6 +1,7 @@
 import { VueCliTransformer } from "../src/transform/transformVuecli";
 import path from 'path';
-import {RawValue} from "../src/config/vite";
+import {RawValue, ViteConfig} from "../src/config/vite";
+import {VueCliConfig} from "../src/config/vuecli";
 
 test('transformer', async() => {
     const configPath = path.resolve('./tests/testdata/vue.config.js');
@@ -23,5 +24,32 @@ describe('transform vue-cli config', () => {
        const transformer = new VueCliTransformer();
        const viteConfig = await transformer.transform(rootDir);
        expect(viteConfig.plugins).toContainEqual(new RawValue('createVuePlugin({jsx:true})'));
+    });
+
+    test('transform devServer', () => {
+        const vueConfig: VueCliConfig = {
+            devServer: {
+                proxy: {
+                    '/api': {
+                        pathRewrite: {
+                            '^/remove/api' : '',
+                        }
+                    }
+                }
+            }
+        }
+        const viteConfig: ViteConfig = {}
+        const transformer = new VueCliTransformer();
+        transformer.transformDevServer(vueConfig, viteConfig)
+        expect(viteConfig).toEqual({
+            server: {
+                proxy: {
+                    '/api': {
+                        rewrite: new RawValue(`(path) => path.replace(/^\\/remove\\/api/, '')`)
+                    }
+                },
+                "strictPort": false
+            }
+        });
     });
 })
