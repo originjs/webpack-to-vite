@@ -27,7 +27,7 @@ export function getVueVersion (rootDir: string): number {
   if (jsonObj === '' || dep.vue === undefined) {
     return vueVersion
   }
-  return Number(dep.vue.replace('^', '').replace('~', '').split('.')[0])
+  return Number(dep.vue.replace(/~|\^/, '').split('.')[0])
 }
 
 function getVueDependency (jsonObj: any) : any {
