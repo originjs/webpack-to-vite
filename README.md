@@ -35,4 +35,4 @@ The following is a list of projects that successfully converted from a webpack p
 
 ## Awesome projects successfully converted
 
-- [vue-manage-system](https://github.com/lin-xin/vue-manage-system)
+- [vue-manage-system](https://github.com/lin-xin/vue-manage-system) -> [vue-manage-system-vite](https://github.com/originjs/webpack-to-vite-demos/tree/main/vue-manage-system-vite)
