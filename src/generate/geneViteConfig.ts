@@ -9,7 +9,7 @@ export async function geneViteConfig (rootDir: string, outDir: string, projectTy
   const viteConfig = await transformer.transform(rootDir)
   const configStr = serializeObject(viteConfig)
   const data: TemplateData = {
-    IMPORT_LIST: transformer.context.importList,
+    IMPORT_LIST: transformer.context.importers,
     USER_CONFIG: configStr
   }
 

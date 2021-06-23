@@ -49,19 +49,19 @@ export function getTransformer (projectType: string) : Transformer {
 
 export function transformImporters (context: TransformContext) : void {
   const plugins: RawValue[] = []
-  if (context.vueVersion === 2) {
-    context.importList.push(
+  if (context.vueVersion === 3) {
+    context.importers.push('import vue from \'@vitejs/plugin-vue\';')
+    plugins.push(new RawValue('vue()'))
+    context.importers.push('import vueJsx from \'@vitejs/plugin-vue-jsx\';')
+    plugins.push(new RawValue('vueJsx()'))
+  } else {
+    context.importers.push(
       'import { createVuePlugin } from \'vite-plugin-vue2\';'
     )
     plugins.push(new RawValue('createVuePlugin({jsx:true})'))
-  } else {
-    context.importList.push('import vue from \'@vitejs/plugin-vue\';')
-    plugins.push(new RawValue('vue()'))
-    context.importList.push('import vueJsx from \'@vitejs/plugin-vue-jsx\';')
-    plugins.push(new RawValue('vueJsx()'))
   }
 
-  context.importList.push('import envCompatible from \'vite-plugin-env-compatible\';')
+  context.importers.push('import envCompatible from \'vite-plugin-env-compatible\';')
   plugins.push(new RawValue('envCompatible()'))
 
   context.config.plugins = plugins

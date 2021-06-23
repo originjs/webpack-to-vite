@@ -10,7 +10,7 @@ export class WebpackTransformer implements Transformer {
     context : TransformContext = {
       vueVersion: DEFAULT_VUE_VERSION,
       config: initViteConfig(),
-      importList: []
+      importers: []
     }
 
     public async transform (rootDir: string): Promise<ViteConfig> {
