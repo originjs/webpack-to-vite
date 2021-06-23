@@ -62,6 +62,9 @@ export function transformImporters (context: TransformContext) : void {
   }
 
   context.importers.push('import envCompatible from \'vite-plugin-env-compatible\';')
+  context.importers.push('import { viteCommonjs } from \'@originjs/vite-plugin-commonjs\';')
+  // TODO scan files to determine whether you need to add the plugin
+  plugins.push(new RawValue('viteCommonjs()'))
   plugins.push(new RawValue('envCompatible()'))
 
   context.config.plugins = plugins
