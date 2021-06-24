@@ -22,10 +22,10 @@ yarn build
 ```
 3. convert
 ```
-node ./bin/index --rootDir <project path>
+node ./bin/index -d <project path>
 ```
 
-## Projects
+## Demos
 
 The following is a list of projects that successfully converted from a webpack project to a vite project using the tool
 
