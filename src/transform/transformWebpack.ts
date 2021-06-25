@@ -31,7 +31,7 @@ export class WebpackTransformer implements Transformer {
       config.build = {}
 
       // convert entry
-      if (webpackConfig.entry !== '' && webpackConfig.entry?.length !== 0) {
+      if (webpackConfig.entry !== '' && webpackConfig.entry !== null) {
         config.build.rollupOptions = {}
         config.build.rollupOptions.input = webpackConfig.entry
       }

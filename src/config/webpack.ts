@@ -25,7 +25,7 @@ export interface Resolve {
 
 export interface WebpackConfig extends Config {
     mode?: string;
-    entry?: string | string[];
+    entry?: string | string[] | { [entryAlias: string]: string };
     output?: Output;
     module?: Module;
     resolve?: Resolve;

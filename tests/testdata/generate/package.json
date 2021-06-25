@@ -7,7 +7,7 @@
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
     "serve-vite": "vite",
-    "build-vite": "build vite"
+    "build-vite": "vite build"
   },
   "dependencies": {
     "core-js": "^3.6.5",
@@ -24,7 +24,8 @@
     "@vitejs/plugin-vue": "^1.2.1",
     "vite-plugin-env-compatible": "^1.0.0",
     "vite": "^2.1.5",
-    "@vitejs/plugin-vue-jsx": "^1.1.5"
+    "@vitejs/plugin-vue-jsx": "^1.1.5",
+    "@originjs/vite-plugin-commonjs": "^1.0.0-beta3"
   },
   "eslintConfig": {
     "root": true,
