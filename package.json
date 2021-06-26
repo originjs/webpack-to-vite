@@ -7,7 +7,8 @@
     "build": "tsc -p tsconfig.json",
     "test": "jest",
     "test-c": "jest-coverage",
-    "lint": "eslint --ext .js,.ts src/"
+    "lint": "eslint --ext .js,.ts src/",
+    "postinstall": "patch-package"
   },
   "repository": {
     "type": "git",
@@ -39,10 +40,12 @@
     "eslint-plugin-promise": "^5.1.0",
     "jest": "^27.0.4",
     "lint-staged": "^11.0.0",
+    "postinstall-postinstall": "^2.1.0",
+    "patch-package": "^6.4.7",
     "prettier": "^2.3.1",
     "ts-jest": "^27.0.3",
     "typescript": "^4.3.2",
-    "vite": "^2.3.7",
+    "vite": "2.3.8",
     "vite-plugin-env-compatible": "^1.0.0",
     "vite-plugin-vue2": "^1.6.2",
     "vue-loader": "^15.9.7",
