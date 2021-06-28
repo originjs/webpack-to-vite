@@ -33,7 +33,13 @@ export class WebpackTransformer implements Transformer {
       // convert entry
       if (webpackConfig.entry !== '' && webpackConfig.entry !== null) {
         config.build.rollupOptions = {}
-        config.build.rollupOptions.input = webpackConfig.entry
+        if (isObject(webpackConfig.entry)) {
+          webpackConfig.entry = suitableFormat(webpackConfig.entry)
+        } else if (typeof webpackConfig.entry === 'function') {
+          config.build.rollupOptions.input = webpackConfig.entry()
+        } else {
+          config.build.rollupOptions.input = webpackConfig.entry
+        }
       }
       // convert output
       if (webpackConfig.output?.path !== '') {
@@ -57,12 +63,33 @@ export class WebpackTransformer implements Transformer {
       config.resolve.alias = defaultAlias
 
       // convert devServer
-      config.server.host = webpackConfig.devServer.host
-      config.server.port = webpackConfig.devServer.port
-      config.server.proxy = webpackConfig.devServer.proxy
-      config.server.https = webpackConfig.devServer.https
-      config.server.base = webpackConfig.devServer.contentBase
+      if (webpackConfig.devServer !== undefined) {
+        config.server.host = webpackConfig.devServer.host
+        config.server.port = webpackConfig.devServer.port
+        config.server.proxy = webpackConfig.devServer.proxy
+        config.server.https = webpackConfig.devServer.https
+        config.server.base = webpackConfig.devServer.contentBase
+      }
 
       return config
     }
+}
+
+function isObject (value : any) : boolean {
+  return Object.prototype.toString.call(value) === '[object Object]';
+}
+
+function suitableFormat (entry: Object) : { [entryAlias: string]: string } {
+  const res : { [entryAlias: string]: string } = {}
+  Object.keys(entry).forEach(function (name) {
+    if (!Array.isArray(entry[name])) {
+      res[name] = entry[name]
+      return
+    }
+    entry[name].forEach((item, index) => {
+      const key = name.concat(index)
+      res[key] = item
+    })
+  });
+  return res
 }
