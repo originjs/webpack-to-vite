@@ -1,0 +1,32 @@
+diff --git a/node_modules/vite/dist/node/chunks/dep-0ed4fbc0.js b/node_modules/vite/dist/node/chunks/dep-0ed4fbc0.js
+index 95f4a23..b1e9d8c 100644
+--- a/node_modules/vite/dist/node/chunks/dep-0ed4fbc0.js
++++ b/node_modules/vite/dist/node/chunks/dep-0ed4fbc0.js
+@@ -45054,8 +45054,10 @@ function esbuildScanPlugin(config, container, depImports, missing, entries) {
+                     }
+                     else {
+                         // linked package, keep crawling
++                        const namespace = htmlTypesRE.test(resolved) ? 'html' : undefined;
+                         return {
+-                            path: path__default.resolve(resolved)
++                            path: path__default.resolve(resolved),
++                            namespace
+                         };
+                     }
+                 }
+diff --git a/node_modules/vite/src/node/optimizer/scan.ts b/node_modules/vite/src/node/optimizer/scan.ts
+index 7500ad2..53cf676 100644
+--- a/node_modules/vite/src/node/optimizer/scan.ts
++++ b/node_modules/vite/src/node/optimizer/scan.ts
+@@ -289,8 +289,10 @@ function esbuildScanPlugin(
+               return externalUnlessEntry({ path: id })
+             } else {
+               // linked package, keep crawling
++              const namespace = htmlTypesRE.test(resolved) ? 'html' : undefined
+               return {
+-                path: path.resolve(resolved)
++                path: path.resolve(resolved),
++                namespace
+               }
+             }
+           } else {
