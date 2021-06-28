@@ -23,7 +23,7 @@ export async function parseWebpackConfig (
   }
   // default config files: webpack.base.js、webpack.dev.js、webpack.prod.js|webpack.build.js|webpack.production.js
   // TODO: production config
-  const devConfigPath = path.resolve(buildDir, 'webpack.dev.js')
+  const devConfigPath = path.resolve(buildDir, 'webpack.dev.conf.js')
   if (!fs.existsSync(devConfigPath)) {
     console.error(`${devConfigPath} not exists`)
     return webpackConfig

@@ -1,6 +1,6 @@
 const webpack = require('webpack')
 const merge = require('webpack-merge')
-const baseWebpackConfig = require('./webpack.base.js')
+const baseWebpackConfig = require('./webpack.base.conf.js')
 
 const entry = {
   app: './src/app.js'

@@ -1,5 +1,3 @@
-import vite from 'vite';
-
 export interface Config {
     rootDir?: string;
     projectType?: string;
@@ -11,7 +9,7 @@ export interface DevServer {
     host?: string;
     open?: boolean;
     port?: number;
-    proxy?: Record<string, string | vite.ProxyOptions>;
+    proxy?: any;
     public?: string;
 }
 

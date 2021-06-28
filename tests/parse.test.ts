@@ -13,9 +13,9 @@ test('parse webpack.config.js', async () => {
   expect(webpackConfig.entry).toEqual('./main.js');
 });
 
-test('parse build/webpack.dev.js', async () => {
+test('parse build/webpack.dev.conf.js', async () => {
   let webpackConfig: WebpackConfig = {};
-  const filePath = path.resolve('tests/testdata/webpack/build/webpack.dev.js');
+  const filePath = path.resolve('tests/testdata/webpack/build/webpack.dev.conf.js');
   await parseWebpackConfig(filePath).then(res => {
     webpackConfig = res
   })
