@@ -56,6 +56,13 @@ export class WebpackTransformer implements Transformer {
       })
       config.resolve.alias = defaultAlias
 
+      // convert devServer
+      config.server.host = webpackConfig.devServer.host
+      config.server.port = webpackConfig.devServer.port
+      config.server.proxy = webpackConfig.devServer.proxy
+      config.server.https = webpackConfig.devServer.https
+      config.server.base = webpackConfig.devServer.contentBase
+
       return config
     }
 }
