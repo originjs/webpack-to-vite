@@ -70,6 +70,9 @@ export class VueCliTransformer implements Transformer {
       const aliasOfChainWebpack = chainableConfig.resolve.alias.entries()
       const aliasOfConfigureWebpackObjectMode =
             vueConfig?.configureWebpack?.resolve?.alias || {}
+      Object.keys(aliasOfConfigureWebpackObjectMode).forEach((key) => {
+        aliasOfConfigureWebpackObjectMode[key] = `${rootDir}/${aliasOfConfigureWebpackObjectMode[key]}`
+      })
       const aliasOfConfigureFunctionMode = (() => {
         if (typeof vueConfig.configureWebpack === 'function') {
           let originConfig = chainableConfig.toConfig()
