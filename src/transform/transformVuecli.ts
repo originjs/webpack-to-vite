@@ -70,6 +70,9 @@ export class VueCliTransformer implements Transformer {
       const aliasOfChainWebpack = chainableConfig.resolve.alias.entries()
       const aliasOfConfigureWebpackObjectMode =
             vueConfig?.configureWebpack?.resolve?.alias || {}
+      Object.keys(aliasOfConfigureWebpackObjectMode).forEach((key) => {
+        aliasOfConfigureWebpackObjectMode[key] = `${rootDir}/${aliasOfConfigureWebpackObjectMode[key]}`
+      })
       const aliasOfConfigureFunctionMode = (() => {
         if (typeof vueConfig.configureWebpack === 'function') {
           let originConfig = chainableConfig.toConfig()
@@ -84,13 +87,13 @@ export class VueCliTransformer implements Transformer {
       const defaultAlias = []
       defaultAlias.push({ find: new RawValue('/^~/'), replacement: '' })
       const alias = {
-        '@': 'src',
+        '@': `${rootDir}/src`,
         ...aliasOfConfigureWebpackObjectMode,
         ...aliasOfConfigureFunctionMode,
         ...aliasOfChainWebpack
       }
       Object.keys(alias).forEach((key) => {
-        const relativePath = path.relative(rootDir, `${rootDir}/${alias[key]}`).replace(/\\/g, '/')
+        const relativePath = path.relative(rootDir, alias[key]).replace(/\\/g, '/')
         defaultAlias.push({
           find: key,
           replacement: new RawValue(`path.resolve(__dirname,'${relativePath}')`)
