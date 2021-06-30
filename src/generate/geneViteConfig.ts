@@ -14,7 +14,7 @@ export async function geneViteConfig (rootDir: string, outDir: string, config: C
   }
   // fill entry
   if (config.entry === undefined) {
-    config.entry = transformer.context.config.build.rollupOptions.input
+    config.entry = transformer.context.config.build?.rollupOptions?.input
   }
 
   render(outDir, template, data)
