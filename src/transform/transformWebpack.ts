@@ -72,6 +72,19 @@ export class WebpackTransformer implements Transformer {
         config.server.base = webpackConfig.devServer.contentBase
       }
 
+      // convert plugins
+      // webpack.DefinePlugin
+      config.define = {}
+      webpackConfig.plugins.forEach((item : any) => {
+        Object.keys(item).forEach((definitions) => {
+          if (definitions === 'definitions') {
+            const val = item[definitions]
+            Object.keys(val).forEach((variable) => {
+              config.define[variable] = val[variable]
+            })
+          }
+        })
+      })
       return config
     }
 }

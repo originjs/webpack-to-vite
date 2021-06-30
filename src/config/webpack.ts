@@ -32,4 +32,5 @@ export interface WebpackConfig extends Config {
     module?: Module;
     resolve?: Resolve;
     devServer?: DevServer;
+    plugins?: [];
 }
