@@ -1,16 +1,23 @@
 import fs from 'fs'
 import path from 'path'
 import { readSync, writeSync } from '../utils/file'
+import { isObject } from '../utils/common'
+import { Config } from '../config/config'
 
-export function genIndexHtml (root: string): void {
-  const filePath = path.resolve(root, 'index.html')
+export function geneIndexHtml (rootDir: string, config: Config): void {
+  const filePath = path.resolve(rootDir, 'index.html')
   let htmlContent
   if (fs.existsSync(filePath)) {
     htmlContent = readSync(filePath)
   } else {
     htmlContent = readSync(path.resolve(path.resolve('src/template/index.html')))
   }
-  const entries = getVuecliEntries(root)
+  let entries : string[] = []
+  if (config.entry !== undefined && config.entry !== '' && config.entry.length !== 0 && config.entry !== {}) {
+    entries = getEntries(config.entry)
+  } else {
+    entries = getDefaultEntries(rootDir)
+  }
   const injectedContent = injectHtml(htmlContent, entries)
   writeSync(filePath, injectedContent)
 }
@@ -20,21 +27,53 @@ export function injectHtml (source: string, entries: string[]): string {
   let body = '  <body>\n'
   body += '    <div id="app"></div>\n'
   for (const entry of entries) {
-    body += `<script type="module" src="${entry}"></script>\n`
+    if (entry !== undefined) {
+      body += `<script type="module" src="${entry}"></script>\n`
+    }
   }
   body += '  </body>'
   const result = source.replace(bodyRegex, body)
   return result
 }
 
-function getVuecliEntries (root: string): string[] {
-  const entries = []
-  const mainFile = path.resolve(root, 'src/main.ts')
+function getDefaultEntries (rootDir: string): string[] {
+  const entries: string[] = []
+  let mainFile = path.resolve(rootDir, 'src/main.ts')
   if (fs.existsSync(mainFile)) {
     entries.push('/src/main.ts')
-  } else {
+    return entries
+  }
+  mainFile = path.resolve(rootDir, 'src/main.js')
+  if (fs.existsSync(mainFile)) {
     entries.push('/src/main.js')
+    return entries
   }
   // TODO: vue-cli pages config
+  return entries
+}
+
+function getEntries (entry: any) : string[] {
+  const entries: string[] = []
+  if (entry === undefined) {
+    return entries
+  }
+  if (isObject(entry)) {
+    Object.keys(entry).forEach(function (name) {
+      entries.push(entry[name])
+    })
+  }
+  if (typeof entry === 'function') {
+    entries.push(entry())
+  }
+  if (typeof entry === 'string') {
+    entries.push(entry)
+  }
+
+  // vite support hmr by default, so do not need to import webpack-hot-middleware
+  entries.forEach((item, index) => {
+    if (item.indexOf('dev-client') !== -1) {
+      delete (entries[index])
+    }
+  })
   return entries
 }

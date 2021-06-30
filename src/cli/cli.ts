@@ -1,7 +1,7 @@
 import path from 'path'
 import fs from 'fs'
-import { genIndexHtml } from '../generate/geneIndexHtml'
-import { genePackageJson as genPackageJson } from '../generate/genePackageJson'
+import { geneIndexHtml } from '../generate/geneIndexHtml'
+import { genePackageJson } from '../generate/genePackageJson'
 import { geneViteConfig } from '../generate/geneViteConfig'
 import { Command } from 'commander'
 import { Config } from '../config/config'
@@ -13,9 +13,12 @@ export function run (): void {
     .version(version, '-v, --version', 'output the version number')
     .option('-d --rootDir <path>', 'the directory of project to be transfered')
     .option('-t --projectType <type>', 'the type of the project, use vue-cli or webpack')
+    .option('-e --entry <type>', 'entrance of the entire build process, webpack or vite will start from ' +
+            'those entry files to build, if no entry file is specified, src/main.ts or src/main.js will be' +
+            'used as default')
     .parse(process.argv)
 
-  const keys = ['rootDir', 'projectType']
+  const keys = ['rootDir', 'projectType', 'entry']
   const config: Config = {}
   keys.forEach(function (k) {
     if (Object.prototype.hasOwnProperty.call(program.opts(), k)) {
@@ -25,7 +28,7 @@ export function run (): void {
   start(config)
 }
 
-export function start (config : Config): void {
+export async function start (config : Config): Promise<void> {
   console.log('******************* Webpack to Vite *******************')
   console.log(`Project path: ${config.rootDir}`)
 
@@ -37,13 +40,12 @@ export function start (config : Config): void {
   const cwd = process.cwd()
   const rootDir = path.resolve(config.rootDir)
 
-  // TODO:how to deal with the index.html in the project,
-  // notice that this will not choose the root directory in non-vite projects
-  genIndexHtml(rootDir)
+  genePackageJson(path.resolve(rootDir, 'package.json'))
 
-  genPackageJson(path.resolve(rootDir, 'package.json'))
+  await geneViteConfig(rootDir, rootDir, config)
 
-  geneViteConfig(rootDir, rootDir, config.projectType)
+  // generate index.html must be after generate vite.config.js
+  geneIndexHtml(rootDir, config)
 
   console.log('************************ Done ! ************************')
   const pkgManager = fs.existsSync(path.resolve(rootDir, 'yarn.lock'))

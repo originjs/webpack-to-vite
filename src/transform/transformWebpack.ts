@@ -1,10 +1,11 @@
+import path from 'path'
 import { parseWebpackConfig } from '../config/parse'
 import { RawValue, ViteConfig } from '../config/vite'
 import { TransformContext } from './context'
 import { initViteConfig, Transformer, transformImporters } from './transformer'
-import path from 'path'
 import { DEFAULT_VUE_VERSION } from '../constants/constants'
 import { Entry } from '../config/webpack'
+import { isObject } from '../utils/common'
 
 // convert webpack.config.js => vite.config.js
 export class WebpackTransformer implements Transformer {
@@ -73,10 +74,6 @@ export class WebpackTransformer implements Transformer {
 
       return config
     }
-}
-
-function isObject (value : any) : boolean {
-  return Object.prototype.toString.call(value) === '[object Object]';
 }
 
 function suitableFormat (entry: Entry) : Entry {
