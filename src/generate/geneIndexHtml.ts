@@ -5,11 +5,13 @@ import { isObject } from '../utils/common'
 import { Config } from '../config/config'
 
 export function geneIndexHtml (rootDir: string, config: Config): void {
-  const filePath = config.projectType === 'webpack' ? path.resolve(rootDir, 'index.html') : path.resolve(rootDir, 'public/index.html')
-  const targetPath = path.resolve(rootDir, 'index.html');
+  const filePathBase = path.resolve(rootDir, 'index.html')
+  const filePathVueCli = path.resolve(rootDir, 'public/index.html')
   let htmlContent
-  if (fs.existsSync(filePath)) {
-    htmlContent = readSync(filePath).replace(/<%.*URL.*%>/g, '')
+  if (config.projectType !== 'webpack' && fs.existsSync(filePathVueCli)) {
+    htmlContent = readSync(filePathVueCli).replace(/<%.*URL.*%>/g, '')
+  } else if (fs.existsSync(filePathBase)) {
+    htmlContent = readSync(filePathBase).replace(/<%.*URL.*%>/g, '')
   } else {
     htmlContent = readSync(path.resolve(path.resolve('src/template/index.html')))
   }
@@ -20,7 +22,7 @@ export function geneIndexHtml (rootDir: string, config: Config): void {
     entries = getDefaultEntries(rootDir)
   }
   const injectedContent = injectHtml(htmlContent, entries)
-  writeSync(targetPath, injectedContent)
+  writeSync(filePathBase, injectedContent)
 }
 
 export function injectHtml (source: string, entries: string[]): string {
