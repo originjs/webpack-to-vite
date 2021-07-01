@@ -27,9 +27,12 @@
   "homepage": "https://github.com/originjs/webpack-to-vite#readme",
   "devDependencies": {
     "@types/ejs": "^3.0.6",
+    "@types/eslint-scope": "^3.7.0",
     "@types/jest": "^26.0.23",
     "@types/jscodeshift": "^0.11.0",
     "@types/webpack": "4.41.26",
+    "@types/node": "^12.12.47",
+    "@types/webpack-merge": "^4.1.5",
     "@typescript-eslint/eslint-plugin": "^4.27.0",
     "@typescript-eslint/parser": "^4.27.0",
     "eslint": "^7.28.0",
@@ -52,10 +55,12 @@
     "yorkie": "^2.0.0"
   },
   "dependencies": {
+    "@originjs/vue-sfc-ast-parser": "^1.0.0-beta0",
     "commander": "^7.2.0",
     "ejs": "^3.1.6",
     "jscodeshift": "^0.12.0",
     "webpack-chain": "4.12.1",
+    "vue-eslint-parser": "^7.6.0",
     "webpack-merge": "4.2.2",
     "yargs": "^17.0.1"
   },
