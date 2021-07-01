@@ -28,7 +28,7 @@ export function injectHtml (source: string, entries: string[]): string {
   body += '    <div id="app"></div>\n'
   for (const entry of entries) {
     if (entry !== undefined) {
-      body += `<script type="module" src="${entry}"></script>\n`
+      body += `   <script type="module" src="${entry}"></script>\n`
     }
   }
   body += '  </body>'
