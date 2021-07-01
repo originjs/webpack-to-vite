@@ -25,14 +25,14 @@ export function geneIndexHtml (rootDir: string, config: Config): void {
 
 export function injectHtml (source: string, entries: string[]): string {
   const bodyRegex = /<body[^>]*>((.|[\n\r])*)<\/body>/im
-  let body = '  <body>\n'
-  body += '    <div id="app"></div>\n'
+  let body = '<body>\n'
+  body += '  <div id="app"></div>\n'
   for (const entry of entries) {
     if (entry !== undefined) {
-      body += `   <script type="module" src="${entry}"></script>\n`
+      body += `  <script type="module" src="${entry}"></script>\n`
     }
   }
-  body += '  </body>'
+  body += '</body>'
   const result = source.replace(bodyRegex, body)
   return result
 }
