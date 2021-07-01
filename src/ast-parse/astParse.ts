@@ -8,6 +8,11 @@ const extensions = ['.vue']
 export function astParseRoot (rootDir: string) {
   const resolvedPaths : string[] = globby.sync(rootDir)
   resolvedPaths.forEach(filePath => {
+    // skip files in node_modules
+    if (filePath.indexOf('/node_modules/') >= 0) {
+      return
+    }
+
     const extension = (/\.([^.]*)$/.exec(filePath) || [])[0]
     if (!extensions.includes(extension)) {
       return
