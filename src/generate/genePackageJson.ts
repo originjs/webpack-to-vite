@@ -1,5 +1,6 @@
 import { readSync, writeSync } from '../utils/file'
 import { getVueVersion } from '../utils/version'
+import fs from 'fs'
 import path from 'path'
 import chalk from 'chalk'
 import * as constants from '../constants/constants'
@@ -34,6 +35,12 @@ export function genePackageJson (packageJsonPath: string): void {
   // sass support
   if (packageJson.devDependencies['node-sass'] && !packageJson.devDependencies.sass) {
     packageJson.devDependencies.sass = constants.SASS_VERSION
+  }
+
+  // postcss 8 support
+  const postcssConfig = path.resolve(rootDir, 'postcss.config.js')
+  if (fs.existsSync(postcssConfig)) {
+    packageJson.dependencies.postcss = constants.POSTCSS_VERSION
   }
 
   // add vite dev script
