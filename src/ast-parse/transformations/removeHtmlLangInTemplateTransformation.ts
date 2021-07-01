@@ -3,14 +3,14 @@ import { Context } from './index'
 import { stringifyDescriptor } from '@originjs/vue-sfc-ast-parser'
 
 export const transformAST:ASTTransformation = (context: Context) => {
-  if (!context.scriptAST || context.scriptAST.findJSXElements().length === 0) {
+  if (!context.descriptor.template || !context.descriptor.template.attrs!.lang) {
     return null;
   }
 
-  // if jsx element is found, the lang of script should be 'jsx'
-  const descriptor = context.descriptor
-  descriptor.script.attrs.lang = 'tsx'
-  return stringifyDescriptor(descriptor);
+  if (context.descriptor.template.attrs.lang === 'html') {
+    delete context.descriptor.template.attrs.lang
+  }
+  return stringifyDescriptor(context.descriptor);
 }
 
 export const needReparse : boolean = false

@@ -22,5 +22,6 @@ export const transformationMap: {
     needReparse: boolean
   }
 } = {
-  addJsxTransformation: require('./addJsxTransformation')
+  addJsxTransformation: require('./addJsxTransformation'),
+  removeHtmlLangInTemplateTransformation: require('./removeHtmlLangInTemplateTransformation')
 }
