@@ -3,6 +3,9 @@
   "version": "0.0.1",
   "description": "convert a webpack project to a vite project",
   "main": "bin/index.js",
+  "bin": {
+    "webpack-to-vite": "bin/index.js"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "jest",
