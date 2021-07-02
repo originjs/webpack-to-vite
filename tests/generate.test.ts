@@ -19,8 +19,9 @@ test('geneIndexHtml', () => {
   const config : Config = {
     projectType: 'vue-cli'
   }
-  geneIndexHtml(path.resolve('../'), config);
+  geneIndexHtml(path.resolve('./tests/out'), config);
   const filePath = path.resolve('./tests/out/index.html');
   const content = readSync(filePath);
-  expect(content).toContain('src/main.js');
+  expect(content).toContain('<div id="app"></div>');
+  
 })
