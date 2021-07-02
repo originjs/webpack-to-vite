@@ -1,12 +1,16 @@
 import path from 'path';
-import { geneViteConfig } from '../src/generate/geneViteConfig';
 import fs from 'fs';
+import { Config } from '../src/config/config'
+import { geneViteConfig } from '../src/generate/geneViteConfig';
 import { serializeObject } from '../src/generate/render';
 
 test('geneViteConfig from non exist file', async () => {
   const outputFilePath = path.resolve('tests/out/vite.config.js');
   const vueConfigPath = path.resolve('tests/nosuchfile');
-  await geneViteConfig(vueConfigPath, path.resolve('tests/out'), 'vue-cli');
+  const config : Config = {
+    projectType: 'vue-cli'
+  }
+  await geneViteConfig(vueConfigPath, path.resolve('tests/out'), config);
   const result = fs.readFileSync(outputFilePath, 'utf8');
   expect(result).toContain('plugins');
 });
@@ -14,7 +18,10 @@ test('geneViteConfig from non exist file', async () => {
 test('geneViteConfig from vue.config.js', async () => {
   const outputFilePath = path.resolve('tests/out/vite.config.js');
   const vueConfigPath = path.resolve('tests/testdata');
-  await geneViteConfig(vueConfigPath, path.resolve('tests/out'), 'vue-cli');
+  const config : Config = {
+    projectType: 'vue-cli',
+  }
+  await geneViteConfig(vueConfigPath, path.resolve('tests/out'), config);
   const result = fs.readFileSync(outputFilePath, 'utf8');
   expect(result).toContain('@components');
 });
