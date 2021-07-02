@@ -13,4 +13,6 @@ export const transformAST:ASTTransformation = (context: Context) => {
   return stringifyDescriptor(descriptor);
 }
 
-export const needReparse : boolean = false
+export const needReparse: boolean = false
+
+export const extensions: string[] = ['vue']

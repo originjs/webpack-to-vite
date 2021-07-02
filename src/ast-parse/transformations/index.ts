@@ -19,7 +19,8 @@ export type ASTTransformation<Params = void> = {
 export const transformationMap: {
   [name: string]: {
     transformAST: ASTTransformation,
-    needReparse: boolean
+    needReparse: boolean,
+    extensions: string[]
   }
 } = {
   addJsxTransformation: require('./addJsxTransformation'),
