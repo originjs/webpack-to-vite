@@ -1,5 +1,6 @@
 import path from 'path'
 import fs from 'fs'
+import chalk from 'chalk'
 import { geneIndexHtml } from '../generate/geneIndexHtml'
 import { genePackageJson } from '../generate/genePackageJson'
 import { geneViteConfig } from '../generate/geneViteConfig'
@@ -29,11 +30,11 @@ export function run (): void {
 }
 
 export async function start (config : Config): Promise<void> {
-  console.log('******************* Webpack to Vite *******************')
-  console.log(`Project path: ${config.rootDir}`)
+  console.log(chalk.green('******************* Webpack to Vite:chalk *******************'))
+  console.log(chalk.green(`Project path: ${config.rootDir}`))
 
   if (!fs.existsSync(config.rootDir)) {
-    console.error(`Project path is not correct : ${config.rootDir}`)
+    console.log(chalk.red(`Project path is not correct : ${config.rootDir}`))
     return
   }
 
@@ -47,19 +48,19 @@ export async function start (config : Config): Promise<void> {
   // generate index.html must be after generate vite.config.js
   geneIndexHtml(rootDir, config)
 
-  console.log('************************ Done ! ************************')
+  console.log(chalk.green('************************ Done ! ************************'))
   const pkgManager = fs.existsSync(path.resolve(rootDir, 'yarn.lock'))
     ? 'yarn'
     : 'npm'
 
-  console.log('Now please run:\n')
+  console.log(chalk.green('Now please run:\n'))
   if (rootDir !== cwd) {
-    console.log(`cd ${path.relative(cwd, rootDir)}`)
+    console.log(chalk.green(`cd ${path.relative(cwd, rootDir)}`))
   }
 
-  console.log(`${pkgManager === 'yarn' ? 'yarn' : 'npm install'}`)
-  console.log(
+  console.log(chalk.green(`${pkgManager === 'yarn' ? 'yarn' : 'npm install'}`))
+  console.log(chalk.green(
     `${pkgManager === 'yarn' ? 'yarn serve-vite' : 'npm run serve-vite'}`
-  )
+  ))
   console.log()
 }

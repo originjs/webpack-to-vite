@@ -1,6 +1,7 @@
 import { readSync, writeSync } from '../utils/file'
 import { getVueVersion } from '../utils/version'
 import path from 'path'
+import chalk from 'chalk'
 import * as constants from '../constants/constants'
 
 // TODO: compatible with vue2 and vue3
@@ -8,12 +9,12 @@ export function genePackageJson (packageJsonPath: string): void {
   const rootDir = path.dirname(packageJsonPath)
   const source = readSync(packageJsonPath)
   if (source === '') {
-    console.log(`read package.json error, path: ${rootDir}`)
+    console.log(chalk.red(`read package.json error, path: ${rootDir}`))
   }
 
   const packageJson = JSON.parse(source)
   if (packageJson === '') {
-    console.log(`parse json error, path: ${rootDir}`)
+    console.log(chalk.red(`parse json error, path: ${rootDir}`))
   }
 
   const vueVersion = getVueVersion(rootDir)
