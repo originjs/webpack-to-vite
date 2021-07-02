@@ -6,6 +6,7 @@ import { genePackageJson } from '../generate/genePackageJson'
 import { geneViteConfig } from '../generate/geneViteConfig'
 import { Command } from 'commander'
 import { Config } from '../config/config'
+import { astParseRoot } from '../ast-parse/astParse'
 
 export function run (): void {
   const program = new Command()
@@ -41,6 +42,7 @@ export async function start (config : Config): Promise<void> {
   const cwd = process.cwd()
   const rootDir = path.resolve(config.rootDir)
 
+  astParseRoot(rootDir)
   genePackageJson(path.resolve(rootDir, 'package.json'))
 
   await geneViteConfig(rootDir, rootDir, config)

@@ -5,10 +5,13 @@ import { isObject } from '../utils/common'
 import { Config } from '../config/config'
 
 export function geneIndexHtml (rootDir: string, config: Config): void {
-  const filePath = path.resolve(rootDir, 'index.html')
+  const baseFilePath = path.resolve(rootDir, 'index.html')
+  const vueCliFilePath = path.resolve(rootDir, 'public/index.html')
   let htmlContent
-  if (fs.existsSync(filePath)) {
-    htmlContent = readSync(filePath)
+  if (config.projectType !== 'webpack' && fs.existsSync(vueCliFilePath)) {
+    htmlContent = readSync(vueCliFilePath).replace(/<%.*URL.*%>/g, '')
+  } else if (fs.existsSync(baseFilePath)) {
+    htmlContent = readSync(baseFilePath).replace(/<%.*URL.*%>/g, '')
   } else {
     htmlContent = readSync(path.resolve(path.resolve('src/template/index.html')))
   }
@@ -19,19 +22,19 @@ export function geneIndexHtml (rootDir: string, config: Config): void {
     entries = getDefaultEntries(rootDir)
   }
   const injectedContent = injectHtml(htmlContent, entries)
-  writeSync(filePath, injectedContent)
+  writeSync(baseFilePath, injectedContent)
 }
 
 export function injectHtml (source: string, entries: string[]): string {
   const bodyRegex = /<body[^>]*>((.|[\n\r])*)<\/body>/im
-  let body = '  <body>\n'
-  body += '    <div id="app"></div>\n'
+  let body = '<body>\n'
+  body += '  <div id="app"></div>\n'
   for (const entry of entries) {
     if (entry !== undefined) {
-      body += `   <script type="module" src="${entry}"></script>\n`
+      body += `  <script type="module" src="${entry}"></script>\n`
     }
   }
-  body += '  </body>'
+  body += '</body>'
   const result = source.replace(bodyRegex, body)
   return result
 }
