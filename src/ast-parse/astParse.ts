@@ -3,8 +3,6 @@ import { vueSfcAstParser } from '@originjs/vue-sfc-ast-parser'
 import * as globby from 'globby'
 import fs from 'fs'
 
-const extensions = ['.vue']
-
 export function astParseRoot (rootDir: string) {
   const resolvedPaths : string[] = globby.sync(rootDir)
   resolvedPaths.forEach(filePath => {
@@ -14,9 +12,6 @@ export function astParseRoot (rootDir: string) {
     }
 
     const extension = (/\.([^.]*)$/.exec(filePath) || [])[0]
-    if (!extensions.includes(extension)) {
-      return
-    }
 
     let fileChanged: boolean = false
     let context = parseVueSfc(filePath)
@@ -26,6 +21,14 @@ export function astParseRoot (rootDir: string) {
     // iter all transformations
     for (const key in transformationMap) {
       const transformation = transformationMap[key]
+
+      // filter by file extension
+      const extensions: string[] = transformation.extensions
+      if (!extensions.includes(extension)) {
+        continue
+      }
+
+      // execute the transformation
       tempTransformationResult = transformation.transformAST(context)
       if (tempTransformationResult == null) {
         continue

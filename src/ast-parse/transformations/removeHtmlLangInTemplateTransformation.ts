@@ -14,3 +14,5 @@ export const transformAST:ASTTransformation = (context: Context) => {
 }
 
 export const needReparse : boolean = false
+
+export const extensions: string[] = ['vue']
