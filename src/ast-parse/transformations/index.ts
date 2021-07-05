@@ -7,7 +7,7 @@ export type ASTTransformation<Params = void> = {
 
 export const transformationMap: {
   [name: string]: {
-    transformAST: ASTTransformation,
+    astTransform: ASTTransformation,
     needReparse: boolean,
     extensions: string[]
   }
