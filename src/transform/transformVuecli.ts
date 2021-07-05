@@ -93,7 +93,8 @@ export class VueCliTransformer implements Transformer {
         ...aliasOfChainWebpack
       }
       Object.keys(alias).forEach((key) => {
-        const relativePath = path.relative(rootDir, alias[key]).replace(/\\/g, '/')
+        let relativePath = path.relative(rootDir, path.resolve(rootDir, alias[key]))
+        relativePath = relativePath.replace(/\\/g, '/')
         defaultAlias.push({
           find: key,
           replacement: new RawValue(`path.resolve(__dirname,'${relativePath}')`)
