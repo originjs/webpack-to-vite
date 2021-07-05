@@ -1,8 +1,10 @@
 import { transformationMap } from './transformations/index'
+import { parsersMap } from './parsers/index'
 import { SFCDescriptor, vueSfcAstParser } from '@originjs/vue-sfc-ast-parser'
 import * as globby from 'globby'
 import fs from 'fs'
 import { JSCodeshift } from 'jscodeshift/src/core';
+import { ParserType } from './parsers';
 
 export type FileInfo = {
   path: string,
@@ -19,8 +21,16 @@ export type VueSFCContext = {
   descriptor: SFCDescriptor
 }
 
+export type ParsingResultOccurrence = {
+  fileInfo: FileInfo,
+  offsetBegin: number,
+  offsetEnd: number,
+  type: ParserType
+}
+
 export function astParseRoot (rootDir: string) {
   const resolvedPaths : string[] = globby.sync(rootDir)
+  const parsingResults: any = {}
   resolvedPaths.forEach(filePath => {
     // skip files in node_modules
     if (filePath.indexOf('/node_modules/') >= 0) {
@@ -49,7 +59,7 @@ export function astParseRoot (rootDir: string) {
       }
 
       // execute the transformation
-      tempTransformationResult = transformation.transformAST(fileInfo)
+      tempTransformationResult = transformation.astTransform(fileInfo)
       if (tempTransformationResult == null) {
         continue
       }
@@ -63,7 +73,30 @@ export function astParseRoot (rootDir: string) {
     if (fileChanged) {
       fs.writeFileSync(filePath, transformationResult)
     }
+
+    for (const key in parsersMap) {
+      const parser = parsersMap[key]
+
+      // filter by file extension
+      const extensions: string[] = parser.extensions
+      if (!extensions.includes(extension)) {
+        continue
+      }
+
+      // parse the file
+      const parsingResult = parser.astParse(fileInfo)
+      if (!parsingResult) {
+        continue
+      }
+
+      if (!parsingResults[parser.parserType]) {
+        parsingResults[parser.parserType] = []
+      }
+      parsingResults[parser.parserType].push(parsingResult)
+    }
   })
+
+  return parsingResults
 }
 
 export function parseVueSfc (fileInfo: FileInfo) : VueSFCContext {
