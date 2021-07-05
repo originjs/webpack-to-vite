@@ -28,9 +28,13 @@ export type ParsingResultOccurrence = {
   type: ParserType
 }
 
+export type ParsingResult = {
+  [name: string]: ParsingResultOccurrence[]
+}
+
 export function astParseRoot (rootDir: string) {
   const resolvedPaths : string[] = globby.sync(rootDir)
-  const parsingResults: any = {}
+  const parsingResults: ParsingResult = {}
   resolvedPaths.forEach(filePath => {
     // skip files in node_modules
     if (filePath.indexOf('/node_modules/') >= 0) {
@@ -84,7 +88,7 @@ export function astParseRoot (rootDir: string) {
       }
 
       // parse the file
-      const parsingResult = parser.astParse(fileInfo)
+      const parsingResult: ParsingResultOccurrence[] | null = parser.astParse(fileInfo)
       if (!parsingResult) {
         continue
       }
@@ -92,7 +96,7 @@ export function astParseRoot (rootDir: string) {
       if (!parsingResults[parser.parserType]) {
         parsingResults[parser.parserType] = []
       }
-      parsingResults[parser.parserType].push(parsingResult)
+      parsingResults[parser.parserType].push.apply(parsingResults[parser.parserType], parsingResult)
     }
   })
 
