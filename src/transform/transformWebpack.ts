@@ -62,6 +62,10 @@ export class WebpackTransformer implements Transformer {
       Object.keys(alias).forEach((key) => {
         let relativePath = path.relative(rootDir, path.resolve(rootDir, alias[key]))
         relativePath = relativePath.replace(/\\/g, '/')
+        if (key === 'vue$') {
+          key = key.replace('$', '')
+          relativePath = 'node_modules/' + relativePath
+        }
         defaultAlias.push({
           find: key,
           replacement: new RawValue(`path.resolve(__dirname,'${relativePath}')`)
