@@ -4,6 +4,7 @@ import chalk from 'chalk'
 import { geneIndexHtml } from '../generate/geneIndexHtml'
 import { genePackageJson } from '../generate/genePackageJson'
 import { geneViteConfig } from '../generate/geneViteConfig'
+import { genePatches } from '../generate/genePatches'
 import { Command } from 'commander'
 import { Config } from '../config/config'
 import { astParseRoot } from '../ast-parse/astParse'
@@ -49,6 +50,10 @@ export async function start (config : Config): Promise<void> {
 
   // generate index.html must be after generate vite.config.js
   geneIndexHtml(rootDir, config)
+
+  // generate patches
+  const patchesDir = path.resolve(rootDir, 'patches')
+  genePatches(patchesDir)
 
   console.log(chalk.green('************************ Done ! ************************'))
   const pkgManager = fs.existsSync(path.resolve(rootDir, 'yarn.lock'))

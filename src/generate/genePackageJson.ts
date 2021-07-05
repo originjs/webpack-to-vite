@@ -43,9 +43,15 @@ export function genePackageJson (packageJsonPath: string): void {
     packageJson.dependencies.postcss = constants.POSTCSS_VERSION
   }
 
+  // patch-package support
+  packageJson.devDependencies['patch-package'] = constants.PATCH_PACKAGE_VERSION
+
   // add vite dev script
   packageJson.scripts['serve-vite'] = 'vite'
   packageJson.scripts['build-vite'] = 'vite build'
+
+  // add postinatall
+  packageJson.scripts.postinstall = 'patch-package'
 
   writeSync(packageJsonPath, JSON.stringify(packageJson, null, 2))
 }
