@@ -1,8 +1,16 @@
-// import { ESLintProgram } from 'vue-eslint-parser/ast/nodes';
-import { FileInfo } from '../astParse';
+import { FileInfo, TransformationResult } from '../astParse';
 
 export type ASTTransformation<Params = void> = {
-  (fileInfo: FileInfo, params: Params): string | null
+  (fileInfo: FileInfo, params: Params): TransformationResult | null
+}
+
+export enum TransformationType {
+  // eslint-disable-next-line no-unused-vars
+  addJsxTransformation = 'addJsxTransformation',
+  // eslint-disable-next-line no-unused-vars
+  removeHtmlLangInTemplateTransformation = 'removeHtmlLangInTemplateTransformation',
+  // eslint-disable-next-line no-unused-vars
+  indexHtmlTransformation = 'indexHtmlTransformation'
 }
 
 export const transformationMap: {
@@ -10,9 +18,11 @@ export const transformationMap: {
     astTransform: ASTTransformation,
     needReparse: boolean,
     needWriteToOriginFile: boolean,
-    extensions: string[]
+    extensions: string[],
+    transformationType: TransformationType
   }
 } = {
   addJsxTransformation: require('./addJsxTransformation'),
-  removeHtmlLangInTemplateTransformation: require('./removeHtmlLangInTemplateTransformation')
+  removeHtmlLangInTemplateTransformation: require('./removeHtmlLangInTemplateTransformation'),
+  indexHtmlTransformation: require('./indexHtmlTransformation')
 }

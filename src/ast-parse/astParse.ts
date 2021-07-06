@@ -1,10 +1,11 @@
-import { transformationMap } from './transformations/index'
+import { transformationMap, TransformationType } from './transformations/index'
 import { parsersMap } from './parsers/index'
 import { SFCDescriptor, vueSfcAstParser } from '@originjs/vue-sfc-ast-parser'
 import * as globby from 'globby'
 import fs from 'fs'
 import { JSCodeshift } from 'jscodeshift/src/core';
 import { ParserType } from './parsers';
+import { ESLintProgram } from 'vue-eslint-parser/ast';
 
 export type FileInfo = {
   path: string,
@@ -14,8 +15,7 @@ export type FileInfo = {
 export type VueSFCContext = {
   path: string
   source: string
-  // templateAST: ESLintProgram,
-  templateAST: any,
+  templateAST: ESLintProgram,
   scriptAST: any,
   jscodeshiftParser: JSCodeshift,
   descriptor: SFCDescriptor
@@ -26,6 +26,12 @@ export type ParsingResultOccurrence = {
   offsetBegin: number,
   offsetEnd: number,
   type: ParserType
+}
+
+export type TransformationResult = {
+  fileInfo: FileInfo,
+  content: string,
+  type: TransformationType
 }
 
 export type ParsingResult = {
@@ -48,8 +54,8 @@ export function astParseRoot (rootDir: string) {
       path: filePath,
       source: source
     }
-    let transformationResult: string = source
-    let tempTransformationResult: string | null
+    let transformationResultContent: string = source
+    let tempTransformationResult: TransformationResult | null
 
     // iter all transformations
     for (const key in transformationMap) {
@@ -66,13 +72,13 @@ export function astParseRoot (rootDir: string) {
       if (tempTransformationResult == null) {
         continue
       }
-      transformationResult = tempTransformationResult
+      transformationResultContent = tempTransformationResult.content
 
       if (transformation.needReparse) {
-        fileInfo.source = transformationResult
+        fileInfo.source = transformationResultContent
       }
       if (transformation.needWriteToOriginFile) {
-        fs.writeFileSync(filePath, transformationResult)
+        fs.writeFileSync(filePath, transformationResultContent)
       }
     }
 
