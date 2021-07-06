@@ -16,4 +16,6 @@ export const astTransform:ASTTransformation = (fileInfo: FileInfo) => {
 
 export const needReparse: boolean = false
 
+export const needWriteToOriginFile: boolean = true
+
 export const extensions: string[] = ['.vue']

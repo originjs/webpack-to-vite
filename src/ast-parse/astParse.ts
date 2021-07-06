@@ -43,7 +43,6 @@ export function astParseRoot (rootDir: string) {
 
     const extension = (/\.([^.]*)$/.exec(filePath) || [])[0]
 
-    let fileChanged: boolean = false
     const source: string = fs.readFileSync(filePath).toString().split('\r\n').join('\n')
     const fileInfo: FileInfo = {
       path: filePath,
@@ -67,15 +66,14 @@ export function astParseRoot (rootDir: string) {
       if (tempTransformationResult == null) {
         continue
       }
-      fileChanged = true
       transformationResult = tempTransformationResult
 
       if (transformation.needReparse) {
         fileInfo.source = transformationResult
       }
-    }
-    if (fileChanged) {
-      fs.writeFileSync(filePath, transformationResult)
+      if (transformation.needWriteToOriginFile) {
+        fs.writeFileSync(filePath, transformationResult)
+      }
     }
 
     for (const key in parsersMap) {

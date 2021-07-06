@@ -9,6 +9,7 @@ export const transformationMap: {
   [name: string]: {
     astTransform: ASTTransformation,
     needReparse: boolean,
+    needWriteToOriginFile: boolean,
     extensions: string[]
   }
 } = {
