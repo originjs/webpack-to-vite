@@ -33,7 +33,7 @@ export type ParsingResult = {
 }
 
 export function astParseRoot (rootDir: string) {
-  const resolvedPaths : string[] = globby.sync(rootDir)
+  const resolvedPaths : string[] = globby.sync(rootDir.replace(/\\/g, '/'))
   const parsingResults: ParsingResult = {}
   resolvedPaths.forEach(filePath => {
     // skip files in node_modules
