@@ -1,5 +1,6 @@
 import type { ASTTransformation } from './index'
-import { FileInfo, TransformationResult, TransformationType } from '../astParse'
+import { TransformationType } from './index'
+import { FileInfo, TransformationResult } from '../astParse'
 import { ESLintProgram } from 'vue-eslint-parser/ast';
 import * as parser from 'vue-eslint-parser';
 import { Node } from 'vue-eslint-parser/ast/nodes'

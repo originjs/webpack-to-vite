@@ -1,7 +1,16 @@
-import { FileInfo, TransformationResult, TransformationType } from '../astParse';
+import { FileInfo, TransformationResult } from '../astParse';
 
 export type ASTTransformation<Params = void> = {
   (fileInfo: FileInfo, params: Params): TransformationResult | null
+}
+
+export enum TransformationType {
+  // eslint-disable-next-line no-unused-vars
+  addJsxTransformation = 'addJsxTransformation',
+  // eslint-disable-next-line no-unused-vars
+  removeHtmlLangInTemplateTransformation = 'removeHtmlLangInTemplateTransformation',
+  // eslint-disable-next-line no-unused-vars
+  indexHtmlTransformation = 'indexHtmlTransformation'
 }
 
 export const transformationMap: {
