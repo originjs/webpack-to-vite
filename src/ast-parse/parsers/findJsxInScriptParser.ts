@@ -1,5 +1,5 @@
-import { ASTParse, ParserType } from './index';
-import { FileInfo, parseVueSfc, ParsingResultOccurrence, VueSFCContext } from '../astParse';
+import { ASTParse } from './index';
+import { FileInfo, parseVueSfc, ParsingResultOccurrence, VueSFCContext, ParserType } from '../astParse';
 
 export const astParse: ASTParse = (fileInfo: FileInfo) => {
   const context: VueSFCContext = parseVueSfc(fileInfo)

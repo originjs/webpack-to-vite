@@ -1,15 +1,28 @@
-import { transformationMap, TransformationType } from './transformations/index'
+import { transformationMap } from './transformations/index'
 import { parsersMap } from './parsers/index'
 import { SFCDescriptor, vueSfcAstParser } from '@originjs/vue-sfc-ast-parser'
 import * as globby from 'globby'
 import fs from 'fs'
 import { JSCodeshift } from 'jscodeshift/src/core';
-import { ParserType } from './parsers';
 import { ESLintProgram } from 'vue-eslint-parser/ast';
 
 export type FileInfo = {
   path: string,
   source: string
+}
+
+export enum ParserType {
+  // eslint-disable-next-line no-unused-vars
+  FindJsxInScript = 'FindJsxInScript'
+}
+
+export enum TransformationType {
+  // eslint-disable-next-line no-unused-vars
+  addJsxTransformation = 'addJsxTransformation',
+  // eslint-disable-next-line no-unused-vars
+  removeHtmlLangInTemplateTransformation = 'removeHtmlLangInTemplateTransformation',
+  // eslint-disable-next-line no-unused-vars
+  indexHtmlTransformation = 'indexHtmlTransformation'
 }
 
 export type VueSFCContext = {
