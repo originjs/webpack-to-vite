@@ -23,11 +23,14 @@ export interface Resolve {
     alias: Record<string, never>;
 }
 
+export type Entry = string | string[] | { [entryAlias: string]: string } | any;
+
 export interface WebpackConfig extends Config {
     mode?: string;
-    entry?: string | string[] | { [entryAlias: string]: string } | Function;
+    entry?: Entry;
     output?: Output;
     module?: Module;
     resolve?: Resolve;
     devServer?: DevServer;
+    plugins?: [];
 }

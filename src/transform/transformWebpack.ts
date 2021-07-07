@@ -1,9 +1,11 @@
+import path from 'path'
 import { parseWebpackConfig } from '../config/parse'
 import { RawValue, ViteConfig } from '../config/vite'
 import { TransformContext } from './context'
 import { initViteConfig, Transformer, transformImporters } from './transformer'
-import path from 'path'
 import { DEFAULT_VUE_VERSION } from '../constants/constants'
+import { Entry } from '../config/webpack'
+import { isObject } from '../utils/common'
 
 // convert webpack.config.js => vite.config.js
 export class WebpackTransformer implements Transformer {
@@ -19,7 +21,6 @@ export class WebpackTransformer implements Transformer {
       const config = this.context.config
 
       // convert base config
-      // TODO: convert entry
       // webpack may have multiple entry files, e.g.
       // 1. one entry, with one entry file : e.g. entry: './app/index.js'
       // 2. one entry, with multiple entry files: e.g. entry: ['./pc/index.js','./wap/index.js']
@@ -34,7 +35,7 @@ export class WebpackTransformer implements Transformer {
       if (webpackConfig.entry !== '' && webpackConfig.entry !== null) {
         config.build.rollupOptions = {}
         if (isObject(webpackConfig.entry)) {
-          webpackConfig.entry = suitableFormat(webpackConfig.entry)
+          config.build.rollupOptions.input = suitableFormat(webpackConfig.entry)
         } else if (typeof webpackConfig.entry === 'function') {
           config.build.rollupOptions.input = webpackConfig.entry()
         } else {
@@ -49,12 +50,22 @@ export class WebpackTransformer implements Transformer {
 
       // convert alias
       const defaultAlias = []
-
       const alias = {
         '@': `${rootDir}/src`
       }
+      if (webpackConfig.resolve?.alias !== undefined) {
+        Object.keys(webpackConfig.resolve.alias).forEach((key) => {
+          alias[key] = webpackConfig.resolve.alias[key]
+        })
+      }
+
       Object.keys(alias).forEach((key) => {
-        const relativePath = path.relative(rootDir, alias[key]).replace(/\\/g, '/')
+        let relativePath = path.relative(rootDir, path.resolve(rootDir, alias[key]))
+        relativePath = relativePath.replace(/\\/g, '/')
+        if (key === 'vue$') {
+          key = key.replace('$', '')
+          relativePath = 'node_modules/' + relativePath
+        }
         defaultAlias.push({
           find: key,
           replacement: new RawValue(`path.resolve(__dirname,'${relativePath}')`)
@@ -71,16 +82,25 @@ export class WebpackTransformer implements Transformer {
         config.server.base = webpackConfig.devServer.contentBase
       }
 
+      // convert plugins
+      // webpack.DefinePlugin
+      config.define = {}
+      webpackConfig.plugins.forEach((item : any) => {
+        if (item.constructor.name === 'DefinePlugin') {
+          Object.keys(item).forEach((definitions) => {
+            const val = item[definitions]
+            Object.keys(val).forEach((variable) => {
+              config.define[variable] = val[variable]
+            })
+          })
+        }
+      })
       return config
     }
 }
 
-function isObject (value : any) : boolean {
-  return Object.prototype.toString.call(value) === '[object Object]';
-}
-
-function suitableFormat (entry: Object) : { [entryAlias: string]: string } {
-  const res : { [entryAlias: string]: string } = {}
+function suitableFormat (entry: Entry) : Entry {
+  const res : Entry = {}
   Object.keys(entry).forEach(function (name) {
     if (!Array.isArray(entry[name])) {
       res[name] = entry[name]

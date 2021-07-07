@@ -1,9 +1,10 @@
-import { genePackageJson } from '../src/generate/genePackageJson';
 import path from 'path';
 import fs from 'fs';
-import { genIndexHtml } from '../src/generate/geneIndexHtml';
-import { readSync } from '../src/utils/file';
 import * as constants from '../src/constants/constants';
+import { genePackageJson } from '../src/generate/genePackageJson';
+import { geneIndexHtml } from '../src/generate/geneIndexHtml';
+import { readSync } from '../src/utils/file';
+import { Config } from '../src/config/config'
 
 test('genePackageJson', () => {
   const packageJsonPath = path.resolve('./tests/testdata/generate/package.json');
@@ -14,9 +15,13 @@ test('genePackageJson', () => {
   expect(JSON.parse(packageJsonContent).devDependencies['@vitejs/plugin-vue']).toEqual(constants.VITE_PLUGIN_VUE_VERSION);
 });
 
-test('genIndexHtml', () => {
-  genIndexHtml('./tests/out');
+test('geneIndexHtml', () => {
+  const config : Config = {
+    projectType: 'vue-cli'
+  }
+  geneIndexHtml(path.resolve('./tests/out'), config);
   const filePath = path.resolve('./tests/out/index.html');
   const content = readSync(filePath);
-  expect(content).toContain('src/main.js');
+  expect(content).toContain('<div id="app"></div>');
+  
 })

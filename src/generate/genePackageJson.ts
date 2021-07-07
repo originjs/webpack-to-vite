@@ -1,6 +1,8 @@
 import { readSync, writeSync } from '../utils/file'
 import { getVueVersion } from '../utils/version'
+import fs from 'fs'
 import path from 'path'
+import chalk from 'chalk'
 import * as constants from '../constants/constants'
 
 // TODO: compatible with vue2 and vue3
@@ -8,12 +10,12 @@ export function genePackageJson (packageJsonPath: string): void {
   const rootDir = path.dirname(packageJsonPath)
   const source = readSync(packageJsonPath)
   if (source === '') {
-    console.log(`read package.json error, path: ${rootDir}`)
+    console.log(chalk.red(`read package.json error, path: ${rootDir}`))
   }
 
   const packageJson = JSON.parse(source)
   if (packageJson === '') {
-    console.log(`parse json error, path: ${rootDir}`)
+    console.log(chalk.red(`parse json error, path: ${rootDir}`))
   }
 
   const vueVersion = getVueVersion(rootDir)
@@ -35,9 +37,21 @@ export function genePackageJson (packageJsonPath: string): void {
     packageJson.devDependencies.sass = constants.SASS_VERSION
   }
 
+  // postcss 8 support
+  const postcssConfig = path.resolve(rootDir, 'postcss.config.js')
+  if (fs.existsSync(postcssConfig)) {
+    packageJson.dependencies.postcss = constants.POSTCSS_VERSION
+  }
+
+  // patch-package support
+  packageJson.devDependencies['patch-package'] = constants.PATCH_PACKAGE_VERSION
+
   // add vite dev script
   packageJson.scripts['serve-vite'] = 'vite'
   packageJson.scripts['build-vite'] = 'vite build'
+
+  // add postinatall
+  packageJson.scripts.postinstall = 'patch-package'
 
   writeSync(packageJsonPath, JSON.stringify(packageJson, null, 2))
 }
