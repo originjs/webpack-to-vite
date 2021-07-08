@@ -12,7 +12,7 @@ export function geneIndexHtml (rootDir: string, config: Config, astParsingResult
   let htmlContent
 
   let entries : string[] = []
-  if (config.entry !== undefined && config.entry !== '' && config.entry.length !== 0 && config.entry !== {}) {
+  if (config.entry !== undefined && config.entry !== '' && config.entry.length !== 0 && JSON.stringify(config.entry) !== '{}') {
     entries = getEntries(config.entry)
   } else {
     entries = getDefaultEntries(rootDir)
