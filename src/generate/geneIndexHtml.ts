@@ -31,7 +31,7 @@ function generateEntriesHtml (entries: string[]): string {
 }
 
 export function generateWithVueCliPublicIndex (astParsingResult: AstParsingResult, entries: string[]): string {
-  const indexHtmlTransformationResult = astParsingResult.transformationResult[TransformationType.indexHtmlTransformation]
+  const indexHtmlTransformationResult = astParsingResult ? astParsingResult.transformationResult[TransformationType.indexHtmlTransformation] : null
   if (indexHtmlTransformationResult) {
     const indexHtmlContent: string = indexHtmlTransformationResult[0].content
     return stringFormat(indexHtmlContent, generateEntriesHtml(entries))
