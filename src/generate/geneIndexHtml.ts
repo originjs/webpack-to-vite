@@ -6,7 +6,7 @@ import { Config } from '../config/config'
 import { AstParsingResult } from '../ast-parse/astParse';
 import { TransformationType } from '../ast-parse/transformations';
 
-export function geneIndexHtml (rootDir: string, config: Config, astParsingResult: AstParsingResult): void {
+export function geneIndexHtml (rootDir: string, config: Config, astParsingResult?: AstParsingResult): void {
   const rootIndexPath = path.resolve(rootDir, 'index.html')
   let entries : string[] = []
   if (config.entry !== undefined && config.entry !== '' && config.entry.length !== 0 && config.entry !== {}) {
