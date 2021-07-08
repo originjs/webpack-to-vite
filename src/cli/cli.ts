@@ -43,7 +43,7 @@ export async function start (config : Config): Promise<void> {
   const cwd = process.cwd()
   const rootDir = path.resolve(config.rootDir)
 
-  const astParsingResult: AstParsingResult = astParseRoot(rootDir)
+  const astParsingResult: AstParsingResult = astParseRoot(rootDir, config)
   genePackageJson(path.resolve(rootDir, 'package.json'))
 
   await geneViteConfig(rootDir, rootDir, config)

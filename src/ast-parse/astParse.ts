@@ -3,8 +3,10 @@ import { parsersMap, ParserType } from './parsers/index'
 import { SFCDescriptor, vueSfcAstParser } from '@originjs/vue-sfc-ast-parser'
 import * as globby from 'globby'
 import fs from 'fs'
+import path from 'path'
 import { JSCodeshift } from 'jscodeshift/src/core';
 import { ESLintProgram } from 'vue-eslint-parser/ast';
+import { Config } from '../config/config'
 
 export type FileInfo = {
   path: string,
@@ -46,10 +48,22 @@ export type AstParsingResult = {
   transformationResult: AstTransformationResult
 }
 
-export function astParseRoot (rootDir: string): AstParsingResult {
+export function astParseRoot (rootDir: string, config: Config): AstParsingResult {
   const resolvedPaths : string[] = globby.sync(rootDir.replace(/\\/g, '/'))
   const parsingResults: ParsingResult = {}
   const transformationResults: AstTransformationResult = {}
+
+  const defaultIndexPath = path.resolve(rootDir, 'index.html')
+  const vueCliIndexPath = path.resolve(rootDir, 'public/index.html')
+  let indexPath: string | null
+  if (config.projectType !== 'webpack' && fs.existsSync(vueCliIndexPath)) {
+    indexPath = vueCliIndexPath
+  } else if (fs.existsSync(defaultIndexPath)) {
+    indexPath = defaultIndexPath
+  } else {
+    indexPath = null
+  }
+
   resolvedPaths.forEach(filePath => {
     // skip files in node_modules
     if (filePath.indexOf('/node_modules/') >= 0) {
@@ -77,7 +91,7 @@ export function astParseRoot (rootDir: string): AstParsingResult {
       }
 
       // execute the transformation
-      tempTransformationResult = transformation.astTransform(fileInfo)
+      tempTransformationResult = transformation.astTransform(fileInfo, indexPath)
       if (tempTransformationResult == null) {
         continue
       }

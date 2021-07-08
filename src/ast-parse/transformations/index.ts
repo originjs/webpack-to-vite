@@ -1,6 +1,6 @@
 import { FileInfo, TransformationResult } from '../astParse';
 
-export type ASTTransformation<Params = void> = {
+export type ASTTransformation<Params = any> = {
   (fileInfo: FileInfo, params: Params): TransformationResult | null
 }
 
