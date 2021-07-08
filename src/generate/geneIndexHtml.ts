@@ -1,27 +1,33 @@
 import fs from 'fs'
 import path from 'path'
 import { readSync, writeSync } from '../utils/file'
-import { isObject } from '../utils/common'
+import { isObject, stringFormat } from '../utils/common'
 import { Config } from '../config/config'
+import { AstParsingResult } from '../ast-parse/astParse';
+import { TransformationType } from '../ast-parse/transformations';
 
-export function geneIndexHtml (rootDir: string, config: Config): void {
+export function geneIndexHtml (rootDir: string, config: Config, astParsingResult: AstParsingResult): void {
   const baseFilePath = path.resolve(rootDir, 'index.html')
   const vueCliFilePath = path.resolve(rootDir, 'public/index.html')
   let htmlContent
-  if (config.projectType !== 'webpack' && fs.existsSync(vueCliFilePath)) {
-    htmlContent = readSync(vueCliFilePath).replace(/<%.*URL.*%>/g, '')
-  } else if (fs.existsSync(baseFilePath)) {
-    htmlContent = readSync(baseFilePath).replace(/<%.*URL.*%>/g, '')
-  } else {
-    htmlContent = readSync(path.resolve(path.resolve('src/template/index.html')))
-  }
+
   let entries : string[] = []
   if (config.entry !== undefined && config.entry !== '' && config.entry.length !== 0 && config.entry !== {}) {
     entries = getEntries(config.entry)
   } else {
     entries = getDefaultEntries(rootDir)
   }
-  const injectedContent = injectHtml(htmlContent, entries)
+
+  let injectedContent
+  if (config.projectType !== 'webpack' && fs.existsSync(vueCliFilePath)) {
+    injectedContent = generateWithVueCliPublicIndex(astParsingResult, entries)
+  } else if (fs.existsSync(baseFilePath)) {
+    htmlContent = readSync(baseFilePath).replace(/<%.*URL.*%>/g, '')
+    injectedContent = injectHtml(htmlContent, entries)
+  } else {
+    htmlContent = readSync(path.resolve(path.resolve('src/template/index.html')))
+    injectedContent = injectHtml(htmlContent, entries)
+  }
   writeSync(baseFilePath, injectedContent)
 }
 
@@ -29,14 +35,26 @@ export function injectHtml (source: string, entries: string[]): string {
   const bodyRegex = /<body[^>]*>((.|[\n\r])*)<\/body>/im
   let body = '<body>\n'
   body += '  <div id="app"></div>\n'
-  for (const entry of entries) {
-    if (entry !== undefined) {
-      body += `  <script type="module" src="${entry}"></script>\n`
-    }
-  }
+  body += generateEntriesHtml(entries)
   body += '</body>'
   const result = source.replace(bodyRegex, body)
   return result
+}
+
+function generateEntriesHtml (entries: string[]): string {
+  let entriesHtml: string = ''
+  for (const entry of entries) {
+    if (entry !== undefined) {
+      entriesHtml += `  <script type="module" src="${entry}"></script>\n`
+    }
+  }
+
+  return entriesHtml
+}
+
+export function generateWithVueCliPublicIndex (astParsingResult: AstParsingResult, entries: string[]): string {
+  const indexHtmlContent: string = astParsingResult.transformationResult[TransformationType.indexHtmlTransformation][0].content
+  return stringFormat(indexHtmlContent, generateEntriesHtml(entries))
 }
 
 function getDefaultEntries (rootDir: string): string[] {

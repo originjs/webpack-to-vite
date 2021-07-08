@@ -6,14 +6,15 @@ import * as parser from 'vue-eslint-parser';
 import { Node } from 'vue-eslint-parser/ast/nodes'
 
 const INDEX_HTML_PATH: string = 'public/index.html'
+const templateStart: string = '<template>'
+const templateEnd: string = '</template>'
 
 export const astTransform:ASTTransformation = (fileInfo: FileInfo) => {
   if (!fileInfo.path.replace('\\', '/').endsWith(INDEX_HTML_PATH)) {
     return null
   }
 
-  const templateStart: string = '<template>'
-  const templateEnd: string = '</template>'
+  // add template tags for vue-eslint-parser
   const htmlContent = `${templateStart}${fileInfo.source}${templateEnd}`
   const htmlAST : ESLintProgram = parser.parse(htmlContent, { sourceType: 'module' })
   const root: Node = htmlAST.templateBody
@@ -26,7 +27,10 @@ export const astTransform:ASTTransformation = (fileInfo: FileInfo) => {
     },
     leaveNode () {}
   })
-  const transformedHtml: string = htmlContent.slice(0, bodyNode.endTag.range[0] - 1) + 'abcd' + htmlContent.slice(bodyNode.endTag.range[0] - 1)
+  let transformedHtml: string = htmlContent.slice(0, bodyNode.endTag.range[0]) + '{0}' + htmlContent.slice(bodyNode.endTag.range[0])
+  // remove template tags
+  transformedHtml = transformedHtml.slice(0, transformedHtml.length - templateEnd.length)
+  transformedHtml = transformedHtml.slice(templateStart.length)
   const result: TransformationResult = {
     fileInfo: fileInfo,
     content: transformedHtml,
