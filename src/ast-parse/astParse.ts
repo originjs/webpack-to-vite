@@ -33,13 +33,23 @@ export type TransformationResult = {
   type: TransformationType
 }
 
+export type AstTransformationResult = {
+  [name: string]: TransformationResult[]
+}
+
 export type ParsingResult = {
   [name: string]: ParsingResultOccurrence[]
 }
 
-export function astParseRoot (rootDir: string) {
+export type AstParsingResult = {
+  parsingResult: ParsingResult,
+  transformationResult: AstTransformationResult
+}
+
+export function astParseRoot (rootDir: string): AstParsingResult {
   const resolvedPaths : string[] = globby.sync(rootDir.replace(/\\/g, '/'))
   const parsingResults: ParsingResult = {}
+  const transformationResults: AstTransformationResult = {}
   resolvedPaths.forEach(filePath => {
     // skip files in node_modules
     if (filePath.indexOf('/node_modules/') >= 0) {
@@ -71,6 +81,10 @@ export function astParseRoot (rootDir: string) {
       if (tempTransformationResult == null) {
         continue
       }
+      if (!transformationResults[transformation.transformationType]) {
+        transformationResults[transformation.transformationType] = []
+      }
+      transformationResults[transformation.transformationType].push(tempTransformationResult)
       transformationResultContent = tempTransformationResult.content
 
       if (transformation.needReparse) {
@@ -103,7 +117,10 @@ export function astParseRoot (rootDir: string) {
     }
   })
 
-  return parsingResults
+  return {
+    parsingResult: parsingResults,
+    transformationResult: transformationResults
+  }
 }
 
 export function parseVueSfc (fileInfo: FileInfo) : VueSFCContext {
