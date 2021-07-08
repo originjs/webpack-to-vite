@@ -6,7 +6,7 @@ import { Config } from '../config/config'
 import { AstParsingResult } from '../ast-parse/astParse';
 import { TransformationType } from '../ast-parse/transformations';
 
-export function geneIndexHtml (rootDir: string, config: Config, astParsingResult: AstParsingResult): void {
+export function geneIndexHtml (rootDir: string, config: Config, astParsingResult?: AstParsingResult): void {
   const baseFilePath = path.resolve(rootDir, 'index.html')
   const vueCliFilePath = path.resolve(rootDir, 'public/index.html')
   let htmlContent
@@ -19,7 +19,7 @@ export function geneIndexHtml (rootDir: string, config: Config, astParsingResult
   }
 
   let injectedContent
-  if (config.projectType !== 'webpack' && fs.existsSync(vueCliFilePath)) {
+  if (config.projectType !== 'webpack' && fs.existsSync(vueCliFilePath) && !!astParsingResult) {
     injectedContent = generateWithVueCliPublicIndex(astParsingResult, entries)
   } else if (fs.existsSync(baseFilePath)) {
     htmlContent = readSync(baseFilePath).replace(/<%.*URL.*%>/g, '')
