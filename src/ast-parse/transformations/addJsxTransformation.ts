@@ -1,12 +1,12 @@
 import type { ASTTransformation } from './index'
 import { TransformationType } from './index'
 import { stringifyDescriptor } from '@originjs/vue-sfc-ast-parser'
-import { FileInfo, VueSFCContext, parseVueSfc, TransformationResult } from '../astParse';
+import { FileInfo, VueSFCContext, parseVueSfc, TransformationResult } from '../astParse'
 
-export const astTransform:ASTTransformation = (fileInfo: FileInfo) => {
+export const astTransform:ASTTransformation = async (fileInfo: FileInfo) => {
   const context: VueSFCContext = parseVueSfc(fileInfo)
   if (!context.scriptAST || context.scriptAST.findJSXElements().length === 0) {
-    return null;
+    return null
   }
 
   // if jsx element is found, the lang of script should be 'jsx'
@@ -17,7 +17,7 @@ export const astTransform:ASTTransformation = (fileInfo: FileInfo) => {
     content: stringifyDescriptor(descriptor),
     type: TransformationType.addJsxTransformation
   }
-  return result;
+  return result
 }
 
 export const needReparse: boolean = false
