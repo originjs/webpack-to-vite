@@ -23,12 +23,12 @@ export const astTransform:ASTTransformation = async (fileInfo: FileInfo, transfo
   const rootDir: string = transformationParams.config.rootDir
   let indexPath: string
   if (fs.existsSync(path.resolve(rootDir, 'index.html'))) {
-    indexPath = path.resolve(rootDir, 'index.html')
+    indexPath = path.resolve(rootDir, 'index.html').replace(/\\/g, '/')
   } else {
     indexPath = null
   }
 
-  if (!indexPath || !fileInfo.path.replace('\\', '/').endsWith(indexPath)) {
+  if (!indexPath || !fileInfo.path.endsWith(indexPath)) {
     return null
   }
 

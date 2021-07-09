@@ -24,13 +24,13 @@ export const astTransform:ASTTransformation = async (fileInfo: FileInfo, transfo
   const rootDir: string = transformationParams.config.rootDir
   let indexPath: string
   if (fs.existsSync(path.resolve(rootDir, 'public/index.html'))) {
-    indexPath = path.resolve(rootDir, 'public/index.html')
+    indexPath = path.resolve(rootDir, 'public/index.html').replace(/\\/g, '/')
   } else if (fs.existsSync(path.resolve(rootDir, 'index.html'))) {
-    indexPath = path.resolve(rootDir, 'index.html')
+    indexPath = path.resolve(rootDir, 'index.html').replace(/\\/g, '/')
   } else {
     indexPath = null
   }
-  if (!indexPath || !fileInfo.path.replace('\\', '/').endsWith(indexPath)) {
+  if (!indexPath || !fileInfo.path.endsWith(indexPath)) {
     return null
   }
 
@@ -56,11 +56,11 @@ export const astTransform:ASTTransformation = async (fileInfo: FileInfo, transfo
       // replace jsp tags
       if ((node.type === 'VLiteral' || node.type === 'VText') && jspRegExp.test(node.value)) {
         node.value.match(jspRegExp).forEach(jspSection => {
-          const jspValue = jspSection.replace(jspIdentifierRegExp, '')
+          const jspValue: string = jspSection.replace(jspIdentifierRegExp, '')
           if (!jspMap[jspSection] && jspValue === 'BASE_URL') {
             const publicPath: string =
-                  process.env.PUBLIC_URL || vueConfig.publicPath || vueConfig.baseUrl || '/public'
-            jspMap[jspSection] = path.relative(rootDir, path.resolve(rootDir, publicPath)) + '/'
+                  process.env.PUBLIC_URL || vueConfig.publicPath || vueConfig.baseUrl || './public'
+            jspMap[jspSection] = path.relative(rootDir, path.resolve(rootDir, publicPath)).replace(/\\/g, '/') + '/'
           } else if (!jspMap[jspSection]) {
             jspMap[jspSection] = process.env[jspValue] ? process.env[jspValue] : ''
           }
