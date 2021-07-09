@@ -45,8 +45,8 @@ export const astTransform:ASTTransformation = async (fileInfo: FileInfo, transfo
 
   const vueConfigFile = path.resolve(rootDir, 'vue.config.js')
   const vueConfig = await parseVueCliConfig(vueConfigFile)
-  const jspRegExp = /<%(=|-)(.|\s|\r\n)*%>/g
-  const jspIdentifierRegExp = /(<%|=|-|\s|\r\n|%>)/g
+  const jspRegExp = /<%(=|-)?(.|\s|\r\n)*%>/g
+  const jspIdentifierRegExp = /(<%(=|-)?|\s|\r\n|%>)/g
   const jspMap = {}
 
   let bodyNode
