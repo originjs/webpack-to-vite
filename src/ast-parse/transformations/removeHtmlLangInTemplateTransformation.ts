@@ -1,7 +1,8 @@
 import type { ASTTransformation } from './index'
 import { TransformationType } from './index'
 import { stringifyDescriptor } from '@originjs/vue-sfc-ast-parser'
-import { FileInfo, parseVueSfc, TransformationResult, VueSFCContext } from '../astParse';
+import { FileInfo, TransformationResult, VueSFCContext } from '../astParse';
+import { parseVueSfc } from '../../utils/astUtils'
 
 export const astTransform:ASTTransformation = (fileInfo: FileInfo) => {
   const context: VueSFCContext = parseVueSfc(fileInfo)
