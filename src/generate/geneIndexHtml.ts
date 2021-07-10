@@ -3,13 +3,12 @@ import path from 'path'
 import { readSync, writeSync } from '../utils/file'
 import { isObject, stringFormat } from '../utils/common'
 import { Config } from '../config/config'
-import { AstParsingResult } from '../ast-parse/astParse';
-import { TransformationType } from '../ast-parse/transformations';
+import { AstParsingResult } from '../ast-parse/astParse'
+import { TransformationType } from '../ast-parse/transformations'
 
 export function geneIndexHtml (rootDir: string, config: Config, astParsingResult?: AstParsingResult): void {
-  const baseFilePath = path.resolve(rootDir, 'index.html')
-  const vueCliFilePath = path.resolve(rootDir, 'public/index.html')
-  let htmlContent
+  const outputIndexPath: string = path.resolve(rootDir, 'index.html')
+  const projectType: string = config.projectType
 
   let entries : string[] = []
   if (config.entry !== undefined && config.entry !== '' && config.entry.length !== 0 && JSON.stringify(config.entry) !== '{}') {
@@ -18,27 +17,8 @@ export function geneIndexHtml (rootDir: string, config: Config, astParsingResult
     entries = getDefaultEntries(rootDir)
   }
 
-  let injectedContent
-  if (config.projectType !== 'webpack' && fs.existsSync(vueCliFilePath) && !!astParsingResult) {
-    injectedContent = generateWithVueCliPublicIndex(astParsingResult, entries)
-  } else if (fs.existsSync(baseFilePath)) {
-    htmlContent = readSync(baseFilePath).replace(/<%.*URL.*%>/g, '')
-    injectedContent = injectHtml(htmlContent, entries)
-  } else {
-    htmlContent = readSync(path.resolve(path.resolve('src/template/index.html')))
-    injectedContent = injectHtml(htmlContent, entries)
-  }
-  writeSync(baseFilePath, injectedContent)
-}
-
-export function injectHtml (source: string, entries: string[]): string {
-  const bodyRegex = /<body[^>]*>((.|[\n\r])*)<\/body>/im
-  let body = '<body>\n'
-  body += '  <div id="app"></div>\n'
-  body += generateEntriesHtml(entries)
-  body += '</body>'
-  const result = source.replace(bodyRegex, body)
-  return result
+  const injectedContent = generateWithVueCliPublicIndex(astParsingResult, entries, projectType)
+  writeSync(outputIndexPath, injectedContent)
 }
 
 function generateEntriesHtml (entries: string[]): string {
@@ -52,9 +32,23 @@ function generateEntriesHtml (entries: string[]): string {
   return entriesHtml
 }
 
-export function generateWithVueCliPublicIndex (astParsingResult: AstParsingResult, entries: string[]): string {
-  const indexHtmlContent: string = astParsingResult.transformationResult[TransformationType.indexHtmlTransformation][0].content
-  return stringFormat(indexHtmlContent, generateEntriesHtml(entries))
+export function generateWithVueCliPublicIndex (astParsingResult: AstParsingResult, entries: string[], projectType: string): string {
+  let indexHtmlTransformationResult
+
+  if (!astParsingResult) {
+    indexHtmlTransformationResult = null
+  } else if (projectType === 'webpack') {
+    indexHtmlTransformationResult = astParsingResult.transformationResult[TransformationType.indexHtmlTransformationWebpack]
+  } else {
+    indexHtmlTransformationResult = astParsingResult.transformationResult[TransformationType.indexHtmlTransformationVueCli]
+  }
+
+  if (indexHtmlTransformationResult) {
+    const indexHtmlContent: string = indexHtmlTransformationResult[0].content
+    return stringFormat(indexHtmlContent, generateEntriesHtml(entries))
+  } else {
+    return readSync(path.resolve('src/template/index.html'))
+  }
 }
 
 function getDefaultEntries (rootDir: string): string[] {

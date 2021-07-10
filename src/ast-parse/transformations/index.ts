@@ -1,7 +1,7 @@
-import { FileInfo, TransformationResult } from '../astParse';
+import { FileInfo, TransformationResult, TransformationParams } from '../astParse'
 
-export type ASTTransformation<Params = void> = {
-  (fileInfo: FileInfo, params: Params): TransformationResult | null
+export type ASTTransformation<Params = TransformationParams> = {
+   (fileInfo: FileInfo, params: Params): Promise<TransformationResult> | null
 }
 
 export enum TransformationType {
@@ -10,7 +10,9 @@ export enum TransformationType {
   // eslint-disable-next-line no-unused-vars
   removeHtmlLangInTemplateTransformation = 'removeHtmlLangInTemplateTransformation',
   // eslint-disable-next-line no-unused-vars
-  indexHtmlTransformation = 'indexHtmlTransformation'
+  indexHtmlTransformationVueCli = 'indexHtmlTransformationVueCli',
+  // eslint-disable-next-line no-unused-vars
+  indexHtmlTransformationWebpack = 'indexHtmlTransformationWebpack',
 }
 
 export const transformationMap: {
@@ -24,5 +26,6 @@ export const transformationMap: {
 } = {
   addJsxTransformation: require('./addJsxTransformation'),
   removeHtmlLangInTemplateTransformation: require('./removeHtmlLangInTemplateTransformation'),
-  indexHtmlTransformation: require('./indexHtmlTransformation')
+  indexHtmlTransformationVueCli: require('./indexHtmlTransformationVueCli'),
+  indexHtmlTransformationWebpack: require('./indexHtmlTransformationWebpack')
 }

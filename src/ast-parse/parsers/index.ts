@@ -1,4 +1,4 @@
-import { FileInfo, ParsingResultOccurrence } from '../astParse';
+import { FileInfo, ParsingResultOccurrence } from '../astParse'
 
 export type ASTParse<Params = void> = {
     (fileInfo: FileInfo, params: Params): ParsingResultOccurrence[] | null

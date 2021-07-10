@@ -4,10 +4,10 @@ import { stringifyDescriptor } from '@originjs/vue-sfc-ast-parser'
 import { FileInfo, TransformationResult, VueSFCContext } from '../astParse';
 import { parseVueSfc } from '../../utils/astUtils'
 
-export const astTransform:ASTTransformation = (fileInfo: FileInfo) => {
+export const astTransform:ASTTransformation = async (fileInfo: FileInfo) => {
   const context: VueSFCContext = parseVueSfc(fileInfo)
   if (!context.descriptor.template || !context.descriptor.template.attrs!.lang) {
-    return null;
+    return null
   }
 
   if (context.descriptor.template.attrs.lang === 'html') {
@@ -19,7 +19,7 @@ export const astTransform:ASTTransformation = (fileInfo: FileInfo) => {
     content: stringifyDescriptor(context.descriptor),
     type: TransformationType.removeHtmlLangInTemplateTransformation
   }
-  return result;
+  return result
 }
 
 export const needReparse : boolean = false

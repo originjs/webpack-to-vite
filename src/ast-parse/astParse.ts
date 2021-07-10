@@ -3,8 +3,9 @@ import { parsersMap, ParserType } from './parsers/index'
 import { SFCDescriptor } from '@originjs/vue-sfc-ast-parser'
 import * as globby from 'globby'
 import fs from 'fs'
-import { JSCodeshift } from 'jscodeshift/src/core';
-import { ESLintProgram } from 'vue-eslint-parser/ast';
+import { JSCodeshift } from 'jscodeshift/src/core'
+import { ESLintProgram } from 'vue-eslint-parser/ast'
+import { Config } from '../config/config'
 
 export type FileInfo = {
   path: string,
@@ -27,6 +28,10 @@ export type ParsingResultOccurrence = {
   type: ParserType
 }
 
+export type TransformationParams = {
+  config: Config
+}
+
 export type TransformationResult = {
   fileInfo: FileInfo,
   content: string,
@@ -46,11 +51,16 @@ export type AstParsingResult = {
   transformationResult: AstTransformationResult
 }
 
-export function astParseRoot (rootDir: string): AstParsingResult {
+export async function astParseRoot (rootDir: string, config: Config): Promise<AstParsingResult> {
   const resolvedPaths : string[] = globby.sync(rootDir.replace(/\\/g, '/'))
   const parsingResults: ParsingResult = {}
   const transformationResults: AstTransformationResult = {}
-  resolvedPaths.forEach(filePath => {
+
+  const transformationParams: TransformationParams = {
+    config: config
+  }
+
+  resolvedPaths.forEach(async filePath => {
     // skip files in node_modules
     if (filePath.indexOf('/node_modules/') >= 0) {
       return
@@ -77,7 +87,7 @@ export function astParseRoot (rootDir: string): AstParsingResult {
       }
 
       // execute the transformation
-      tempTransformationResult = transformation.astTransform(fileInfo)
+      tempTransformationResult = await transformation.astTransform(fileInfo, transformationParams)
       if (tempTransformationResult == null) {
         continue
       }
