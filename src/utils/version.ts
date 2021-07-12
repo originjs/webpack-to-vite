@@ -14,7 +14,7 @@ export function getVueVersion (rootDir: string): number {
   if (jsonObj === '') {
     return vueVersion
   }
-  let dep = getVueDependency(jsonObj)
+  const dep = getVueDependency(jsonObj)
   if (dep.vue === undefined) {
     const nodePath = path.resolve(rootDir, 'node_modules/vue/package.json')
     if (!fs.existsSync(nodePath)) {
@@ -22,10 +22,10 @@ export function getVueVersion (rootDir: string): number {
     }
     source = readSync(nodePath)
     jsonObj = JSON.parse(source)
-    dep = getVueDependency(jsonObj)
-  }
-  if (jsonObj === '' || dep.vue === undefined) {
-    return vueVersion
+    if (jsonObj === '' || dep.vue === undefined) {
+      return vueVersion
+    }
+    return Number(jsonObj.version.replace(/~|\^/, '').split('.')[0])
   }
   return Number(dep.vue.replace(/~|\^/, '').split('.')[0])
 }
