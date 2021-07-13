@@ -2,6 +2,7 @@ export interface Config {
     rootDir?: string;
     projectType?: string;
     entry?: any;
+    report?: string;
 }
 
 export interface DevServer {
