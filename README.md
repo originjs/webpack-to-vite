@@ -59,7 +59,7 @@ Legend of annotations:
 |⚠️|need manual convert|
 |❌|not support now|
 
-### base conversion
+### Base conversion
 * ✅ B01: add required devDependencies and dependencies in `package.json`
   * required: `vite-plugin-env-compatible`, `vite`,
   * Vue2 required: `vite-plugin-vue2`
