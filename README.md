@@ -83,6 +83,7 @@ Legend of annotations:
   
 ### Vue-CLI conversion
 > Vue-CLI conversion are base on `vue.config.js`, map configuration to `vite.config.js`
+
 * ✅ V01: base public path
   * `process.env.PUBLIC_URL` or `publicPath` or `baseUrl` -> `base`
 * ✅ V02: css options
@@ -117,6 +118,7 @@ Legend of annotations:
 > Webpack conversion are base on `webpack.config.js` or `webpack.base.js、webpack.dev.js、webpack.prod.js|webpack.build.js|webpack.production.js`, map configuration to `vite.config.js`
 
 > Note: if you are not using configuration file above, you need to convert configuration manually instead using tool
+
 * ✅ W01: build input options
   * if `entry` is `string` type, `entry` -> `build.rollupOptions.input`
   * if `entry` is `object` type, convert each object property and each array element to `build.rollupOptions.input`
