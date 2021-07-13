@@ -7,6 +7,7 @@ import { DEFAULT_VUE_VERSION } from '../constants/constants'
 import { Entry } from '../config/webpack'
 import { isObject } from '../utils/common'
 import { recordConver } from '../utils/report'
+import { getVueVersion } from '../utils/version';
 
 // convert webpack.config.js => vite.config.js
 export class WebpackTransformer implements Transformer {
@@ -17,6 +18,7 @@ export class WebpackTransformer implements Transformer {
     }
 
     public async transform (rootDir: string): Promise<ViteConfig> {
+      this.context.vueVersion = getVueVersion(rootDir)
       const webpackConfig = await parseWebpackConfig(path.resolve(rootDir, 'webpack.config.js'))
       transformImporters(this.context)
       const config = this.context.config
@@ -52,12 +54,22 @@ export class WebpackTransformer implements Transformer {
       recordConver('WebpackConfig.entry')
       // convert alias
       const defaultAlias = []
-
       const alias = {
         '@': `${rootDir}/src`
       }
+      if (webpackConfig.resolve?.alias !== undefined) {
+        Object.keys(webpackConfig.resolve.alias).forEach((key) => {
+          alias[key] = webpackConfig.resolve.alias[key]
+        })
+      }
+
       Object.keys(alias).forEach((key) => {
-        const relativePath = path.relative(rootDir, alias[key]).replace(/\\/g, '/')
+        let relativePath = path.relative(rootDir, path.resolve(rootDir, alias[key]))
+        relativePath = relativePath.replace(/\\/g, '/')
+        if (key === 'vue$') {
+          key = key.replace('$', '')
+          relativePath = 'node_modules/' + relativePath
+        }
         defaultAlias.push({
           find: key,
           replacement: new RawValue(`path.resolve(__dirname,'${relativePath}')`)

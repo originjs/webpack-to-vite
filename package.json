@@ -58,7 +58,7 @@
   },
   "dependencies": {
     "chalk": "^4.1.1",
-    "@originjs/vue-sfc-ast-parser": "^1.0.0-beta0",
+    "@originjs/vue-sfc-ast-parser": "^1.0.1",
     "commander": "^7.2.0",
     "ejs": "^3.1.6",
     "jscodeshift": "^0.12.0",

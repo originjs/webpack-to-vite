@@ -1,65 +1,134 @@
-import { Context, transformationMap } from './transformations/index'
-import { vueSfcAstParser } from '@originjs/vue-sfc-ast-parser'
+import { transformationMap, TransformationType } from './transformations/index'
+import { parsersMap, ParserType } from './parsers/index'
+import { SFCDescriptor } from '@originjs/vue-sfc-ast-parser'
 import * as globby from 'globby'
 import fs from 'fs'
+import { JSCodeshift } from 'jscodeshift/src/core'
+import { ESLintProgram } from 'vue-eslint-parser/ast'
+import { Config } from '../config/config'
 
-const extensions = ['.vue']
+export type FileInfo = {
+  path: string,
+  source: string
+}
 
-export function astParseRoot (rootDir: string) {
-  const resolvedPaths : string[] = globby.sync(rootDir)
-  resolvedPaths.forEach(filePath => {
+export type VueSFCContext = {
+  path: string
+  source: string
+  templateAST: ESLintProgram,
+  scriptAST: any,
+  jscodeshiftParser: JSCodeshift,
+  descriptor: SFCDescriptor
+}
+
+export type ParsingResultOccurrence = {
+  fileInfo: FileInfo,
+  offsetBegin: number,
+  offsetEnd: number,
+  type: ParserType
+}
+
+export type TransformationParams = {
+  config: Config
+}
+
+export type TransformationResult = {
+  fileInfo: FileInfo,
+  content: string,
+  type: TransformationType
+}
+
+export type AstTransformationResult = {
+  [name: string]: TransformationResult[]
+}
+
+export type ParsingResult = {
+  [name: string]: ParsingResultOccurrence[]
+}
+
+export type AstParsingResult = {
+  parsingResult: ParsingResult,
+  transformationResult: AstTransformationResult
+}
+
+export async function astParseRoot (rootDir: string, config: Config): Promise<AstParsingResult> {
+  const resolvedPaths : string[] = globby.sync(rootDir.replace(/\\/g, '/'))
+  const parsingResults: ParsingResult = {}
+  const transformationResults: AstTransformationResult = {}
+
+  const transformationParams: TransformationParams = {
+    config: config
+  }
+
+  resolvedPaths.forEach(async filePath => {
     // skip files in node_modules
     if (filePath.indexOf('/node_modules/') >= 0) {
       return
     }
 
     const extension = (/\.([^.]*)$/.exec(filePath) || [])[0]
-    if (!extensions.includes(extension)) {
-      return
-    }
 
-    let fileChanged: boolean = false
-    let context = parseVueSfc(filePath)
-    let transformationResult: string = context.source
-    let tempTransformationResult: string|null
+    const source: string = fs.readFileSync(filePath).toString().split('\r\n').join('\n')
+    const fileInfo: FileInfo = {
+      path: filePath,
+      source: source
+    }
+    let transformationResultContent: string = source
+    let tempTransformationResult: TransformationResult | null
 
     // iter all transformations
     for (const key in transformationMap) {
       const transformation = transformationMap[key]
-      tempTransformationResult = transformation.transformAST(context)
+
+      // filter by file extension
+      const extensions: string[] = transformation.extensions
+      if (!extensions.includes(extension)) {
+        continue
+      }
+
+      // execute the transformation
+      tempTransformationResult = await transformation.astTransform(fileInfo, transformationParams)
       if (tempTransformationResult == null) {
         continue
       }
-      fileChanged = true
-      transformationResult = tempTransformationResult
+      if (!transformationResults[transformation.transformationType]) {
+        transformationResults[transformation.transformationType] = []
+      }
+      transformationResults[transformation.transformationType].push(tempTransformationResult)
+      transformationResultContent = tempTransformationResult.content
 
       if (transformation.needReparse) {
-        context = parseVueSfc(filePath, transformationResult)
+        fileInfo.source = transformationResultContent
+      }
+      if (transformation.needWriteToOriginFile) {
+        fs.writeFileSync(filePath, transformationResultContent)
       }
     }
-    if (fileChanged) {
-      fs.writeFileSync(filePath, transformationResult)
+
+    for (const key in parsersMap) {
+      const parser = parsersMap[key]
+
+      // filter by file extension
+      const extensions: string[] = parser.extensions
+      if (!extensions.includes(extension)) {
+        continue
+      }
+
+      // parse the file
+      const parsingResult: ParsingResultOccurrence[] | null = parser.astParse(fileInfo)
+      if (!parsingResult) {
+        continue
+      }
+
+      if (!parsingResults[parser.parserType]) {
+        parsingResults[parser.parserType] = []
+      }
+      parsingResults[parser.parserType].push.apply(parsingResults[parser.parserType], parsingResult)
     }
   })
-}
 
-function parseVueSfc (filePath: string, source?: string) : Context {
-  if (!source || source.length === 0) {
-    source = fs.readFileSync(filePath).toString().split('\r\n').join('\n')
+  return {
+    parsingResult: parsingResults,
+    transformationResult: transformationResults
   }
-  const fileInfo = {
-    path: filePath,
-    source: source
-  }
-  const astParseResult = vueSfcAstParser(fileInfo)
-  const context : Context = {
-    path: filePath,
-    source: source,
-    templateAST: astParseResult.templateAST,
-    scriptAST: astParseResult.scriptAST,
-    jscodeshiftParser: astParseResult.jscodeshiftParser,
-    descriptor: astParseResult.descriptor
-  }
-
-  return context
 }

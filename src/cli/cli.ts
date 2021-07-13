@@ -4,9 +4,10 @@ import chalk from 'chalk'
 import { geneIndexHtml } from '../generate/geneIndexHtml'
 import { genePackageJson } from '../generate/genePackageJson'
 import { geneViteConfig } from '../generate/geneViteConfig'
+import { genePatches } from '../generate/genePatches'
 import { Command } from 'commander'
 import { Config } from '../config/config'
-import { astParseRoot } from '../ast-parse/astParse'
+import { astParseRoot, AstParsingResult } from '../ast-parse/astParse'
 import { reportOpt, printReport } from '../utils/report'
 
 export function run (): void {
@@ -47,14 +48,19 @@ export async function start (config : Config): Promise<void> {
   const cwd = process.cwd()
   const rootDir = path.resolve(config.rootDir)
 
-  astParseRoot(rootDir)
+  const astParsingResult: AstParsingResult = await astParseRoot(rootDir, config)
   genePackageJson(path.resolve(rootDir, 'package.json'))
 
   await geneViteConfig(rootDir, rootDir, config)
 
   // generate index.html must be after generate vite.config.js
-  geneIndexHtml(rootDir, config)
+  geneIndexHtml(rootDir, config, astParsingResult)
   printReport() // output conversion
+
+  // generate patches
+  const patchesDir = path.resolve(rootDir, 'patches')
+  genePatches(patchesDir)
+
   console.log(chalk.green('************************ Done ! ************************'))
   const pkgManager = fs.existsSync(path.resolve(rootDir, 'yarn.lock'))
     ? 'yarn'

@@ -1,16 +1,31 @@
 import type { ASTTransformation } from './index'
-import { Context } from './index'
+import { TransformationType } from './index'
 import { stringifyDescriptor } from '@originjs/vue-sfc-ast-parser'
+import { FileInfo, TransformationResult, VueSFCContext } from '../astParse';
+import { parseVueSfc } from '../../utils/astUtils'
 
-export const transformAST:ASTTransformation = (context: Context) => {
+export const astTransform:ASTTransformation = async (fileInfo: FileInfo) => {
+  const context: VueSFCContext = parseVueSfc(fileInfo)
   if (!context.descriptor.template || !context.descriptor.template.attrs!.lang) {
-    return null;
+    return null
   }
 
   if (context.descriptor.template.attrs.lang === 'html') {
     delete context.descriptor.template.attrs.lang
   }
-  return stringifyDescriptor(context.descriptor);
+
+  const result: TransformationResult = {
+    fileInfo: fileInfo,
+    content: stringifyDescriptor(context.descriptor),
+    type: TransformationType.removeHtmlLangInTemplateTransformation
+  }
+  return result
 }
 
 export const needReparse : boolean = false
+
+export const needWriteToOriginFile: boolean = true
+
+export const extensions: string[] = ['.vue']
+
+export const transformationType: TransformationType = TransformationType.removeHtmlLangInTemplateTransformation
