@@ -34,6 +34,7 @@ The following is a list of projects that successfully converted from a webpack p
 - [helloworld-webpack](https://github.com/originjs/webpack-to-vite-demos/tree/main/helloworld-webpack)
 - [vue-manage-system-vite](https://github.com/originjs/webpack-to-vite-demos/tree/main/vue-manage-system-vite)
 - [newbee-mall-vue3-app-vite](https://github.com/originjs/webpack-to-vite-demos/tree/main/newbee-mall-vue3-app-vite)
+- [vue-realworld-example-app-vite](https://github.com/originjs/webpack-to-vite-demos/tree/main/vue-realworld-example-app-vite)
 - [vue-uploader-vite](https://github.com/originjs/webpack-to-vite-demos/tree/main/vue-uploader-vite)
 - [douban-vite](https://github.com/originjs/webpack-to-vite-demos/tree/main/douban-vite)
 
@@ -65,8 +66,7 @@ Legend of annotations:
   * Vue2 required: `vite-plugin-vue2`
   * Vue3 required: `@vue/compiler-sfc`, `@vitejs/plugin-vue`, `@vitejs/plugin-vue-jsx`
 * ✅ B02: add vite entry file `index.html` to root directory
-  * add entry point like: `<script type="module" src="/src/main.js"></script>`, don't need add `dev-client` entry point because vite support hmr default
-  * replace `/<%.*URL.*%>/g` to `''` in file content
+  * add entry point like: `<script type="module" src="/src/main.js"></script>`, don't need to add `dev-client` entry point because vite support hmr default
 * ✅ B03: add vite config file `vite.config.js` to root directory
 * ✅ B04: import and use required plugins in `vite.config.js`
   * required `vite-plugin-env-compatible`
@@ -113,6 +113,8 @@ Legend of annotations:
   }
   ```
   * convert webpack alias options to match format above
+* ✅ V06: default values exposed by plugins or client-side env variables
+  * replace jsp scriptlet tags in `index.html` to exact values
   
 ### Webpack conversion
 > Webpack conversion are base on `webpack.config.js` or `webpack.base.js、webpack.dev.js、webpack.prod.js|webpack.build.js|webpack.production.js`, map configuration to `vite.config.js`
