@@ -13,6 +13,8 @@ export enum TransformationType {
   indexHtmlTransformationVueCli = 'indexHtmlTransformationVueCli',
   // eslint-disable-next-line no-unused-vars
   indexHtmlTransformationWebpack = 'indexHtmlTransformationWebpack',
+  // eslint-disable-next-line no-unused-vars
+  lazyLoadingRoutesTransformation = 'lazyLoadingRoutesTransformation'
 }
 
 export const transformationMap: {
@@ -27,5 +29,6 @@ export const transformationMap: {
   addJsxTransformation: require('./addJsxTransformation'),
   removeHtmlLangInTemplateTransformation: require('./removeHtmlLangInTemplateTransformation'),
   indexHtmlTransformationVueCli: require('./indexHtmlTransformationVueCli'),
-  indexHtmlTransformationWebpack: require('./indexHtmlTransformationWebpack')
+  indexHtmlTransformationWebpack: require('./indexHtmlTransformationWebpack'),
+  lazyLoadingRoutesTransformation: require('./lazyLoadingRoutesTransformation')
 }
