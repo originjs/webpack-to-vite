@@ -32,7 +32,7 @@ export class VueCliTransformer implements Transformer {
       // Base public path
       config.base =
             process.env.PUBLIC_URL || vueConfig.publicPath || vueConfig.baseUrl
-      recordConver('VueCliConfig.base')
+      recordConver({ num: 'V01', feat: 'base public path' })
       // css options
       if (css.loaderOptions) {
         config.css = {}
@@ -46,7 +46,7 @@ export class VueCliTransformer implements Transformer {
           config.css.preprocessorOptions.scss = JSON.parse(strfy).sass
         }
       }
-      recordConver('VueCliConfig.css')
+      recordConver({ num: 'V02', feat: 'css options' })
       // server options
       vueConfig.devServer && this.transformDevServer(vueConfig, config)
 
@@ -62,7 +62,7 @@ export class VueCliTransformer implements Transformer {
             process.env.GENERATE_SOURCEMAP === 'true' ||
             vueConfig.productionSourceMap ||
             css.sourceMap
-      recordConver('VueCliConfig.build')
+      recordConver({ num: 'V03', feat: 'build options' })
       // alias
       const chainableConfig = new Config()
       if (vueConfig.chainWebpack) {
@@ -100,7 +100,7 @@ export class VueCliTransformer implements Transformer {
       })
 
       config.resolve.alias = defaultAlias
-      recordConver('VueCliConfig.alias')
+      recordConver({ num: 'V05', feat: 'resolve.alias options' })
       return config
     }
 
@@ -140,6 +140,6 @@ export class VueCliTransformer implements Transformer {
         }
       }
       config.server.proxy = proxy
-      recordConver('VueCliConfig.devServer')
+      recordConver({ num: 'V03', feat: 'server options' })
     }
 }

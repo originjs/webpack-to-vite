@@ -2,6 +2,7 @@ import { TransformContext } from './context';
 import { RawValue, ViteConfig } from '../config/vite';
 import { VueCliTransformer } from './transformVuecli';
 import { WebpackTransformer } from './transformWebpack';
+import { recordConver } from '../utils/report'
 
 /**
  * general implementation for vue.config.js and webpack.config.js
@@ -60,7 +61,7 @@ export function transformImporters (context: TransformContext) : void {
     )
     plugins.push(new RawValue('createVuePlugin({jsx:true})'))
   }
-
+  recordConver({ num: 'B04', feat: 'required plugins' })
   context.importers.push('import envCompatible from \'vite-plugin-env-compatible\';')
   context.importers.push('import { viteCommonjs } from \'@originjs/vite-plugin-commonjs\';')
   // TODO scan files to determine whether you need to add the plugin

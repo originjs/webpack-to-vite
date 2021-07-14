@@ -4,6 +4,7 @@ import path from 'path'
 import { writeSync } from '../utils/file'
 import { TemplateData } from '../config/config'
 import { RawValue } from '../config/vite'
+import { recordConver } from '../utils/report'
 
 function isObject (obj) {
   return obj !== null && (typeof obj === 'object' || typeof obj === 'function')
@@ -114,4 +115,5 @@ export function render (outDir: string, templatePath: string, data: TemplateData
   const outputCode = ejs.compile(template, {})(data)
   const outputFilePath = path.resolve(outDir, 'vite.config.js')
   writeSync(outputFilePath, outputCode)
+  recordConver({ num: 'B03', feat: 'add vite.config.js' })
 }

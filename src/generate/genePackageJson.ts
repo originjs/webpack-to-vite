@@ -4,6 +4,7 @@ import fs from 'fs'
 import path from 'path'
 import chalk from 'chalk'
 import * as constants from '../constants/constants'
+import { recordConver } from '../utils/report'
 
 // TODO: compatible with vue2 and vue3
 export function genePackageJson (packageJsonPath: string): void {
@@ -54,4 +55,5 @@ export function genePackageJson (packageJsonPath: string): void {
   packageJson.scripts.postinstall = 'patch-package'
 
   writeSync(packageJsonPath, JSON.stringify(packageJson, null, 2))
+  recordConver({ num: 'B01', feat: 'add package.json' })
 }

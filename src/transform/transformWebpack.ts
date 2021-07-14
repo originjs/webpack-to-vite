@@ -45,13 +45,13 @@ export class WebpackTransformer implements Transformer {
           config.build.rollupOptions.input = webpackConfig.entry
         }
       }
-      recordConver('WebpackConfig.entry')
+      recordConver({ num: 'W01', feat: 'build input options' })
       // convert output
       if (webpackConfig.output?.path !== '') {
         const relativePath = path.relative(rootDir, webpackConfig.output.path).replace(/\\/g, '/')
         config.build.outDir = new RawValue(`path.resolve(__dirname, '${relativePath}')`)
       }
-      recordConver('WebpackConfig.entry')
+      recordConver({ num: 'W02', feat: 'outDir options' })
       // convert alias
       const defaultAlias = []
       const alias = {
@@ -76,7 +76,7 @@ export class WebpackTransformer implements Transformer {
         })
       })
       config.resolve.alias = defaultAlias
-      recordConver('WebpackConfig.alias')
+      recordConver({ num: 'W03', feat: 'resolve.alias options' })
       // convert devServer
       if (webpackConfig.devServer !== undefined) {
         config.server.host = webpackConfig.devServer.host
@@ -85,7 +85,7 @@ export class WebpackTransformer implements Transformer {
         config.server.https = webpackConfig.devServer.https
         config.server.base = webpackConfig.devServer.contentBase
       }
-      recordConver('WebpackConfig.devServer')
+      recordConver({ num: 'W04', feat: 'server options' })
       // convert plugins
       // webpack.DefinePlugin
       config.define = {}
@@ -99,7 +99,7 @@ export class WebpackTransformer implements Transformer {
           })
         }
       })
-      recordConver('WebpackConfig.plugins')
+      recordConver({ num: 'W05', feat: 'define options' })
       return config
     }
 }
