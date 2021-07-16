@@ -8,7 +8,7 @@ import { genePatches } from '../generate/genePatches'
 import { Command } from 'commander'
 import { Config } from '../config/config'
 import { astParseRoot, AstParsingResult } from '../ast-parse/astParse'
-import { reportOpt, printReport } from '../utils/report'
+import { printReport, recordConver } from '../utils/report'
 
 export function run (): void {
   const program = new Command()
@@ -20,10 +20,10 @@ export function run (): void {
     .option('-e --entry <type>', 'entrance of the entire build process, webpack or vite will start from ' +
             'those entry files to build, if no entry file is specified, src/main.ts or src/main.js will be' +
             'used as default')
-    .option('-r --report <boolean>', 'when n, the output conversion report is not output')
+    .option('-r --reportType <type>', "'log' will output a file of log")
     .parse(process.argv)
 
-  const keys = ['rootDir', 'projectType', 'entry', 'report']
+  const keys = ['rootDir', 'projectType', 'entry', 'reportType']
   const config: Config = {}
   keys.forEach(function (k) {
     if (Object.prototype.hasOwnProperty.call(program.opts(), k)) {
@@ -41,10 +41,6 @@ export async function start (config : Config): Promise<void> {
     console.log(chalk.red(`Project path is not correct : ${config.rootDir}`))
     return
   }
-  if (config?.report === 'n') {
-    console.log(chalk.yellow('no report'));
-    reportOpt.noRepot = true
-  }
   const cwd = process.cwd()
   const rootDir = path.resolve(config.rootDir)
 
@@ -55,12 +51,12 @@ export async function start (config : Config): Promise<void> {
 
   // generate index.html must be after generate vite.config.js
   geneIndexHtml(rootDir, config, astParsingResult)
-  printReport() // output conversion
+  printReport(config.reportType, config.rootDir) // output conversion
 
   // generate patches
   const patchesDir = path.resolve(rootDir, 'patches')
   genePatches(patchesDir)
-
+  recordConver({ num: 'B05', feat: 'required plugins' })
   console.log(chalk.green('************************ Done ! ************************'))
   const pkgManager = fs.existsSync(path.resolve(rootDir, 'yarn.lock'))
     ? 'yarn'

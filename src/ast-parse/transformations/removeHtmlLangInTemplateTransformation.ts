@@ -3,6 +3,7 @@ import { TransformationType } from './index'
 import { stringifyDescriptor } from '@originjs/vue-sfc-ast-parser'
 import { FileInfo, TransformationResult, VueSFCContext } from '../astParse';
 import { parseVueSfc } from '../../utils/astUtils'
+import { recordConver } from '../../utils/report'
 
 export const astTransform:ASTTransformation = async (fileInfo: FileInfo) => {
   const context: VueSFCContext = parseVueSfc(fileInfo)
@@ -19,6 +20,7 @@ export const astTransform:ASTTransformation = async (fileInfo: FileInfo) => {
     content: stringifyDescriptor(context.descriptor),
     type: TransformationType.removeHtmlLangInTemplateTransformation
   }
+  recordConver({ num: 'O07', feat: 'remove lang="html"' })
   return result
 }
 

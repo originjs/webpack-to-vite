@@ -5,6 +5,7 @@ import { isObject, stringFormat } from '../utils/common'
 import { Config } from '../config/config'
 import { AstParsingResult } from '../ast-parse/astParse'
 import { TransformationType } from '../ast-parse/transformations'
+import { recordConver } from '../utils/report'
 
 export function geneIndexHtml (rootDir: string, config: Config, astParsingResult?: AstParsingResult): void {
   const outputIndexPath: string = path.resolve(rootDir, 'index.html')
@@ -19,6 +20,7 @@ export function geneIndexHtml (rootDir: string, config: Config, astParsingResult
 
   const injectedContent = generateWithVueCliPublicIndex(astParsingResult, entries, projectType)
   writeSync(outputIndexPath, injectedContent)
+  recordConver({ num: 'B02', feat: 'add index.html' })
 }
 
 function generateEntriesHtml (entries: string[]): string {
