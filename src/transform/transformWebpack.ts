@@ -6,6 +6,8 @@ import { initViteConfig, Transformer, transformImporters } from './transformer'
 import { DEFAULT_VUE_VERSION } from '../constants/constants'
 import { Entry } from '../config/webpack'
 import { isObject } from '../utils/common'
+import { recordConver } from '../utils/report'
+import { getVueVersion } from '../utils/version';
 
 // convert webpack.config.js => vite.config.js
 export class WebpackTransformer implements Transformer {
@@ -16,6 +18,7 @@ export class WebpackTransformer implements Transformer {
     }
 
     public async transform (rootDir: string): Promise<ViteConfig> {
+      this.context.vueVersion = getVueVersion(rootDir)
       const webpackConfig = await parseWebpackConfig(path.resolve(rootDir, 'webpack.config.js'))
       transformImporters(this.context)
       const config = this.context.config
@@ -42,12 +45,13 @@ export class WebpackTransformer implements Transformer {
           config.build.rollupOptions.input = webpackConfig.entry
         }
       }
+      recordConver('WebpackConfig.entry')
       // convert output
       if (webpackConfig.output?.path !== '') {
         const relativePath = path.relative(rootDir, webpackConfig.output.path).replace(/\\/g, '/')
         config.build.outDir = new RawValue(`path.resolve(__dirname, '${relativePath}')`)
       }
-
+      recordConver('WebpackConfig.entry')
       // convert alias
       const defaultAlias = []
       const alias = {
@@ -72,7 +76,7 @@ export class WebpackTransformer implements Transformer {
         })
       })
       config.resolve.alias = defaultAlias
-
+      recordConver('WebpackConfig.alias')
       // convert devServer
       if (webpackConfig.devServer !== undefined) {
         config.server.host = webpackConfig.devServer.host
@@ -81,7 +85,7 @@ export class WebpackTransformer implements Transformer {
         config.server.https = webpackConfig.devServer.https
         config.server.base = webpackConfig.devServer.contentBase
       }
-
+      recordConver('WebpackConfig.devServer')
       // convert plugins
       // webpack.DefinePlugin
       config.define = {}
@@ -95,6 +99,7 @@ export class WebpackTransformer implements Transformer {
           })
         }
       })
+      recordConver('WebpackConfig.plugins')
       return config
     }
 }

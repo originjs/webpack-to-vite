@@ -8,6 +8,7 @@ import { genePatches } from '../generate/genePatches'
 import { Command } from 'commander'
 import { Config } from '../config/config'
 import { astParseRoot, AstParsingResult } from '../ast-parse/astParse'
+import { reportOpt, printReport } from '../utils/report'
 
 export function run (): void {
   const program = new Command()
@@ -19,9 +20,10 @@ export function run (): void {
     .option('-e --entry <type>', 'entrance of the entire build process, webpack or vite will start from ' +
             'those entry files to build, if no entry file is specified, src/main.ts or src/main.js will be' +
             'used as default')
+    .option('-r --report <boolean>', 'when n, the output conversion report is not output')
     .parse(process.argv)
 
-  const keys = ['rootDir', 'projectType', 'entry']
+  const keys = ['rootDir', 'projectType', 'entry', 'report']
   const config: Config = {}
   keys.forEach(function (k) {
     if (Object.prototype.hasOwnProperty.call(program.opts(), k)) {
@@ -32,14 +34,17 @@ export function run (): void {
 }
 
 export async function start (config : Config): Promise<void> {
-  console.log(chalk.green('******************* Webpack to Vite:chalk *******************'))
+  console.log(chalk.green('******************* Webpack to Vite *******************'))
   console.log(chalk.green(`Project path: ${config.rootDir}`))
 
   if (!fs.existsSync(config.rootDir)) {
     console.log(chalk.red(`Project path is not correct : ${config.rootDir}`))
     return
   }
-
+  if (config?.report === 'n') {
+    console.log(chalk.yellow('no report'));
+    reportOpt.noRepot = true
+  }
   const cwd = process.cwd()
   const rootDir = path.resolve(config.rootDir)
 
@@ -50,6 +55,7 @@ export async function start (config : Config): Promise<void> {
 
   // generate index.html must be after generate vite.config.js
   geneIndexHtml(rootDir, config, astParsingResult)
+  printReport() // output conversion
 
   // generate patches
   const patchesDir = path.resolve(rootDir, 'patches')

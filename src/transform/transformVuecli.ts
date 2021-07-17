@@ -7,6 +7,7 @@ import path from 'path'
 import { TransformContext } from './context'
 import { getVueVersion } from '../utils/version'
 import { DEFAULT_VUE_VERSION } from '../constants/constants'
+import { recordConver } from '../utils/report'
 
 /**
  * parse vue.config.js options and transform to vite.config.js
@@ -31,7 +32,7 @@ export class VueCliTransformer implements Transformer {
       // Base public path
       config.base =
             process.env.PUBLIC_URL || vueConfig.publicPath || vueConfig.baseUrl
-
+      recordConver('VueCliConfig.base')
       // css options
       if (css.loaderOptions) {
         config.css = {}
@@ -45,7 +46,7 @@ export class VueCliTransformer implements Transformer {
           config.css.preprocessorOptions.scss = JSON.parse(strfy).sass
         }
       }
-
+      recordConver('VueCliConfig.css')
       // server options
       vueConfig.devServer && this.transformDevServer(vueConfig, config)
 
@@ -61,7 +62,7 @@ export class VueCliTransformer implements Transformer {
             process.env.GENERATE_SOURCEMAP === 'true' ||
             vueConfig.productionSourceMap ||
             css.sourceMap
-
+      recordConver('VueCliConfig.build')
       // alias
       const chainableConfig = new Config()
       if (vueConfig.chainWebpack) {
@@ -99,6 +100,7 @@ export class VueCliTransformer implements Transformer {
       })
 
       config.resolve.alias = defaultAlias
+      recordConver('VueCliConfig.alias')
       return config
     }
 
@@ -138,5 +140,6 @@ export class VueCliTransformer implements Transformer {
         }
       }
       config.server.proxy = proxy
+      recordConver('VueCliConfig.devServer')
     }
 }
