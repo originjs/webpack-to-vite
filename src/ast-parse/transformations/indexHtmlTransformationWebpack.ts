@@ -5,6 +5,7 @@ import { ESLintProgram } from 'vue-eslint-parser/ast'
 import * as parser from 'vue-eslint-parser'
 import { Node } from 'vue-eslint-parser/ast/nodes'
 import { stringSplice } from '../../utils/common'
+import { pathFormat } from '../../utils/file'
 import path from 'path'
 import fs from 'fs'
 
@@ -23,7 +24,7 @@ export const astTransform:ASTTransformation = async (fileInfo: FileInfo, transfo
   const rootDir: string = transformationParams.config.rootDir
   let indexPath: string
   if (fs.existsSync(path.resolve(rootDir, 'index.html'))) {
-    indexPath = path.resolve(rootDir, 'index.html').replace(/\\/g, '/')
+    indexPath = pathFormat(path.resolve(rootDir, 'index.html'))
   } else {
     indexPath = null
   }
@@ -37,7 +38,7 @@ export const astTransform:ASTTransformation = async (fileInfo: FileInfo, transfo
   const htmlAST : ESLintProgram = parser.parse(htmlContent, { sourceType: 'module' })
   const root: Node = htmlAST.templateBody
 
-  const afterIndentLength: number = 1
+  const behindIndentLength: number = 1
   let frontIndentLength: number = 0
   let offset: number = 0
 
@@ -52,8 +53,8 @@ export const astTransform:ASTTransformation = async (fileInfo: FileInfo, transfo
         // remove original entry scripts with spaces
         if (nodeAttrs[0]?.key.name === 'type' && nodeAttrs[0].value.type === 'VLiteral' && nodeAttrs[0].value.value === 'module' && nodeAttrs[1].key.name === 'src') {
           frontIndentLength = node.loc.start.column
-          htmlContent = stringSplice(htmlContent, node.range[0] - frontIndentLength, node.range[1] + afterIndentLength, offset)
-          offset += node.range[1] - node.range[0] + frontIndentLength + afterIndentLength + 1
+          htmlContent = stringSplice(htmlContent, node.range[0] - frontIndentLength, node.range[1] + behindIndentLength, offset)
+          offset += node.range[1] - node.range[0] + frontIndentLength + behindIndentLength + 1
         }
       }
     },

@@ -23,3 +23,11 @@ export function readSync (filePath: string): string {
 
   return ''
 }
+
+export function pathFormat (filePath: string): string {
+  return filePath.replace(/\\/g, '/')
+}
+
+export function relativePathFormat (rootDir: string, filePath: string): string {
+  return path.relative(rootDir, path.resolve(rootDir, filePath)).replace(/\\/g, '/')
+}
