@@ -50,7 +50,7 @@ export class VueCliTransformer implements Transformer {
       // server options
       vueConfig.devServer && this.transformDevServer(vueConfig, config)
       if (!vueConfig.devServer && vueConfig?.configureWebpack?.devServer) this.transformDevServer(vueConfig.configureWebpack, config)
-       
+
       // build options
       config.build = config.build || {}
       config.build.outDir = vueConfig.outputDir
