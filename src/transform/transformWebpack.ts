@@ -8,6 +8,7 @@ import { Entry } from '../config/webpack'
 import { isObject } from '../utils/common'
 import { recordConver } from '../utils/report'
 import { getVueVersion } from '../utils/version';
+import { ServerOptions } from 'vite';
 
 // convert webpack.config.js => vite.config.js
 export class WebpackTransformer implements Transformer {
@@ -78,13 +79,7 @@ export class WebpackTransformer implements Transformer {
       config.resolve.alias = defaultAlias
       recordConver({ num: 'W03', feat: 'resolve.alias options' })
       // convert devServer
-      if (webpackConfig.devServer !== undefined) {
-        config.server.host = webpackConfig.devServer.host
-        config.server.port = webpackConfig.devServer.port
-        config.server.proxy = webpackConfig.devServer.proxy
-        config.server.https = webpackConfig.devServer.https
-        config.server.base = webpackConfig.devServer.contentBase
-      }
+      webpackConfig.devServer && (config.server = this.transformDevServer(webpackConfig.devServer))
       recordConver({ num: 'W04', feat: 'server options' })
       // convert plugins
       // webpack.DefinePlugin
@@ -101,6 +96,46 @@ export class WebpackTransformer implements Transformer {
       })
       recordConver({ num: 'W05', feat: 'define options' })
       return config
+    }
+
+    public transformDevServer (devServer): ServerOptions {
+      let server: ServerOptions = {}
+      server = {}
+      server.strictPort = false
+      server.port = Number(process.env.PORT) || devServer.port
+      const host = process.env.DEV_HOST || devServer.public || devServer.host
+      if (host) {
+        server.host = host
+          .replace('http://', '')
+          .replace('https://', '')
+      }
+      server.open = devServer.open
+      server.https = devServer.https
+      const proxy = devServer.proxy
+      if (typeof proxy === 'object') {
+        for (const proxyKey in proxy) {
+          if (Object.prototype.hasOwnProperty.call(proxy, proxyKey)) {
+            const pathRewrite = proxy[proxyKey].pathRewrite
+            if (!pathRewrite) {
+              continue
+            }
+            if (typeof pathRewrite === 'object') {
+              Object.keys(pathRewrite).forEach(key => {
+                const content = new RegExp(key)
+                const replaceContent = pathRewrite[key] || "''"
+                proxy[proxyKey].rewrite = new RawValue(`(path) => path.replace(${content}, ${replaceContent})`)
+              })
+            }
+            if (typeof pathRewrite === 'function') {
+              proxy[proxyKey].rewrite = proxy[proxyKey].pathRewrite
+            }
+            delete proxy[proxyKey].pathRewrite
+          }
+        }
+      }
+      server.proxy = proxy
+      server.base = devServer.contentBase
+      return server
     }
 }
 

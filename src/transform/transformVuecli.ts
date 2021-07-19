@@ -8,6 +8,7 @@ import { TransformContext } from './context'
 import { getVueVersion } from '../utils/version'
 import { DEFAULT_VUE_VERSION } from '../constants/constants'
 import { recordConver } from '../utils/report'
+import { ServerOptions } from 'vite';
 
 /**
  * parse vue.config.js options and transform to vite.config.js
@@ -48,7 +49,8 @@ export class VueCliTransformer implements Transformer {
       }
       recordConver({ num: 'V02', feat: 'css options' })
       // server options
-      vueConfig.devServer && this.transformDevServer(vueConfig, config)
+      vueConfig.devServer && (config.server = this.transformDevServer(vueConfig.devServer))
+      recordConver({ num: 'V03', feat: 'server options' })
 
       // build options
       config.build = config.build || {}
@@ -104,26 +106,26 @@ export class VueCliTransformer implements Transformer {
       return config
     }
 
-    public transformDevServer (vueConfig, config): void {
-      const devServer = vueConfig.devServer
-      config.server = {}
-      config.server.strictPort = false
-      config.server.port = Number(process.env.PORT) || devServer.port
+    public transformDevServer (devServer): ServerOptions {
+      let server: ServerOptions = {}
+      server = {}
+      server.strictPort = false
+      server.port = Number(process.env.PORT) || devServer.port
       const host = process.env.DEV_HOST || devServer.public || devServer.host
       if (host) {
-        config.server.host = host
+        server.host = host
           .replace('http://', '')
           .replace('https://', '')
       }
-      config.server.open = devServer.open
-      config.server.https = devServer.https
+      server.open = devServer.open
+      server.https = devServer.https
       const proxy = devServer.proxy
       if (typeof proxy === 'object') {
         for (const proxyKey in proxy) {
           if (Object.prototype.hasOwnProperty.call(proxy, proxyKey)) {
             const pathRewrite = proxy[proxyKey].pathRewrite
             if (!pathRewrite) {
-              break
+              continue
             }
             if (typeof pathRewrite === 'object') {
               Object.keys(pathRewrite).forEach(key => {
@@ -139,7 +141,7 @@ export class VueCliTransformer implements Transformer {
           }
         }
       }
-      config.server.proxy = proxy
-      recordConver({ num: 'V03', feat: 'server options' })
+      server.proxy = proxy
+      return server
     }
 }
