@@ -1,12 +1,13 @@
 import type { ASTTransformation } from './index'
 import { TransformationType } from './index'
 import { FileInfo, TransformationResult, TransformationParams } from '../astParse'
-import { ESLintProgram } from 'vue-eslint-parser/ast'
+import { ESLintProgram, VAttribute, VDirective } from 'vue-eslint-parser/ast'
 import * as parser from 'vue-eslint-parser'
 import { Node } from 'vue-eslint-parser/ast/nodes'
 import { stringSplice } from '../../utils/common'
 import { pathFormat } from '../../utils/file'
 import { parseVueCliConfig } from '../../config/parse'
+import { VueCliConfig } from '../../config/vuecli'
 import path from 'path'
 import fs from 'fs'
 import ejs from 'ejs'
@@ -45,8 +46,8 @@ export const astTransform:ASTTransformation = async (fileInfo: FileInfo, transfo
   let frontIndentLength: number = 0
   let offset: number = 0
 
-  const vueConfigFile = path.resolve(rootDir, 'vue.config.js')
-  const vueConfig = await parseVueCliConfig(vueConfigFile)
+  const vueConfigFile: string = path.resolve(rootDir, 'vue.config.js')
+  const vueConfig: VueCliConfig = await parseVueCliConfig(vueConfigFile)
   const publicPath: string = process.env.PUBLIC_URL || vueConfig.publicPath || vueConfig.baseUrl || ''
   // TODO: default values exposed by plugins and client-side env variables
   const jspData = {
@@ -62,14 +63,16 @@ export const astTransform:ASTTransformation = async (fileInfo: FileInfo, transfo
       if (node.type === 'VElement' && node.name === 'body') {
         bodyNode = node
       } else if (node.type === 'VElement' && node.name === 'script') {
-        const nodeAttrs = node.startTag.attributes
+        const nodeAttrs: (VAttribute | VDirective)[] = node.startTag.attributes
+        const entryNodeIsFound: boolean = nodeAttrs.some(attr => attr.key.name === 'type' && attr.value.type === 'VLiteral' && attr.value.value === 'module')
+        const entryFileIsFound: boolean = nodeAttrs.some(attr => attr.key.name === 'src' && attr.value.type === 'VLiteral' && fs.existsSync(path.resolve(rootDir, attr.value.value)))
         // remove original entry scripts with spaces
-        if (nodeAttrs[0]?.key.name === 'type' && nodeAttrs[0].value.type === 'VLiteral' && nodeAttrs[0].value.value === 'module' && nodeAttrs[1].key.name === 'src') {
+        if (entryNodeIsFound && entryFileIsFound) {
           frontIndentLength = node.loc.start.column
           const nodeStart: number = node.range[0] - frontIndentLength
           const nodeEnd: number = node.range[1] + behindIndentLength
           htmlContent = stringSplice(htmlContent, nodeStart, nodeEnd, offset)
-          offset += node.range[1] - node.range[0] + frontIndentLength + behindIndentLength + 1
+          offset += nodeEnd - nodeStart
         }
       }
     },

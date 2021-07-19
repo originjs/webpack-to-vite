@@ -45,12 +45,13 @@ export function generateWithVueCliPublicIndex (astParsingResult: AstParsingResul
     indexHtmlTransformationResult = astParsingResult.transformationResult[TransformationType.indexHtmlTransformationVueCli]
   }
 
+  let indexHtmlContent: string
   if (indexHtmlTransformationResult) {
-    const indexHtmlContent: string = indexHtmlTransformationResult[0].content
-    return stringFormat(indexHtmlContent, generateEntriesHtml(entries))
+    indexHtmlContent = indexHtmlTransformationResult[0].content
   } else {
-    return readSync(path.resolve('src/template/index.html'))
+    indexHtmlContent = readSync(path.resolve('src/template/index.html'))
   }
+  return stringFormat(indexHtmlContent, generateEntriesHtml(entries))
 }
 
 function getDefaultEntries (rootDir: string): string[] {
