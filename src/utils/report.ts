@@ -45,12 +45,13 @@ function recordConver (args: ConverObj) {
   })
 }
 
-function printReport (reportType: string, dir:string) {
+function printReport (reportType: string, dir: string, beginTime: number) {
   console.log('features of successful conversion:')
   reportList.forEach(item => {
     tabDt.push([item.num, item.feat, item.times?.toString()])
   })
   console.log(table(tabDt, tabFormat));
+  console.log(chalk.green(`Conversion in ${Date.now() - beginTime}ms.`))
   if (reportType === 'log') {
     const options = {
       flags: 'w', //
