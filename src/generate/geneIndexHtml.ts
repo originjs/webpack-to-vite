@@ -1,6 +1,6 @@
 import fs from 'fs'
 import path from 'path'
-import { readSync, writeSync } from '../utils/file'
+import { readSync, writeSync, relativePathFormat } from '../utils/file'
 import { isObject, stringFormat } from '../utils/common'
 import { Config } from '../config/config'
 import { AstParsingResult } from '../ast-parse/astParse'
@@ -13,7 +13,7 @@ export function geneIndexHtml (rootDir: string, config: Config, astParsingResult
 
   let entries : string[] = []
   if (config.entry !== undefined && config.entry !== '' && config.entry.length !== 0 && JSON.stringify(config.entry) !== '{}') {
-    entries = getEntries(config.entry)
+    entries = getEntries(rootDir, config.entry)
   } else {
     entries = getDefaultEntries(rootDir)
   }
@@ -45,12 +45,13 @@ export function generateWithVueCliPublicIndex (astParsingResult: AstParsingResul
     indexHtmlTransformationResult = astParsingResult.transformationResult[TransformationType.indexHtmlTransformationVueCli]
   }
 
+  let indexHtmlContent: string
   if (indexHtmlTransformationResult) {
-    const indexHtmlContent: string = indexHtmlTransformationResult[0].content
-    return stringFormat(indexHtmlContent, generateEntriesHtml(entries))
+    indexHtmlContent = indexHtmlTransformationResult[0].content
   } else {
-    return readSync(path.resolve('src/template/index.html'))
+    indexHtmlContent = readSync(path.resolve('src/template/index.html'))
   }
+  return stringFormat(indexHtmlContent, generateEntriesHtml(entries))
 }
 
 function getDefaultEntries (rootDir: string): string[] {
@@ -69,21 +70,21 @@ function getDefaultEntries (rootDir: string): string[] {
   return entries
 }
 
-function getEntries (entry: any) : string[] {
+function getEntries (rootDir: string, entry: any) : string[] {
   const entries: string[] = []
   if (entry === undefined) {
     return entries
   }
   if (isObject(entry)) {
     Object.keys(entry).forEach(function (name) {
-      entries.push(entry[name])
+      entries.push(relativePathFormat(rootDir, entry[name]))
     })
   }
   if (typeof entry === 'function') {
     entries.push(entry())
   }
   if (typeof entry === 'string') {
-    entries.push(entry)
+    entries.push(relativePathFormat(rootDir, entry))
   }
 
   // vite support hmr by default, so do not need to import webpack-hot-middleware

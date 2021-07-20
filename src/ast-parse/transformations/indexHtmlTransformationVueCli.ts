@@ -1,13 +1,16 @@
 import type { ASTTransformation } from './index'
 import { TransformationType } from './index'
 import { FileInfo, TransformationResult, TransformationParams } from '../astParse'
-import { ESLintProgram } from 'vue-eslint-parser/ast'
+import { ESLintProgram, VAttribute, VDirective } from 'vue-eslint-parser/ast'
 import * as parser from 'vue-eslint-parser'
 import { Node } from 'vue-eslint-parser/ast/nodes'
 import { stringSplice } from '../../utils/common'
+import { pathFormat } from '../../utils/file'
 import { parseVueCliConfig } from '../../config/parse'
+import { VueCliConfig } from '../../config/vuecli'
 import path from 'path'
 import fs from 'fs'
+import ejs from 'ejs'
 
 const templateStart: string = '<template>'
 const templateEnd: string = '</template>'
@@ -24,9 +27,9 @@ export const astTransform:ASTTransformation = async (fileInfo: FileInfo, transfo
   const rootDir: string = transformationParams.config.rootDir
   let indexPath: string
   if (fs.existsSync(path.resolve(rootDir, 'public/index.html'))) {
-    indexPath = path.resolve(rootDir, 'public/index.html').replace(/\\/g, '/')
+    indexPath = pathFormat(path.resolve(rootDir, 'public/index.html'))
   } else if (fs.existsSync(path.resolve(rootDir, 'index.html'))) {
-    indexPath = path.resolve(rootDir, 'index.html').replace(/\\/g, '/')
+    indexPath = pathFormat(path.resolve(rootDir, 'index.html'))
   } else {
     indexPath = null
   }
@@ -39,42 +42,37 @@ export const astTransform:ASTTransformation = async (fileInfo: FileInfo, transfo
   const htmlAST : ESLintProgram = parser.parse(htmlContent, { sourceType: 'module' })
   const root: Node = htmlAST.templateBody
 
-  const afterIndentLength: number = 1
+  const behindIndentLength: number = 1
   let frontIndentLength: number = 0
   let offset: number = 0
 
-  const vueConfigFile = path.resolve(rootDir, 'vue.config.js')
-  const vueConfig = await parseVueCliConfig(vueConfigFile)
-  const jspRegExp = /<%(=|-)?(.|\s|\r\n)*%>/g
-  const jspIdentifierRegExp = /(<%(=|-)?|\s|\r\n|%>)/g
-  const jspMap = {}
+  const vueConfigFile: string = path.resolve(rootDir, 'vue.config.js')
+  const vueConfig: VueCliConfig = await parseVueCliConfig(vueConfigFile)
+  const publicPath: string = process.env.PUBLIC_URL || vueConfig.publicPath || vueConfig.baseUrl || ''
+  // TODO: default values exposed by plugins and client-side env variables
+  const jspData = {
+    BASE_URL: publicPath,
+    NODE_ENV: '',
+    ...process.env
+  }
 
   let bodyNode
 
   parser.AST.traverseNodes(root, {
     enterNode (node: Node) {
-      // replace jsp tags
-      if ((node.type === 'VLiteral' || node.type === 'VText') && jspRegExp.test(node.value)) {
-        node.value.match(jspRegExp).forEach(jspSection => {
-          const jspValue: string = jspSection.replace(jspIdentifierRegExp, '')
-          if (!jspMap[jspSection] && jspValue === 'BASE_URL') {
-            const publicPath: string =
-                  process.env.PUBLIC_URL || vueConfig.publicPath || vueConfig.baseUrl || ''
-            jspMap[jspSection] = path.relative(rootDir, path.resolve(rootDir, publicPath)).replace(/\\/g, '/') + '/'
-          } else if (!jspMap[jspSection]) {
-            jspMap[jspSection] = process.env[jspValue] ? process.env[jspValue] : ''
-          }
-        })
-      }
       if (node.type === 'VElement' && node.name === 'body') {
         bodyNode = node
       } else if (node.type === 'VElement' && node.name === 'script') {
-        const nodeAttrs = node.startTag.attributes
+        const nodeAttrs: (VAttribute | VDirective)[] = node.startTag.attributes
+        const entryNodeIsFound: boolean = nodeAttrs.some(attr => attr.key.name === 'type' && attr.value.type === 'VLiteral' && attr.value.value === 'module')
+        const entryFileIsFound: boolean = nodeAttrs.some(attr => attr.key.name === 'src' && attr.value.type === 'VLiteral' && fs.existsSync(path.resolve(rootDir, attr.value.value)))
         // remove original entry scripts with spaces
-        if (nodeAttrs[0]?.key.name === 'type' && nodeAttrs[0].value.type === 'VLiteral' && nodeAttrs[0].value.value === 'module' && nodeAttrs[1].key.name === 'src') {
+        if (entryNodeIsFound && entryFileIsFound) {
           frontIndentLength = node.loc.start.column
-          htmlContent = stringSplice(htmlContent, node.range[0] - frontIndentLength, node.range[1] + afterIndentLength, offset)
-          offset += node.range[1] - node.range[0] + frontIndentLength + afterIndentLength + 1
+          const nodeStart: number = node.range[0] - frontIndentLength
+          const nodeEnd: number = node.range[1] + behindIndentLength
+          htmlContent = stringSplice(htmlContent, nodeStart, nodeEnd, offset)
+          offset += nodeEnd - nodeStart
         }
       }
     },
@@ -86,10 +84,8 @@ export const astTransform:ASTTransformation = async (fileInfo: FileInfo, transfo
   transformedHtml = transformedHtml.slice(0, transformedHtml.length - templateEnd.length)
   transformedHtml = transformedHtml.slice(templateStart.length)
 
-  Object.keys(jspMap).forEach(key => {
-    const keyRegExp: RegExp = new RegExp(key, 'g')
-    transformedHtml = transformedHtml.replace(keyRegExp, jspMap[key])
-  })
+  // replace jsp tags
+  transformedHtml = ejs.compile(transformedHtml, {})(jspData)
 
   const result: TransformationResult = {
     fileInfo: fileInfo,
