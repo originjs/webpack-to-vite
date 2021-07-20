@@ -49,6 +49,7 @@ export class VueCliTransformer implements Transformer {
       recordConver({ num: 'V02', feat: 'css options' })
       // server options
       vueConfig.devServer && this.transformDevServer(vueConfig, config)
+      if (!vueConfig.devServer && vueConfig?.configureWebpack?.devServer) this.transformDevServer(vueConfig.configureWebpack, config)
 
       // build options
       config.build = config.build || {}
