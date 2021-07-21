@@ -79,8 +79,10 @@ export class WebpackTransformer implements Transformer {
       config.resolve.alias = defaultAlias
       recordConver({ num: 'W03', feat: 'resolve.alias options' })
       // convert devServer
-      webpackConfig.devServer && (config.server = this.transformDevServer(webpackConfig.devServer))
-      recordConver({ num: 'W04', feat: 'server options' })
+      if (webpackConfig.devServer) {
+        config.server = this.transformDevServer(webpackConfig.devServer)
+        recordConver({ num: 'W04', feat: 'server options' })
+      }
       // convert plugins
       // webpack.DefinePlugin
       config.define = {}
