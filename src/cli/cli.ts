@@ -10,6 +10,8 @@ import { Config } from '../config/config'
 import { astParseRoot, AstParsingResult } from '../ast-parse/astParse'
 import { printReport, recordConver } from '../utils/report'
 
+const beginTime = Date.now()
+
 export function run (): void {
   const program = new Command()
   const version = require('../../package.json').version
@@ -51,7 +53,7 @@ export async function start (config : Config): Promise<void> {
 
   // generate index.html must be after generate vite.config.js
   geneIndexHtml(rootDir, config, astParsingResult)
-  printReport(config.reportType, config.rootDir) // output conversion
+  printReport(config.reportType, config.rootDir, beginTime) // output conversion
 
   // generate patches
   const patchesDir = path.resolve(rootDir, 'patches')
