@@ -45,31 +45,27 @@ function recordConver (args: ConverObj) {
   })
 }
 
-function printReport (reportType: string, dir: string, beginTime: number) {
+function printReport (dir: string, beginTime: number) {
   console.log('features of successful conversion:')
   reportList.forEach(item => {
     tabDt.push([item.num, item.feat, item.times?.toString()])
   })
   console.log(table(tabDt, tabFormat));
-  console.log(chalk.green(`Conversion in ${Date.now() - beginTime}ms.`))
-  if (reportType === 'log') {
-    const options = {
-      flags: 'w', //
-      encoding: 'utf8' // utf8编码
-    }
-    console.log(chalk.yellow(`output ${dir}conversion.log`));
-    const stdout = fs.createWriteStream(`${dir}conversion.log`, options);
-    const logger = new console.Console(stdout);
-    logger.log('--------------------------------------------------')
-    // TODO features
-    // logger.log(`Processed file:\n${processFilePathList}\n`)
-    // logger.log(`Processed ${processFilePath.length} files`)
-    // logger.log(`${totalDetected} places`, 'need to be transformed')
-    // logger.log(`${totalChanged} places`, 'was transformed')
-    // logger.log(`The transformation rate is ${transRate}%`)
-    logger.log('The transformation stats: \n', tabDt)
-  } else {
-    console.log(chalk.yellow('If you want to output the report file, add "-r log" after the command'));
+  console.log(chalk.green(`Conversion finished in ${Date.now() - beginTime}ms.`))
+  const options = {
+    flags: 'w', //
+    encoding: 'utf8' // utf8编码
   }
+  const stdout = fs.createWriteStream(`${dir}conversion.log`, options);
+  const logger = new console.Console(stdout);
+  logger.log('--------------------------------------------------')
+  // TODO features
+  // logger.log(`Processed file:\n${processFilePathList}\n`)
+  // logger.log(`Processed ${processFilePath.length} files`)
+  // logger.log(`${totalDetected} places`, 'need to be transformed')
+  // logger.log(`${totalChanged} places`, 'was transformed')
+  // logger.log(`The transformation rate is ${transRate}%`)
+  logger.log('The transformation stats: \n', tabDt)
+  console.log(chalk.green(`The report output path is ${dir}conversion.log`));
 }
 export { recordConver, printReport }

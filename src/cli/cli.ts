@@ -53,7 +53,7 @@ export async function start (config : Config): Promise<void> {
 
   // generate index.html must be after generate vite.config.js
   geneIndexHtml(rootDir, config, astParsingResult)
-  printReport(config.reportType, config.rootDir, beginTime) // output conversion
+  printReport(config.rootDir, beginTime) // output conversion
 
   // generate patches
   const patchesDir = path.resolve(rootDir, 'patches')
