@@ -35,12 +35,7 @@ const tabFormat = {
 
 function recordConver (args: ConverObj) {
   const { num, feat } = args
-  // console.log('Transforming:', args);
-  if (!reportList.length) {
-    cliInstance.start(20, 0, { feat })
-  } else {
-    cliInstance.increment({ feat })
-  }
+  cliInstance.increment({ doSomething: `Transforming: ${feat}` })
   for (let i = 0; i < reportList.length; i++) {
     if (reportList[i]?.num === num) {
       reportList[i].times++
@@ -53,7 +48,7 @@ function recordConver (args: ConverObj) {
 }
 
 function printReport (dir: string, beginTime: number) {
-  cliInstance.update(20, { feat: 'All done!' });
+  cliInstance.update(cliInstance.total, { doSomething: 'All done!' });
   cliInstance.stop()
   console.log('features of successful conversion:')
   reportList.forEach(item => {
