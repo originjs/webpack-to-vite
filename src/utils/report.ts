@@ -1,6 +1,7 @@
 import * as fs from 'fs'
 import { table } from 'table'
 import chalk from 'chalk'
+import { cliInstance } from '../cli/cli'
 
 interface ConverObj {
   num: string;// 'Number'
@@ -34,6 +35,12 @@ const tabFormat = {
 
 function recordConver (args: ConverObj) {
   const { num, feat } = args
+  // console.log('Transforming:', args);
+  if (!reportList.length) {
+    cliInstance.start(20, 0, { feat })
+  } else {
+    cliInstance.increment({ feat })
+  }
   for (let i = 0; i < reportList.length; i++) {
     if (reportList[i]?.num === num) {
       reportList[i].times++
@@ -46,6 +53,8 @@ function recordConver (args: ConverObj) {
 }
 
 function printReport (dir: string, beginTime: number) {
+  cliInstance.update(20, { feat: 'All done!' });
+  cliInstance.stop()
   console.log('features of successful conversion:')
   reportList.forEach(item => {
     tabDt.push([item.num, item.feat, item.times?.toString()])
