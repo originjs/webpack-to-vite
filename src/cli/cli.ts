@@ -13,6 +13,8 @@ import cliProgress from 'cli-progress'
 
 const cliInstance = new cliProgress.SingleBar({
   format: 'progress [{bar}] {percentage}% | {doSomething} | {value}/{total}',
+  clearOnComplete: true, // clear the progress bar on complete / stop()
+  linewrap: true,
   fps: 60
 }, cliProgress.Presets.shades_classic)
 
