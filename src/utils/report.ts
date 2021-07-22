@@ -5,13 +5,13 @@ import { cliInstance } from '../cli/cli'
 
 interface ConverObj {
   num: string;// 'Number'
-  feat: string;// 'Features'
+  feat: string;// 'Conversion item'
   times?: number;// 'Conversion times'
 }
 
 const reportList: ConverObj[] = []
 const tabDt = [
-  ['Number', 'Features', 'Conversion count']
+  ['Number', 'Conversion item', 'Conversion count']
 ];
 const tabFormat = {
   border: {
@@ -55,7 +55,7 @@ function recordConver (args: ConverObj) {
 function printReport (dir: string, beginTime: number) {
   cliInstance.update(20, { feat: 'All done!' });
   cliInstance.stop()
-  console.log('features of successful conversion:')
+  console.log('conversion items successful converted:')
   reportList.forEach(item => {
     tabDt.push([item.num, item.feat, item.times?.toString()])
   })
