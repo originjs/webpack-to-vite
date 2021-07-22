@@ -15,11 +15,11 @@ test('genePackageJson', () => {
   expect(JSON.parse(packageJsonContent).devDependencies['@vitejs/plugin-vue']).toEqual(constants.VITE_PLUGIN_VUE_VERSION);
 });
 
-test('geneIndexHtml', () => {
+test('geneIndexHtml', async () => {
   const config : Config = {
     projectType: 'vue-cli'
   }
-  geneIndexHtml(path.resolve('./tests/out'), config);
+  await geneIndexHtml(path.resolve('./tests/out'), config);
   const filePath = path.resolve('./tests/out/index.html');
   const content = readSync(filePath);
   expect(content).toContain('<div id="app"></div>');
