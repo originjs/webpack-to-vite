@@ -9,6 +9,14 @@ import { Command } from 'commander'
 import { Config } from '../config/config'
 import { astParseRoot, AstParsingResult } from '../ast-parse/astParse'
 import { printReport, recordConver } from '../utils/report'
+import cliProgress from 'cli-progress'
+
+const cliInstance = new cliProgress.SingleBar({
+  format: 'progress [{bar}] {percentage}% | Transforming: {feat} | {value}/{total}',
+  fps: 60
+}, cliProgress.Presets.shades_classic)
+// add bars
+// cliInstance.start(20, 0); // The current feature that can be converted is 20.
 
 const beginTime = Date.now()
 
@@ -53,7 +61,7 @@ export async function start (config : Config): Promise<void> {
 
   // generate index.html must be after generate vite.config.js
   geneIndexHtml(rootDir, config, astParsingResult)
-  printReport(config.reportType, config.rootDir, beginTime) // output conversion
+  printReport(config.rootDir, beginTime) // output conversion
 
   // generate patches
   const patchesDir = path.resolve(rootDir, 'patches')
@@ -75,3 +83,5 @@ export async function start (config : Config): Promise<void> {
   ))
   console.log()
 }
+
+export { cliInstance }

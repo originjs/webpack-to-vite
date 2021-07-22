@@ -57,6 +57,7 @@
     "yorkie": "^2.0.0"
   },
   "dependencies": {
+    "cli-progress": "^3.9.0",
     "table": "^6.7.1",
     "chalk": "^4.1.1",
     "@originjs/vue-sfc-ast-parser": "^1.0.1",
