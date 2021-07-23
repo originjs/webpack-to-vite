@@ -87,7 +87,7 @@ export function serializeObject (val: unknown): string {
             const isFunction = typeof val[el] === 'function'
             if (isFunction) {
               const value = String(val[el])
-              if (value.startsWith(el)) { // abbreviated property. ie: additionalData() {}
+              if (value.startsWith(el)) { // abbreviated property. e.g. additionalData() {}
                 return curIndent + value + eol
               } else {
                 return curIndent + String(key) + ': ' + value + eol
