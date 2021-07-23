@@ -38,13 +38,26 @@ export class WebpackTransformer implements Transformer {
       // convert entry
       if (webpackConfig.entry !== '' && webpackConfig.entry !== null) {
         config.build.rollupOptions = {}
+        let input
         if (isObject(webpackConfig.entry)) {
-          config.build.rollupOptions.input = suitableFormat(webpackConfig.entry)
+          input = suitableFormat(webpackConfig.entry)
         } else if (typeof webpackConfig.entry === 'function') {
-          config.build.rollupOptions.input = webpackConfig.entry()
+          input = webpackConfig.entry()
         } else {
-          config.build.rollupOptions.input = webpackConfig.entry
+          input = webpackConfig.entry
         }
+        if (input && webpackConfig.context) {
+          if (isObject(input)) {
+            Object.keys(input).forEach(key => {
+              input[key] = path.join(webpackConfig.context, input[key])
+            })
+          } else if (Array.isArray(input)) {
+            input = input.map(item => path.join(webpackConfig.context, item))
+          } else {
+            input = path.join(webpackConfig.context, input)
+          }
+        }
+        config.build.rollupOptions.input = input
       }
       recordConver({ num: 'W01', feat: 'build input options' })
       // convert output
