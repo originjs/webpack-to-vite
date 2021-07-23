@@ -28,12 +28,12 @@ test('processDependencies', () => {
     devDependencies?: object
   }
 
-  let originPackageJson: PackageJson = {
+  const originPackageJsonA: PackageJson = {
     dependencies: {
       sass: '^1.1.1'
     }
   }
-  let packageJson: PackageJson = {
+  const packageJsonA: PackageJson = {
     dependencies: {
       sass: '^1.1.1'
     },
@@ -41,26 +41,26 @@ test('processDependencies', () => {
       sass: '0.1.1'
     }
   }
-  let result = processDependencies(originPackageJson.dependencies, packageJson.dependencies, packageJson.devDependencies)
-  expect(result).toEqual({
+  const resultA = processDependencies(originPackageJsonA.dependencies, packageJsonA.dependencies, packageJsonA.devDependencies)
+  expect(resultA).toEqual({
     targetDependencies: {
       sass: '^1.1.1'
     },
     restDependencies: {}
   })
 
-  originPackageJson = {
+  const originPackageJsonB: PackageJson = {
     dependencies: {
       sass: '^1.1.1'
     }
   }
-  packageJson = {
+  const packageJsonB: PackageJson = {
     dependencies: {
       sass: '0.1.1'
     }
   }
-  result = processDependencies(originPackageJson.dependencies, packageJson.dependencies, packageJson.devDependencies)
-  expect(result).toEqual({
+  const resultB = processDependencies(originPackageJsonB.dependencies, packageJsonB.dependencies, packageJsonB.devDependencies)
+  expect(resultB).toEqual({
     targetDependencies: {
       sass: '^1.1.1'
     }
