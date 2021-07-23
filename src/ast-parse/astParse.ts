@@ -6,6 +6,7 @@ import fs from 'fs'
 import { JSCodeshift } from 'jscodeshift/src/core'
 import { ESLintProgram } from 'vue-eslint-parser/ast'
 import { Config } from '../config/config'
+import { cliInstance } from '../cli/cli'
 
 export type FileInfo = {
   path: string,
@@ -59,10 +60,11 @@ export async function astParseRoot (rootDir: string, config: Config): Promise<As
   const transformationParams: TransformationParams = {
     config: config
   }
-
+  cliInstance.setTotal(cliInstance.total + resolvedPaths.length)
   resolvedPaths.forEach(async filePath => {
-    // skip files in node_modules
-    if (filePath.indexOf('/node_modules/') >= 0) {
+    cliInstance.increment({ doSomething: `AST Parsing: ${filePath}` })
+    // skip some files
+    if (filePath.indexOf('/node_modules/') >= 0 || filePath.indexOf('/dist/') >= 0) {
       return
     }
 

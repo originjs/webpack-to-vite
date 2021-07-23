@@ -12,11 +12,11 @@ import { printReport, recordConver } from '../utils/report'
 import cliProgress from 'cli-progress'
 
 const cliInstance = new cliProgress.SingleBar({
-  format: 'progress [{bar}] {percentage}% | Transforming: {feat} | {value}/{total}',
+  format: 'progress [{bar}] {percentage}% | {doSomething} | {value}/{total}',
+  clearOnComplete: false, // clear the progress bar on complete / stop()
+  linewrap: true,
   fps: 60
 }, cliProgress.Presets.shades_classic)
-// add bars
-// cliInstance.start(20, 0); // The current feature that can be converted is 20.
 
 const beginTime = Date.now()
 
@@ -46,7 +46,7 @@ export function run (): void {
 export async function start (config : Config): Promise<void> {
   console.log(chalk.green('******************* Webpack to Vite *******************'))
   console.log(chalk.green(`Project path: ${config.rootDir}`))
-
+  cliInstance.start(20, 0, { doSomething: 'Transformation begins...' }) // The current feature that can be converted is 20.
   if (!fs.existsSync(config.rootDir)) {
     console.log(chalk.red(`Project path is not correct : ${config.rootDir}`))
     return
@@ -60,7 +60,7 @@ export async function start (config : Config): Promise<void> {
   await geneViteConfig(rootDir, rootDir, config)
 
   // generate index.html must be after generate vite.config.js
-  geneIndexHtml(rootDir, config, astParsingResult)
+  await geneIndexHtml(rootDir, config, astParsingResult)
   printReport(config.rootDir, beginTime) // output conversion
 
   // generate patches
