@@ -63,8 +63,8 @@ export async function astParseRoot (rootDir: string, config: Config): Promise<As
   cliInstance.setTotal(cliInstance.total + resolvedPaths.length)
   resolvedPaths.forEach(async filePath => {
     cliInstance.increment({ doSomething: `AST Parsing: ${filePath}` })
-    // skip files in node_modules
-    if (filePath.indexOf('/node_modules/') >= 0) {
+    // skip some files
+    if (filePath.indexOf('/node_modules/') >= 0 || filePath.indexOf('/dist/') >= 0) {
       return
     }
 
