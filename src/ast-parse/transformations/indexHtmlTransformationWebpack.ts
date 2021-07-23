@@ -70,6 +70,16 @@ export const astTransform:ASTTransformation = async (fileInfo: FileInfo, transfo
   transformedHtml = transformedHtml.slice(0, transformedHtml.length - templateEnd.length)
   transformedHtml = transformedHtml.slice(templateStart.length)
 
+  // TODO: default values exposed by plugins and client-side env variables
+  // replace variable name with `process.env['variableName']`
+  const globalVariableReg: RegExp = /VUE_APP_\w+/g
+  const globalVariableNameSet: Set<string> = new Set(transformedHtml.match(globalVariableReg) || [])
+  const globalVariableNames: string[] = ['BASE_URL', 'NODE_ENV', ...Array.from(globalVariableNameSet)]
+  globalVariableNames.forEach(variableName => {
+    const replacementReg: RegExp = new RegExp(variableName, 'g')
+    transformedHtml = transformedHtml.replace(replacementReg, `process.env['${variableName}']`)
+  })
+
   const result: TransformationResult = {
     fileInfo: fileInfo,
     content: transformedHtml,

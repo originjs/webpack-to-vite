@@ -6,11 +6,8 @@ import * as parser from 'vue-eslint-parser'
 import { Node } from 'vue-eslint-parser/ast/nodes'
 import { stringSplice } from '../../utils/common'
 import { pathFormat } from '../../utils/file'
-import { parseVueCliConfig } from '../../config/parse'
-import { VueCliConfig } from '../../config/vuecli'
 import path from 'path'
 import fs from 'fs'
-import ejs from 'ejs'
 
 const templateStart: string = '<template>'
 const templateEnd: string = '</template>'
@@ -46,16 +43,6 @@ export const astTransform:ASTTransformation = async (fileInfo: FileInfo, transfo
   let frontIndentLength: number = 0
   let offset: number = 0
 
-  const vueConfigFile: string = path.resolve(rootDir, 'vue.config.js')
-  const vueConfig: VueCliConfig = await parseVueCliConfig(vueConfigFile)
-  const publicPath: string = process.env.PUBLIC_URL || vueConfig.publicPath || vueConfig.baseUrl || ''
-  // TODO: default values exposed by plugins and client-side env variables
-  const jspData = {
-    BASE_URL: publicPath,
-    NODE_ENV: '',
-    ...process.env
-  }
-
   let bodyNode
 
   parser.AST.traverseNodes(root, {
@@ -84,8 +71,15 @@ export const astTransform:ASTTransformation = async (fileInfo: FileInfo, transfo
   transformedHtml = transformedHtml.slice(0, transformedHtml.length - templateEnd.length)
   transformedHtml = transformedHtml.slice(templateStart.length)
 
-  // replace jsp tags
-  transformedHtml = ejs.compile(transformedHtml, {})(jspData)
+  // TODO: default values exposed by plugins and client-side env variables
+  // replace variable name with `process.env['variableName']`
+  const globalVariableReg: RegExp = /VUE_APP_\w+/g
+  const globalVariableNameSet: Set<string> = new Set(transformedHtml.match(globalVariableReg) || [])
+  const globalVariableNames: string[] = ['BASE_URL', 'NODE_ENV', ...Array.from(globalVariableNameSet)]
+  globalVariableNames.forEach(variableName => {
+    const replacementReg: RegExp = new RegExp(variableName, 'g')
+    transformedHtml = transformedHtml.replace(replacementReg, `process.env['${variableName}']`)
+  })
 
   const result: TransformationResult = {
     fileInfo: fileInfo,

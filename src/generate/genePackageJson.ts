@@ -29,6 +29,7 @@ export function genePackageJson (packageJsonPath: string): void {
   }
 
   packageJson.devDependencies['vite-plugin-env-compatible'] = constants.VITE_PLUGIN_ENV_COMPATIBLE
+  packageJson.devDependencies['vite-plugin-html'] = constants.VITE_PLUGIN_HTML
   packageJson.devDependencies.vite = constants.VITE_VERSION
   // TODO scan files to determine whether you need to add the plugin
   packageJson.devDependencies['@originjs/vite-plugin-commonjs'] = constants.VITE_PLUGIN_COMMONJS_VERSION
