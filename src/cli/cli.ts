@@ -60,7 +60,7 @@ export async function start (config : Config): Promise<void> {
   await geneViteConfig(rootDir, rootDir, config)
 
   // generate index.html must be after generate vite.config.js
-  geneIndexHtml(rootDir, config, astParsingResult)
+  await geneIndexHtml(rootDir, config, astParsingResult)
   printReport(config.rootDir, beginTime) // output conversion
 
   // generate patches

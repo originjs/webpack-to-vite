@@ -6,8 +6,9 @@ import { Config } from '../config/config'
 import { AstParsingResult } from '../ast-parse/astParse'
 import { TransformationType } from '../ast-parse/transformations'
 import { recordConver } from '../utils/report'
+import { parseVueCliConfig } from '../config/parse'
 
-export function geneIndexHtml (rootDir: string, config: Config, astParsingResult?: AstParsingResult): void {
+export async function geneIndexHtml (rootDir: string, config: Config, astParsingResult?: AstParsingResult): Promise<void> {
   const outputIndexPath: string = path.resolve(rootDir, 'index.html')
   const projectType: string = config.projectType
 
@@ -15,7 +16,7 @@ export function geneIndexHtml (rootDir: string, config: Config, astParsingResult
   if (config.entry !== undefined && config.entry !== '' && config.entry.length !== 0 && JSON.stringify(config.entry) !== '{}') {
     entries = getEntries(rootDir, config.entry)
   } else {
-    entries = getDefaultEntries(rootDir)
+    entries = await getDefaultEntries(rootDir, projectType)
   }
 
   const injectedContent = generateWithVueCliPublicIndex(astParsingResult, entries, projectType)
@@ -54,19 +55,30 @@ export function generateWithVueCliPublicIndex (astParsingResult: AstParsingResul
   return stringFormat(indexHtmlContent, generateEntriesHtml(entries))
 }
 
-function getDefaultEntries (rootDir: string): string[] {
+async function getDefaultEntries (rootDir: string, projectType: string): Promise<string[]> {
   const entries: string[] = []
+  // TODO: vue-cli pages config
+  if (projectType !== 'webpack') {
+    const vueConfigFile = path.resolve(rootDir, 'vue.config.js')
+    const vueConfig = await parseVueCliConfig(vueConfigFile)
+    const entryConfig = vueConfig.pages
+    if (entryConfig) {
+      Object.keys(entryConfig).forEach(key => {
+        const entryPath: string = Object.prototype.toString.call(entryConfig[key]) === '[object String]' ? entryConfig[key] : entryConfig[key].entry
+        entries.push(entryPath)
+      })
+    }
+  }
   let mainFile = path.resolve(rootDir, 'src/main.ts')
   if (fs.existsSync(mainFile)) {
-    entries.push('/src/main.ts')
+    if (!entries.some(entryPath => entryPath === 'src/main.ts')) entries.push('/src/main.ts')
     return entries
   }
   mainFile = path.resolve(rootDir, 'src/main.js')
   if (fs.existsSync(mainFile)) {
-    entries.push('/src/main.js')
+    if (!entries.some(entryPath => entryPath === 'src/main.js')) entries.push('/src/main.js')
     return entries
   }
-  // TODO: vue-cli pages config
   return entries
 }
 
