@@ -5,6 +5,7 @@ import path from 'path'
 import chalk from 'chalk'
 import * as constants from '../constants/constants'
 import { recordConver } from '../utils/report'
+import { minVersion, gt } from 'semver'
 
 // TODO: compatible with vue2 and vue3
 export function genePackageJson (packageJsonPath: string): void {
@@ -14,6 +15,7 @@ export function genePackageJson (packageJsonPath: string): void {
     console.log(chalk.red(`read package.json error, path: ${rootDir}`))
   }
 
+  const originPackageJson = JSON.parse(source)
   const packageJson = JSON.parse(source)
   if (packageJson === '') {
     console.log(chalk.red(`parse json error, path: ${rootDir}`))
@@ -54,6 +56,47 @@ export function genePackageJson (packageJsonPath: string): void {
   // add postinatall
   packageJson.scripts.postinstall = 'patch-package'
 
+  let result = processDependencies(originPackageJson.dependencies, packageJson.dependencies, packageJson.devDependencies)
+  packageJson.dependencies = result.targetDependencies
+  packageJson.devDependencies = result.restDependencies
+
+  result = processDependencies(originPackageJson.devDependencies, packageJson.devDependencies, packageJson.dependencies)
+  packageJson.dependencies = result.restDependencies
+  packageJson.devDependencies = result.targetDependencies
+
   writeSync(packageJsonPath, JSON.stringify(packageJson, null, 2))
   recordConver({ num: 'B01', feat: 'add package.json' })
+}
+
+export function getGreaterVersion (versionA: string, versionB: string): string {
+  // only compare minimal version because it is hard to compare semantic version
+  const minVersionA = minVersion(versionA).version
+  const minVersionB = minVersion(versionB).version
+  return gt(minVersionA, minVersionB) ? versionA : versionB
+}
+
+// save greatest dependency version to targetDependencies and remove duplicate dependency from restDependencies
+export function processDependencies (
+  originDependencies: object,
+  targetDependencies: object,
+  restDependencies: object
+): {
+  targetDependencies: object,
+  restDependencies: object
+} {
+  originDependencies && Object.keys(originDependencies).forEach(key => {
+    if (targetDependencies && originDependencies[key] !== targetDependencies[key]) {
+      targetDependencies[key] = getGreaterVersion(originDependencies[key], targetDependencies[key])
+    }
+    if (restDependencies && restDependencies[key]) {
+      if (restDependencies[key] !== targetDependencies[key]) {
+        targetDependencies[key] = getGreaterVersion(restDependencies[key], targetDependencies[key])
+      }
+      delete restDependencies[key]
+    }
+  })
+  return {
+    targetDependencies,
+    restDependencies
+  }
 }
