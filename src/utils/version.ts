@@ -2,6 +2,7 @@ import path from 'path'
 import { readSync } from './file'
 import { DEFAULT_VUE_VERSION } from '../constants/constants'
 import fs from 'fs'
+import { minVersion } from 'semver'
 
 export function getVueVersion (rootDir: string): number {
   const vueVersion = DEFAULT_VUE_VERSION
@@ -22,12 +23,12 @@ export function getVueVersion (rootDir: string): number {
     }
     source = readSync(nodePath)
     jsonObj = JSON.parse(source)
-    if (jsonObj === '' || dep.vue === undefined) {
+    if (jsonObj === '') {
       return vueVersion
     }
-    return Number(jsonObj.version.replace(/~|\^/, '').split('.')[0])
+    return Number(minVersion(jsonObj.version).split('.')[0])
   }
-  return Number(dep.vue.replace(/~|\^/, '').split('.')[0])
+  return Number(minVersion(dep.vue).split('.')[0])
 }
 
 function getVueDependency (jsonObj: any) : any {
