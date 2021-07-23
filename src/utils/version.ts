@@ -26,9 +26,9 @@ export function getVueVersion (rootDir: string): number {
     if (jsonObj === '') {
       return vueVersion
     }
-    return Number(minVersion(jsonObj.version).split('.')[0])
+    return minVersion(jsonObj.version).major
   }
-  return Number(minVersion(dep.vue).split('.')[0])
+  return minVersion(dep.vue).major
 }
 
 function getVueDependency (jsonObj: any) : any {
