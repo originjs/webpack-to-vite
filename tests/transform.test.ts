@@ -29,6 +29,9 @@ describe('transform vue-cli config', () => {
     const vueConfig: VueCliConfig = {
       devServer: {
         proxy: {
+          '/test': {
+            target: 'http://www.example.org'
+          },
           '/api': {
             pathRewrite: {
               '^/remove/api': ''
@@ -39,10 +42,13 @@ describe('transform vue-cli config', () => {
     }
     const viteConfig: ViteConfig = {}
     const transformer = new VueCliTransformer();
-    transformer.transformDevServer(vueConfig, viteConfig)
+    viteConfig.server = transformer.transformDevServer(vueConfig.devServer)
     expect(viteConfig).toEqual({
       server: {
         proxy: {
+          '/test': {
+            target: 'http://www.example.org'
+          },
           '/api': {
             rewrite: new RawValue('(path) => path.replace(/^\\/remove\\/api/, \'\')')
           }
