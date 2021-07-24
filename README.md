@@ -80,6 +80,13 @@ Legend of annotations:
   * if using `node-sass` dependency before, convert to `sass` dependency
 * ✅ B07: postcss 8 support
   * if using postcss 8 before, add `postcss` dependency
+* ⚠️ B08: fix issue '[No matching export for import typescript interface](https://github.com/vitejs/vite/issues/2117)'
+  * Do not re-export type or interface in vite. You can just export it in file A and import it in file B. Don't try to export it in file B again.
+  The following is an error with re-export a type or interface:
+  ```
+  Uncaught SyntaxError: The requested module '/src/app/reducers/state.ts' does not provide an export named 'RootState'
+  ```
+  * Just remove all re-export type or interface in typescript project and modify relate import path
   
 ### Vue-CLI conversion
 > Vue-CLI conversion are base on `vue.config.js`, map configuration to `vite.config.js`
