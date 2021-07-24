@@ -1,7 +1,7 @@
 import { ViteConfig } from '../config/vite'
 
 export interface TransformContext {
-    vueVersion : number;
+    vueVersion : number | undefined;
     config : ViteConfig;
     importers : string[];
 }

@@ -9,6 +9,7 @@ import { getVueVersion } from '../utils/version'
 import { DEFAULT_VUE_VERSION } from '../constants/constants'
 import { recordConver } from '../utils/report'
 import { ServerOptions } from 'vite';
+import { relativePathFormat } from '../utils/file'
 
 /**
  * parse vue.config.js options and transform to vite.config.js
@@ -98,8 +99,7 @@ export class VueCliTransformer implements Transformer {
         ...aliasOfChainWebpack
       }
       Object.keys(alias).forEach((key) => {
-        let relativePath = path.relative(rootDir, path.resolve(rootDir, alias[key]))
-        relativePath = relativePath.replace(/\\/g, '/')
+        const relativePath = relativePathFormat(rootDir, path.resolve(rootDir, alias[key]))
         defaultAlias.push({
           find: key,
           replacement: new RawValue(`path.resolve(__dirname,'${relativePath}')`)

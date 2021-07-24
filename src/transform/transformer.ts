@@ -55,7 +55,7 @@ export function transformImporters (context: TransformContext) : void {
     plugins.push(new RawValue('vue()'))
     context.importers.push('import vueJsx from \'@vitejs/plugin-vue-jsx\';')
     plugins.push(new RawValue('vueJsx()'))
-  } else {
+  } else if (context.vueVersion === 2) {
     context.importers.push(
       'import { createVuePlugin } from \'vite-plugin-vue2\';'
     )

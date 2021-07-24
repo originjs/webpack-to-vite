@@ -1,4 +1,4 @@
-export const DEFAULT_VUE_VERSION = 2
+export const DEFAULT_VUE_VERSION = undefined
 export const VUE_COMPILER_SFC_VERSION = '^3.0.5'
 export const VITE_VERSION = '2.3.8'
 export const VITE_PLUGIN_VUE_VERSION = '^1.2.1'
