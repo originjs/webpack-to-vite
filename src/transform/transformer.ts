@@ -55,7 +55,7 @@ export function transformImporters (context: TransformContext) : void {
     plugins.push(new RawValue('vue()'))
     context.importers.push('import vueJsx from \'@vitejs/plugin-vue-jsx\';')
     plugins.push(new RawValue('vueJsx()'))
-  } else {
+  } else if (context.vueVersion === 2) {
     context.importers.push(
       'import { createVuePlugin } from \'vite-plugin-vue2\';'
     )
@@ -63,10 +63,12 @@ export function transformImporters (context: TransformContext) : void {
   }
   recordConver({ num: 'B04', feat: 'required plugins' })
   context.importers.push('import envCompatible from \'vite-plugin-env-compatible\';')
+  context.importers.push('import { injectHtml } from \'vite-plugin-html\';')
   context.importers.push('import { viteCommonjs } from \'@originjs/vite-plugin-commonjs\';')
   // TODO scan files to determine whether you need to add the plugin
   plugins.push(new RawValue('viteCommonjs()'))
   plugins.push(new RawValue('envCompatible()'))
+  plugins.push(new RawValue('injectHtml()'))
 
   context.config.plugins = plugins
 }
