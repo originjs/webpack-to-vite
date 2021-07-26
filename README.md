@@ -93,7 +93,7 @@ Legend of annotations:
   index.tsx:6 Uncaught ReferenceError: module is not defined
     at index.tsx:6
   ```
-* ⚠️ B010: CSS Modules
+* ⚠️ B10: CSS Modules
   * In vite, any CSS file ending with .module.css is considered a CSS modules file
   * That is mean you need to covert `.css` file to `.module.css` to implement CSS Modules
   
