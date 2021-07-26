@@ -3,7 +3,7 @@ import fs from 'fs';
 import * as constants from '../src/constants/constants';
 import {genePackageJson, getGreaterVersion, processDependencies} from '../src/generate/genePackageJson';
 import { geneIndexHtml } from '../src/generate/geneIndexHtml';
-import { readSync } from '../src/utils/file';
+import { readSync, removeSync } from '../src/utils/file';
 import { Config } from '../src/config/config'
 
 test('genePackageJson', () => {
@@ -74,6 +74,6 @@ test('geneIndexHtml', async () => {
   await geneIndexHtml(path.resolve('./tests/out'), config);
   const filePath = path.resolve('./tests/out/index.html');
   const content = readSync(filePath);
+  removeSync(filePath);
   expect(content).toContain('<div id="app"></div>');
-
 })

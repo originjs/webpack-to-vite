@@ -3,6 +3,7 @@ import fs from 'fs';
 import { Config } from '../src/config/config'
 import { geneViteConfig } from '../src/generate/geneViteConfig';
 import { serializeObject } from '../src/generate/render';
+import { removeSync } from "../src/utils/file";
 
 test('geneViteConfig from non exist file', async () => {
   const outputFilePath = path.resolve('tests/out/vite.config.js');
@@ -12,6 +13,7 @@ test('geneViteConfig from non exist file', async () => {
   }
   await geneViteConfig(vueConfigPath, path.resolve('tests/out'), config);
   const result = fs.readFileSync(outputFilePath, 'utf8');
+  removeSync(outputFilePath);
   expect(result).toContain('plugins');
 });
 
@@ -23,6 +25,7 @@ test('geneViteConfig from vue.config.js', async () => {
   }
   await geneViteConfig(vueConfigPath, path.resolve('tests/out'), config);
   const result = fs.readFileSync(outputFilePath, 'utf8');
+  removeSync(outputFilePath);
   expect(result).toContain('@components');
 });
 

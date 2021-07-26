@@ -24,6 +24,16 @@ export function readSync (filePath: string): string {
   return ''
 }
 
+export function removeSync (filePath: string): void {
+  try {
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath)
+    }
+  } catch (e) {
+    console.error(`remove file fail, filePath:${filePath}, error: ${e}`)
+  }
+}
+
 export function pathFormat (filePath: string): string {
   return filePath.replace(/\\/g, '/')
 }
