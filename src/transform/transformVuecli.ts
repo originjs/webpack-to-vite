@@ -31,6 +31,8 @@ export class VueCliTransformer implements Transformer {
 
       const css = vueConfig.css || {}
 
+      const pluginOptions = vueConfig.pluginOptions || {}
+
       // Base public path
       config.base =
             process.env.PUBLIC_URL || vueConfig.publicPath || vueConfig.baseUrl
@@ -49,6 +51,9 @@ export class VueCliTransformer implements Transformer {
         }
       }
       recordConver({ num: 'V02', feat: 'css options' })
+
+      // Global css
+      if (pluginOptions['style-resources-loader']) { this.transformGlobalCssImports(rootDir, pluginOptions, config); }
       // server options
       if (vueConfig.devServer) {
         config.server = this.transformDevServer(vueConfig.devServer)
@@ -148,5 +153,26 @@ export class VueCliTransformer implements Transformer {
       }
       server.proxy = proxy
       return server
+    }
+
+    public transformGlobalCssImports (rootDir: string, pluginOptions, config: ViteConfig) {
+      config.css = {};
+      config.css.preprocessorOptions = {};
+      let additionalData = '';
+      const preProcessor = pluginOptions['style-resources-loader'].preProcessor;
+      const patterns = pluginOptions['style-resources-loader'].patterns;
+      patterns.forEach(pattern => {
+        additionalData = additionalData + '@import "' + pattern.slice(rootDir.length + 1) + '";';
+      });
+      if (preProcessor === 'less') {
+        config.css.preprocessorOptions.less = {};
+        config.css.preprocessorOptions.less.additionalData = additionalData;
+      } else if (preProcessor === 'scss') {
+        config.css.preprocessorOptions.scss = {};
+        config.css.preprocessorOptions.scss.additionalData = additionalData;
+      } else if (preProcessor === 'styl') {
+        config.css.preprocessorOptions.styl = {};
+        config.css.preprocessorOptions.styl.additionalData = additionalData;
+      }
     }
 }
