@@ -66,7 +66,7 @@ Legend of annotations:
   * Vue2 required: `vite-plugin-vue2`
   * Vue3 required: `@vue/compiler-sfc`, `@vitejs/plugin-vue`, `@vitejs/plugin-vue-jsx`
 * ✅ B02: add vite entry file `index.html` to root directory
-  * add entry point like: `<script type="module" src="/src/main.js"></script>`, don't need to add `dev-client` entry point because vite support hmr default
+  * add entry point like: `<script type="module" src="/src/main.js"></script>`, don't need to add `dev-client` entry point because vite support HMR default
 * ✅ B03: add vite config file `vite.config.js` to root directory
 * ✅ B04: import and use required plugins in `vite.config.js`
   * required `vite-plugin-env-compatible`
@@ -80,6 +80,22 @@ Legend of annotations:
   * if using `node-sass` dependency before, convert to `sass` dependency
 * ✅ B07: postcss 8 support
   * if using postcss 8 before, add `postcss` dependency
+* ⚠️ B08: fix issue '[No matching export for import typescript interface](https://github.com/vitejs/vite/issues/2117)'
+  * Do not re-export type or interface in vite. You can just export it in file A and import it in file B. Don't try to export it in file B again.
+  The following is an error with re-export a type or interface:
+  ```
+  Uncaught SyntaxError: The requested module '/src/app/reducers/state.ts' does not provide an export named 'RootState'
+  ```
+  * Just remove all re-export type or interface in typescript project and modify relate import path
+* ⚠️ B09: remove Hot Module Replacement (or HMR) relate code because vite support HMR default.
+  * The following error occur when project contain HMR relate code:
+  ```
+  index.tsx:6 Uncaught ReferenceError: module is not defined
+    at index.tsx:6
+  ```
+* ⚠️ B10: CSS Modules
+  * In vite, any CSS file ending with .module.css is considered a CSS modules file
+  * That is mean you need to covert `.css` file to `.module.css` to implement CSS Modules
   
 ### Vue-CLI conversion
 > Vue-CLI conversion are base on `vue.config.js`, map configuration to `vite.config.js`
@@ -146,6 +162,7 @@ Legend of annotations:
 ### Others
 * ⚠️ O01: use CommonJS syntax, e.g. `require('./')`
   * add vite plugin `@originjs/vite-plugin-commonjs`, see detail: https://github.com/originjs/vite-plugins/tree/main/packages/vite-plugin-commonjs
+  * plugin above support part of CommonJS syntax, still, some special syntax didn't support, recommend covert to ES Modules syntax
 * ❌ O02: use ElementUI, see detail: https://github.com/vitejs/vite/issues/3370
   ```
    [vite] Uncaught TypeError: Cannot read property '$isServer' of undefined
