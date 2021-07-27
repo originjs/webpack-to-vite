@@ -227,7 +227,7 @@ Legend of annotations:
       at TraversalContext.visitQueue (/Users/Chieffo/Documents/project/Vue-mmPlayer/node_modules/@babel/traverse/lib/context.js:99:16)
       at TraversalContext.visitSingle (/Users/Chieffo/Documents/project/Vue-mmPlayer/node_modules/@babel/traverse/lib/context.js:73:19)
   ```
-  add config to `babel.config.js`
+  update config to `babel.config.js`
   ```javascript
   module.exports = {
     presets: [
@@ -239,16 +239,11 @@ Legend of annotations:
   ```javascript
   module.exports = {
     presets: [
-      ['@vue/app',
-        {
-          useBuiltIns: 'entry',
-          jsx: {
-            injectH: false
-          }
-        }]
+      ['@vue/babel-preset-jsx']
     ]
   }
   ```
+  see detail: https://vuejs.org/v2/guide/render-function.html#JSX
 * ⚠️ O06: use webpack api `require.context`
   * add vite plugin `@originjs/vite-plugin-require-context`, see detail: https://github.com/originjs/vite-plugins/tree/main/packages/vite-plugin-require-context
 * ✅ O07: fix issue 'Compiling error when the template of the .vue file has the attribute lang="html"'
