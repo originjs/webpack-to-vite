@@ -62,10 +62,11 @@ Legend of annotations:
 
 ### Base conversion
 * ✅ B01: add required devDependencies and dependencies in `package.json`
-  * required: `vite-plugin-env-compatible`, `vite`,
+  * required: `vite-plugin-env-compatible`, `vite-plugin-html`, `vite`,
   * Vue2 required: `vite-plugin-vue2`
   * Vue3 required: `@vue/compiler-sfc`, `@vitejs/plugin-vue`, `@vitejs/plugin-vue-jsx`
 * ✅ B02: add vite entry file `index.html` to root directory
+  * support multiple entries defined by the `pages` option in `vue.config.js`
   * add entry point like: `<script type="module" src="/src/main.js"></script>`, don't need to add `dev-client` entry point because vite support hmr default
 * ✅ B03: add vite config file `vite.config.js` to root directory
 * ✅ B04: import and use required plugins in `vite.config.js`
@@ -80,7 +81,23 @@ Legend of annotations:
   * if using `node-sass` dependency before, convert to `sass` dependency
 * ✅ B07: postcss 8 support
   * if using postcss 8 before, add `postcss` dependency
-  
+* ⚠️ B11: default values exposed by plugins
+  * The error `htmlWebpackPlugin is not defined` occured when `index.html` includes `htmlWebpackPlugin.options.variableName`, you need to add plugin options in `vite.config.js`:
+  ```
+
+  plugins: [
+    injectHtml:({
+      injectData: {
+        htmlWebpackPlugin: {
+          options: {
+            variableName: value
+          }
+        }
+      }
+    })
+  ]
+  ```
+
 ### Vue-CLI conversion
 > Vue-CLI conversion are base on `vue.config.js`, map configuration to `vite.config.js`
 
@@ -113,8 +130,9 @@ Legend of annotations:
   }
   ```
   * convert webpack alias options to match format above
-* ✅ V06: default values exposed by plugins or client-side env variables
-  * replace jsp scriptlet tags in `index.html` to exact values
+* ✅ V06: client-side env variables
+  * extract variable names contained in jsp scriptlet tags
+  * `VUE_APP_VARIABLE` -> `process.env['VUE_APP_VARIABLE']`
   
 ### Webpack conversion
 > Webpack conversion are base on `webpack.config.js` or `webpack.base.js、webpack.dev.js、webpack.prod.js|webpack.build.js|webpack.production.js`, map configuration to `vite.config.js`
