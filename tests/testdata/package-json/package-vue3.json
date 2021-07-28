@@ -5,9 +5,7 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint",
-    "serve-vite": "vite",
-    "build-vite": "vite build"
+    "lint": "vue-cli-service lint"
   },
   "dependencies": {
     "core-js": "^3.6.5",
@@ -17,15 +15,10 @@
     "@vue/cli-plugin-babel": "~4.5.0",
     "@vue/cli-plugin-eslint": "~4.5.0",
     "@vue/cli-service": "~4.5.0",
-    "@vue/compiler-sfc": "^3.0.5",
+    "@vue/compiler-sfc": "^3.0.0",
     "babel-eslint": "^10.1.0",
     "eslint": "^6.7.2",
-    "eslint-plugin-vue": "^7.0.0",
-    "@vitejs/plugin-vue": "^1.2.1",
-    "vite-plugin-env-compatible": "^1.0.0",
-    "vite": "^2.1.5",
-    "@vitejs/plugin-vue-jsx": "^1.1.5",
-    "@originjs/vite-plugin-commonjs": "^1.0.0-beta3"
+    "eslint-plugin-vue": "^7.0.0"
   },
   "eslintConfig": {
     "root": true,

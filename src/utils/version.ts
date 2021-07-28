@@ -4,7 +4,7 @@ import { DEFAULT_VUE_VERSION } from '../constants/constants'
 import fs from 'fs'
 import { minVersion } from 'semver'
 
-export function getVueVersion (rootDir: string): number {
+export function getVueVersion (rootDir: string): number | undefined {
   const vueVersion = DEFAULT_VUE_VERSION
   const jsonPath = path.resolve(rootDir, 'package.json')
   if (!fs.existsSync(jsonPath)) {

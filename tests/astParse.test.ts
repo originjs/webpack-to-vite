@@ -8,7 +8,7 @@ import {astTransform as removeHtmlLangTransform} from "../src/ast-parse/transfor
 beforeAll(async () => {
     const srcPath = path.resolve('tests/testdata/ast-parse')
     const destPath = path.resolve('tests/out')
-    await copyDir(srcPath, destPath)
+    copyDir(srcPath, destPath)
 })
 afterAll(() => {
     fs.rmdirSync(path.resolve('tests/out'), { recursive: true })

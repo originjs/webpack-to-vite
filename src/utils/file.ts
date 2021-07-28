@@ -42,7 +42,7 @@ export function relativePathFormat (rootDir: string, filePath: string): string {
   return path.relative(rootDir, path.resolve(rootDir, filePath)).replace(/\\/g, '/')
 }
 
-export async function copyDir (src: string, dest: string): Promise<void> {
+export function copyDir (src: string, dest: string): void {
   fs.mkdirSync(dest, { recursive: true });
   const entries = fs.readdirSync(src, { withFileTypes: true });
 
@@ -50,6 +50,6 @@ export async function copyDir (src: string, dest: string): Promise<void> {
     const srcPath = path.join(src, entry.name);
     const destPath = path.join(dest, entry.name);
 
-    entry.isDirectory() ? await copyDir(srcPath, destPath) : fs.copyFileSync(srcPath, destPath);
+    entry.isDirectory() ? copyDir(srcPath, destPath) : fs.copyFileSync(srcPath, destPath);
   }
 }
