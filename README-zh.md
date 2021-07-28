@@ -1,35 +1,35 @@
-English | [简体中文](./README-zh.md)
+[English](./README.md) | 简体中文
 
 ## webpack-to-vite
-convert a webpack project to a vite project
+将 webpack 项目转换为 vite 项目
 
-## Quick Start
+## 快速开始
 
-1. download
+1. 下载
 ```
 git clone https://github.com/originjs/webpack-to-vite.git
 cd webpack-to-vite
 ```
-2. install
+2. 安装
 
-with npm, run
+使用 npm, 运行
 ```
 npm install
 npm run build
 ```
-with yarn, run
+使用 yarn, 运行
 ```
 yarn
 yarn build
 ```
-3. convert
+3. 转换
 ```
 node ./bin/index -d <project path>
 ```
 
-## Demos
+## 演示项目
 
-The following is a list of projects that successfully converted from a webpack project to a vite project using the tool
+以下是使用工具成功从 webpack 项目转换为 vite 项目的项目列表
 
 - [helloworld-vue2](https://github.com/originjs/webpack-to-vite-demos/tree/main/helloworld-vue2)
 - [helloworld-vue3](https://github.com/originjs/webpack-to-vite-demos/tree/main/helloworld-vue3)
@@ -40,7 +40,7 @@ The following is a list of projects that successfully converted from a webpack p
 - [vue-uploader-vite](https://github.com/originjs/webpack-to-vite-demos/tree/main/vue-uploader-vite)
 - [douban-vite](https://github.com/originjs/webpack-to-vite-demos/tree/main/douban-vite)
 
-## Awesome projects successfully converted
+## 成功转换的项目
 
 ### vue-cli
 - [vue-manage-system](https://github.com/lin-xin/vue-manage-system) -> [vue-manage-system-vite](https://github.com/originjs/webpack-to-vite-demos/tree/main/vue-manage-system-vite)
@@ -51,18 +51,18 @@ The following is a list of projects that successfully converted from a webpack p
 - [vue-uploader](https://github.com/simple-uploader/vue-uploader) -> [vue-uploader-vite](https://github.com/originjs/webpack-to-vite-demos/tree/main/vue-uploader-vite)
 - [douban](https://github.com/jeneser/douban) -> [douban-vite](https://github.com/originjs/webpack-to-vite-demos/tree/main/douban-vite)
 
-## Conversion items
-The following is a list of configuration items that need to convert
+## 转换项
+以下是需要转换的配置项列表
 
-Legend of annotations:
+图例注解：
 
-| Mark | Description |
+| 图例 | 描述 |
 | ---- | ---- |
-|✅|auto convert by `webpack-to-vite`|
-|⚠️|need manual convert|
-|❌|not support now|
+|✅|通过 `webpack-to-vite` 自动转换|
+|⚠️|需要手动转换|
+|❌|目前不支持|
 
-### Base conversion
+### 基础转换项
 * ✅ B01: add required devDependencies and dependencies in `package.json`
   * required: `vite-plugin-env-compatible`, `vite-plugin-html`, `vite`,
   * Vue2 required: `vite-plugin-vue2`
@@ -99,7 +99,7 @@ Legend of annotations:
 * ⚠️ B10: CSS Modules
   * In vite, any CSS file ending with .module.css is considered a CSS modules file
   * That is mean you need to covert `.css` file to `.module.css` to implement CSS Modules
-* ⚠️ B11: default values exposed by plugins
+  * ⚠️ B11: default values exposed by plugins
   * The error `htmlWebpackPlugin is not defined` occured when `index.html` includes `htmlWebpackPlugin.options.variableName`, you need to add plugin options in `vite.config.js`:
   ```
   plugins: [
@@ -115,7 +115,7 @@ Legend of annotations:
   ]
   ```
 
-### Vue-CLI conversion
+### Vue-CLI 转换项
 > Vue-CLI conversion are base on `vue.config.js`, map configuration to `vite.config.js`
 
 * ✅ V01: base public path
@@ -151,7 +151,7 @@ Legend of annotations:
   * extract variable names contained in jsp scriptlet tags
   * `VUE_APP_VARIABLE` -> `process.env['VUE_APP_VARIABLE']`
   
-### Webpack conversion
+### Webpack 转换项
 > Webpack conversion are base on `webpack.config.js` or `webpack.base.js、webpack.dev.js、webpack.prod.js|webpack.build.js|webpack.production.js`, map configuration to `vite.config.js`
 
 > Note: if you are not using configuration file above, you need to convert configuration manually instead using tool
@@ -178,7 +178,7 @@ Legend of annotations:
 * ✅ W05: define options
   * `new webpack.DefinePlugin()` -> `define`
   
-### Others
+### 其他转换项
 * ⚠️ O01: use CommonJS syntax, e.g. `require('./')`
   * add vite plugin `@originjs/vite-plugin-commonjs`, see detail: https://github.com/originjs/vite-plugins/tree/main/packages/vite-plugin-commonjs
   * plugin above support part of CommonJS syntax, still, some special syntax didn't support, recommend covert to ES Modules syntax
