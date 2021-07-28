@@ -63,44 +63,44 @@ node ./bin/index -d <project path>
 |❌|目前不支持|
 
 ### 基础转换项
-* ✅ B01: add required devDependencies and dependencies in `package.json`
-  * required: `vite-plugin-env-compatible`, `vite-plugin-html`, `vite`,
-  * Vue2 required: `vite-plugin-vue2`
-  * Vue3 required: `@vue/compiler-sfc`, `@vitejs/plugin-vue`, `@vitejs/plugin-vue-jsx`
-* ✅ B02: add vite entry file `index.html` to root directory
-  * support multiple entries defined by the `pages` option in `vue.config.js`
-  * add entry point like: `<script type="module" src="/src/main.js"></script>`, don't need to add `dev-client` entry point because vite support HMR default
-* ✅ B03: add vite config file `vite.config.js` to root directory
-* ✅ B04: import and use required plugins in `vite.config.js`
-  * required `vite-plugin-env-compatible`
-  * Vue2 required: `vite-plugin-vue2`, pass `{ jsx: true }` option to enable `jsx` support default
-  * Vue3 required: `@vitejs/plugin-vue`, `@vitejs/plugin-vue-jsx`
-* ✅ B05: support imports that omit `.vue` extension
-  * in `vite.config.js`, add `.vue` to `resolve.extensions` to default configuration,
-    then you may encounter issue like '[Problems caused by using alisaes and omitting file suffixes at the same time](https://github.com/vitejs/vite/issues/3532)',
-    we use patch to fix this issue, in case of vite didn't accept relate PR
-* ✅ B06: sass support
-  * if using `node-sass` dependency before, convert to `sass` dependency
-* ✅ B07: postcss 8 support
-  * if using postcss 8 before, add `postcss` dependency
-* ⚠️ B08: fix issue '[No matching export for import typescript interface](https://github.com/vitejs/vite/issues/2117)'
-  * Do not re-export type or interface in vite. You can just export it in file A and import it in file B. Don't try to export it in file B again.
-  The following is an error with re-export a type or interface:
+* ✅ B01: 在 `package.json` 中添加必要的 devDependencies 和 dependencies
+  * 必要的: `vite-plugin-env-compatible`, `vite-plugin-html`, `vite`,
+  * Vue2 必要的: `vite-plugin-vue2`
+  * Vue3 必要的: `@vue/compiler-sfc`, `@vitejs/plugin-vue`, `@vitejs/plugin-vue-jsx`
+* ✅ B02: 将 vite 入口文件 `index.html` 添加到根目录
+  * 支持 `vue.config.js` 中 `pages` 选项定义的多个配置项
+  * 添加像这样的入口点：`<script type="module" src="/src/main.js"></script>`，不需要添加 `dev-client` 入口点，因为 vite 默认支持 HMR
+* ✅ B03: 将 vite 配置文件 `vite.config.js` 添加到根目录
+* ✅ B04: 在 `vite.config.js` 中导入和使用必要的插件
+  * 必要的 `vite-plugin-env-compatible`
+  * Vue2 必要的: `vite-plugin-vue2`，通过 `{ jsx: true }` 选项启用 `jsx` 默认支持
+  * Vue3 必要的: `@vitejs/plugin-vue`, `@vitejs/plugin-vue-jsx`
+* ✅ B05: 支持省略 `.vue` 扩展名的导入
+  * 在 `vite.config.js` 中，设置 `resolve.extensions` 配置项为 `['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.vue']`，
+    然后你可能会遇到 "[Problems caused by using alisaes and omitting file suffixes at the same time](https://github.com/vitejs/vite/issues/3532)" 这样的问题，
+    我们使用补丁来解决这个问题，以防万一 vite 不接受相关 PR
+* ✅ B06: sass 支持
+  * 如果之前使用 `node-sass` 依赖，则转换为 `sass` 依赖
+* ✅ B07: postcss 8 支持
+  * 如果之前使用 postcss 8，请添加 `postcss` 依赖
+* ⚠️ B08: 修复问题 '[No matching export for import typescript interface](https://github.com/vitejs/vite/issues/2117)'
+  * 请勿在 vite 中重复导出 typescript 类型或接口。 您只能在文件 A 中将其导出，然后在文件 B 中将其导入。不要尝试在文件 B 中将其再次导出。
+    以下是重复导出类型或接口时出现的错误：
   ```
   Uncaught SyntaxError: The requested module '/src/app/reducers/state.ts' does not provide an export named 'RootState'
   ```
-  * Just remove all re-export type or interface in typescript project and modify relate import path
-* ⚠️ B09: remove Hot Module Replacement (or HMR) relate code because vite support HMR default.
-  * The following error occur when project contain HMR relate code:
+  * 只要删除 typescript 项目中所有重复导出的类型或接口，并修改相关导入路径
+* ⚠️ B09: 删除模块热更新（或 HMR）相关代码，因为 vite 默认支持 HMR
+  * 项目包含 HMR 相关代码时出现以下错误：
   ```
   index.tsx:6 Uncaught ReferenceError: module is not defined
     at index.tsx:6
   ```
 * ⚠️ B10: CSS Modules
-  * In vite, any CSS file ending with .module.css is considered a CSS modules file
-  * That is mean you need to covert `.css` file to `.module.css` to implement CSS Modules
-  * ⚠️ B11: default values exposed by plugins
-  * The error `htmlWebpackPlugin is not defined` occured when `index.html` includes `htmlWebpackPlugin.options.variableName`, you need to add plugin options in `vite.config.js`:
+  * 在 vite 中, 任何以 `.module.css` 为后缀名的 CSS 文件都被认为是一个 CSS modules 文件
+  * 这意味着你需要将以 `.css` 为后缀文件转换为以 `.module.css` 为后缀的文件来实现 CSS Modules
+  * ⚠️ B11: 插件暴露的默认值
+  * 当 `index.html` 包含 `htmlWebpackPlugin.options.variableName` 时出现 `htmlWebpackPlugin is not defined` 错误，需要在 `vite.config.js` 中添加插件选项：
   ```
   plugins: [
     injectHtml:({

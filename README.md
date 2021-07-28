@@ -63,20 +63,20 @@ Legend of annotations:
 |❌|not support now|
 
 ### Base conversion
-* ✅ B01: add required devDependencies and dependencies in `package.json`
-  * required: `vite-plugin-env-compatible`, `vite-plugin-html`, `vite`,
-  * Vue2 required: `vite-plugin-vue2`
-  * Vue3 required: `@vue/compiler-sfc`, `@vitejs/plugin-vue`, `@vitejs/plugin-vue-jsx`
+* ✅ B01: add necessary devDependencies and dependencies in `package.json`
+  * necessary: `vite-plugin-env-compatible`, `vite-plugin-html`, `vite`,
+  * Vue2 necessary: `vite-plugin-vue2`
+  * Vue3 necessary: `@vue/compiler-sfc`, `@vitejs/plugin-vue`, `@vitejs/plugin-vue-jsx`
 * ✅ B02: add vite entry file `index.html` to root directory
   * support multiple entries defined by the `pages` option in `vue.config.js`
   * add entry point like: `<script type="module" src="/src/main.js"></script>`, don't need to add `dev-client` entry point because vite support HMR default
 * ✅ B03: add vite config file `vite.config.js` to root directory
-* ✅ B04: import and use required plugins in `vite.config.js`
-  * required `vite-plugin-env-compatible`
-  * Vue2 required: `vite-plugin-vue2`, pass `{ jsx: true }` option to enable `jsx` support default
-  * Vue3 required: `@vitejs/plugin-vue`, `@vitejs/plugin-vue-jsx`
+* ✅ B04: import and use necessary plugins in `vite.config.js`
+  * necessary `vite-plugin-env-compatible`
+  * Vue2 necessary: `vite-plugin-vue2`, pass `{ jsx: true }` option to enable `jsx` support default
+  * Vue3 necessary: `@vitejs/plugin-vue`, `@vitejs/plugin-vue-jsx`
 * ✅ B05: support imports that omit `.vue` extension
-  * in `vite.config.js`, add `.vue` to `resolve.extensions` to default configuration,
+  * In `vite.config.js`, set the `resolve.extensions` configuration item to `['.mjs','.js','.ts','.jsx','.tsx','.json ','.vue']`,
     then you may encounter issue like '[Problems caused by using alisaes and omitting file suffixes at the same time](https://github.com/vitejs/vite/issues/3532)',
     we use patch to fix this issue, in case of vite didn't accept relate PR
 * ✅ B06: sass support
@@ -84,7 +84,7 @@ Legend of annotations:
 * ✅ B07: postcss 8 support
   * if using postcss 8 before, add `postcss` dependency
 * ⚠️ B08: fix issue '[No matching export for import typescript interface](https://github.com/vitejs/vite/issues/2117)'
-  * Do not re-export type or interface in vite. You can just export it in file A and import it in file B. Don't try to export it in file B again.
+  * Do not re-export typescript type or interface in vite. You can just export it in file A and import it in file B. Don't try to export it in file B again.
   The following is an error with re-export a type or interface:
   ```
   Uncaught SyntaxError: The requested module '/src/app/reducers/state.ts' does not provide an export named 'RootState'
@@ -97,8 +97,8 @@ Legend of annotations:
     at index.tsx:6
   ```
 * ⚠️ B10: CSS Modules
-  * In vite, any CSS file ending with .module.css is considered a CSS modules file
-  * That is mean you need to covert `.css` file to `.module.css` to implement CSS Modules
+  * In vite, any CSS file ending with `.module.css` is considered a CSS modules file
+  * That is mean you need to covert files with a suffix of `.css` to files with a suffix of `.module.css` to implement CSS Modules
 * ⚠️ B11: default values exposed by plugins
   * The error `htmlWebpackPlugin is not defined` occured when `index.html` includes `htmlWebpackPlugin.options.variableName`, you need to add plugin options in `vite.config.js`:
   ```
