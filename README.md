@@ -62,10 +62,11 @@ Legend of annotations:
 
 ### Base conversion
 * ✅ B01: add required devDependencies and dependencies in `package.json`
-  * required: `vite-plugin-env-compatible`, `vite`,
+  * required: `vite-plugin-env-compatible`, `vite-plugin-html`, `vite`,
   * Vue2 required: `vite-plugin-vue2`
   * Vue3 required: `@vue/compiler-sfc`, `@vitejs/plugin-vue`, `@vitejs/plugin-vue-jsx`
 * ✅ B02: add vite entry file `index.html` to root directory
+  * support multiple entries defined by the `pages` option in `vue.config.js`
   * add entry point like: `<script type="module" src="/src/main.js"></script>`, don't need to add `dev-client` entry point because vite support HMR default
 * ✅ B03: add vite config file `vite.config.js` to root directory
 * ✅ B04: import and use required plugins in `vite.config.js`
@@ -96,7 +97,22 @@ Legend of annotations:
 * ⚠️ B10: CSS Modules
   * In vite, any CSS file ending with .module.css is considered a CSS modules file
   * That is mean you need to covert `.css` file to `.module.css` to implement CSS Modules
-  
+* ⚠️ B11: default values exposed by plugins
+  * The error `htmlWebpackPlugin is not defined` occured when `index.html` includes `htmlWebpackPlugin.options.variableName`, you need to add plugin options in `vite.config.js`:
+  ```
+  plugins: [
+    injectHtml:({
+      injectData: {
+        htmlWebpackPlugin: {
+          options: {
+            variableName: value
+          }
+        }
+      }
+    })
+  ]
+  ```
+
 ### Vue-CLI conversion
 > Vue-CLI conversion are base on `vue.config.js`, map configuration to `vite.config.js`
 
@@ -129,8 +145,9 @@ Legend of annotations:
   }
   ```
   * convert webpack alias options to match format above
-* ✅ V06: default values exposed by plugins or client-side env variables
-  * replace jsp scriptlet tags in `index.html` to exact values
+* ✅ V06: client-side env variables
+  * extract variable names contained in jsp scriptlet tags
+  * `VUE_APP_VARIABLE` -> `process.env['VUE_APP_VARIABLE']`
   
 ### Webpack conversion
 > Webpack conversion are base on `webpack.config.js` or `webpack.base.js、webpack.dev.js、webpack.prod.js|webpack.build.js|webpack.production.js`, map configuration to `vite.config.js`
@@ -227,7 +244,7 @@ Legend of annotations:
       at TraversalContext.visitQueue (/Users/Chieffo/Documents/project/Vue-mmPlayer/node_modules/@babel/traverse/lib/context.js:99:16)
       at TraversalContext.visitSingle (/Users/Chieffo/Documents/project/Vue-mmPlayer/node_modules/@babel/traverse/lib/context.js:73:19)
   ```
-  add config to `babel.config.js`
+  update config to `babel.config.js`
   ```javascript
   module.exports = {
     presets: [
@@ -239,16 +256,11 @@ Legend of annotations:
   ```javascript
   module.exports = {
     presets: [
-      ['@vue/app',
-        {
-          useBuiltIns: 'entry',
-          jsx: {
-            injectH: false
-          }
-        }]
+      ['@vue/babel-preset-jsx']
     ]
   }
   ```
+  see detail: https://vuejs.org/v2/guide/render-function.html#JSX
 * ⚠️ O06: use webpack api `require.context`
   * add vite plugin `@originjs/vite-plugin-require-context`, see detail: https://github.com/originjs/vite-plugins/tree/main/packages/vite-plugin-require-context
 * ✅ O07: fix issue 'Compiling error when the template of the .vue file has the attribute lang="html"'
