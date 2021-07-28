@@ -5,10 +5,7 @@ import { writeSync } from '../utils/file'
 import { TemplateData } from '../config/config'
 import { RawValue } from '../config/vite'
 import { recordConver } from '../utils/report'
-
-function isObject (obj) {
-  return obj !== null && (typeof obj === 'object' || typeof obj === 'function')
-}
+import { isObject } from '../utils/common'
 
 export function serializeObject (val: unknown): string {
   const seen = []
