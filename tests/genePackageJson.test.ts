@@ -1,20 +1,26 @@
 import path from "path";
 import {genePackageJson, getGreaterVersion, processDependencies} from "../src/generate/genePackageJson";
 import fs from "fs";
-import {copyDir, readSync} from "../src/utils/file";
+import {readSync} from "../src/utils/file";
 
 describe('genePackageJson', () => {
-    beforeAll(async () => {
-        const srcPath = path.resolve('tests/testdata/package-json')
-        const destPath = path.resolve('tests/out')
-        copyDir(srcPath, destPath)
+    beforeAll(() => {
+        fs.mkdirSync(path.resolve('tests/out'), { recursive: true })
     })
     afterAll(() => {
         fs.rmdirSync(path.resolve('tests/out'), { recursive: true })
     })
+    afterEach(() => {
+        fs.unlinkSync(path.resolve('tests/out/package.json'))
+    })
 
     test('generate normal package.json', () => {
-        const packageJsonPath = path.resolve('tests/out/package-normal.json')
+        const testPackageJsonPath = path.resolve('tests/testdata/package-json/package-normal.json')
+        const packageJsonPath = path.resolve('tests/out/package.json')
+        fs.copyFileSync(testPackageJsonPath, packageJsonPath)
+        const testPostcssConfigPath = path.resolve('tests/testdata/package-json/postcss.config.js')
+        const postcssConfigPath = path.resolve('tests/out/postcss.config.js')
+        fs.copyFileSync(testPostcssConfigPath, postcssConfigPath)
         genePackageJson(packageJsonPath);
         const packageJsonContent = JSON.parse(readSync(packageJsonPath))
         expect(packageJsonContent.devDependencies).toMatchObject(expect.objectContaining({
@@ -33,7 +39,9 @@ describe('genePackageJson', () => {
     });
 
     test('generate vue2 package.json', () => {
-        const packageJsonPath = path.resolve('tests/out/package-vue2.json')
+        const testPackageJsonPath = path.resolve('tests/testdata/package-json/package-vue2.json')
+        const packageJsonPath = path.resolve('tests/out/package.json')
+        fs.copyFileSync(testPackageJsonPath, packageJsonPath)
         genePackageJson(packageJsonPath);
         const packageJsonContent = JSON.parse(readSync(packageJsonPath))
         expect(packageJsonContent.devDependencies).toMatchObject(expect.objectContaining({
@@ -42,7 +50,9 @@ describe('genePackageJson', () => {
     });
 
     test('generate vue3 package.json', () => {
-        const packageJsonPath = path.resolve('tests/out/package-vue3.json')
+        const testPackageJsonPath = path.resolve('tests/testdata/package-json/package-vue3.json')
+        const packageJsonPath = path.resolve('tests/out/package.json')
+        fs.copyFileSync(testPackageJsonPath, packageJsonPath)
         genePackageJson(packageJsonPath);
         const packageJsonContent = JSON.parse(readSync(packageJsonPath))
         expect(packageJsonContent.devDependencies).toMatchObject(expect.objectContaining({
