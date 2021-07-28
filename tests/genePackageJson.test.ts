@@ -53,17 +53,6 @@ describe('genePackageJson', () => {
     });
 })
 
-test('test', () => {
-    const a = {
-        b: 1
-    }
-    const b = {
-        b: 1,
-        c: 2
-    }
-    expect(b).toMatchObject(expect.objectContaining(a))
-})
-
 test('getGreaterVersion', () => {
     expect(getGreaterVersion('0.0.1', '0.0.0')).toEqual('0.0.1')
     expect(getGreaterVersion('0.0.1', '^0.0.0')).toEqual('0.0.1')
