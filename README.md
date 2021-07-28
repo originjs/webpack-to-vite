@@ -148,6 +148,30 @@ Legend of annotations:
 * ✅ V06: client-side env variables
   * extract variable names contained in jsp scriptlet tags
   * `VUE_APP_VARIABLE` -> `process.env['VUE_APP_VARIABLE']`
+* ✅ V07: css automatic imports
+  * if use 'style-resources-loader' to load css processor resources
+  * `pluginOptions.'style-resources-loader'` -> `css.preprocessorOptions`Example:
+  ```javascript
+  pluginOptions: {
+    'style-resources-loader': {
+      preProcessor: 'less',
+      patterns: [
+        resolve('src/styles/var.less'),
+        resolve('src/styles/mixin.less')
+      ]
+    }
+  }
+  ```
+  ->
+  ```javascript
+  css: {
+    preprocessorOptions: {
+      less: {
+        additionalData: `@import "src/styles/var.less";@import "src/styles/mixin.less";`
+      }
+    }
+  }
+  ```
   
 ### Webpack conversion
 > Webpack conversion are base on `webpack.config.js` or `webpack.base.js、webpack.dev.js、webpack.prod.js|webpack.build.js|webpack.production.js`, map configuration to `vite.config.js`
@@ -194,32 +218,9 @@ Legend of annotations:
     at Object.5 (:8080/node_modules/.vite/element-ui.js?v=675d2c77:6861)
     at __webpack_require__ (:8080/node_modules/.vite/element-ui.js?v=675d2c77:6547)
   ```
-* ⚠️ O03: css automatic imports
-  * if use `style-resources-loader` before, try to replace by `additionalData`. Example:
-  ```javascript
-  pluginOptions: {
-    'style-resources-loader': {
-      preProcessor: 'less',
-      patterns: [
-        resolve('src/styles/var.less'),
-        resolve('src/styles/mixin.less')
-      ]
-    }
-  }
-  ```
-  ->
-  ```javascript
-  css: {
-    preprocessorOptions: {
-      less: {
-        additionalData: `@import 'src/styles/var.less';` + `@import 'src/styles/mixin.less';`
-      }
-    }
-  }
-  ```
-* ⚠️ O04: imports path include multiple alias like: `@import '~@/styles/global.scss'`, which is includes alias `~` and `@` 
+* ⚠️ O03: imports path include multiple alias like: `@import '~@/styles/global.scss'`, which is includes alias `~` and `@` 
   * add an alias configure `{ find: /^~@/, replacement: path.resolve(__dirname, 'src') }` to `resolve.alias` options, and place it on first
-* ⚠️ O05: use `jsx` syntax in `.vue` file
+* ⚠️ O04: use `jsx` syntax in `.vue` file
   * make sure enable `jsx` support, Vue2 add plugin `vite-plugin-vue2` and pass `{ jsx: true }` option, Vue3 add plugin `@vitejs/plugin-vue-jsx`
   * add attribute `lang="jsx"` to `script` label, e.g. `<script lang="jsx"></script>`
   * If the following error occurs
@@ -261,12 +262,12 @@ Legend of annotations:
   }
   ```
   see detail: https://vuejs.org/v2/guide/render-function.html#JSX
-* ⚠️ O06: use webpack api `require.context`
+* ⚠️ O05: use webpack api `require.context`
   * add vite plugin `@originjs/vite-plugin-require-context`, see detail: https://github.com/originjs/vite-plugins/tree/main/packages/vite-plugin-require-context
-* ✅ O07: fix issue 'Compiling error when the template of the .vue file has the attribute lang="html"'
+* ✅ O06: fix issue 'Compiling error when the template of the .vue file has the attribute lang="html"'
   * remove `lang="html"` attribute from `template` label, see detail: https://github.com/vuejs/vue-loader/issues/1443
-* ❌ O08: use webpack api `require.ensure`
-* ⚠️ O09: convert dynamic imports that paths include alias to absolute path or relative path, see detail: see detail: https://github.com/rollup/plugins/tree/master/packages/dynamic-import-vars#limitations
+* ❌ O07: use webpack api `require.ensure`
+* ⚠️ O08: convert dynamic imports that paths include alias to absolute path or relative path, see detail: see detail: https://github.com/rollup/plugins/tree/master/packages/dynamic-import-vars#limitations
   ```javascript
   () => import('@/components/views/test.vue')
   ```

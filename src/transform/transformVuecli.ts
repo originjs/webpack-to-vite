@@ -52,8 +52,12 @@ export class VueCliTransformer implements Transformer {
       }
       recordConver({ num: 'V02', feat: 'css options' })
 
-      // Global css
-      if (pluginOptions['style-resources-loader']) { this.transformGlobalCssImports(rootDir, pluginOptions, config); }
+      // css automatic imports
+      if (pluginOptions['style-resources-loader']) {
+        this.transformGlobalCssImports(rootDir, pluginOptions, config);
+        recordConver({ num: 'V07', feat: 'css automatic imports' });
+      }
+
       // server options
       if (vueConfig.devServer) {
         config.server = this.transformDevServer(vueConfig.devServer)
