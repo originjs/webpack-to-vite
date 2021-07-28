@@ -162,7 +162,7 @@ export class VueCliTransformer implements Transformer {
       const preProcessor = pluginOptions['style-resources-loader'].preProcessor;
       const patterns = pluginOptions['style-resources-loader'].patterns;
       patterns.forEach(pattern => {
-        additionalData = additionalData + '@import "' + pattern.slice(rootDir.length + 1) + '";';
+        additionalData = additionalData + '@import "' + pattern.slice(rootDir.length + 1).replace(/\\/g, '/') + '";';
       });
       if (preProcessor === 'less') {
         config.css.preprocessorOptions.less = {};
