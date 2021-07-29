@@ -65,45 +65,45 @@ Legend of annotations:
 ### Base conversion
 * ✅ B01: add necessary devDependencies and dependencies in `package.json`
   * necessary: `vite-plugin-env-compatible`, `vite-plugin-html`, `vite`,
-  * Vue2 necessary: `vite-plugin-vue2`
-  * Vue3 necessary: `@vue/compiler-sfc`, `@vitejs/plugin-vue`, `@vitejs/plugin-vue-jsx`
-* ✅ B02: add vite entry file `index.html` to root directory
-  * support multiple entries defined by the `pages` option in `vue.config.js`
-  * add entry point like: `<script type="module" src="/src/main.js"></script>`, don't need to add `dev-client` entry point because vite support HMR default
-* ✅ B03: add vite config file `vite.config.js` to root directory
+  * necessary for Vue2: `vite-plugin-vue2`
+  * necessary for Vue3: `@vue/compiler-sfc`, `@vitejs/plugin-vue`, `@vitejs/plugin-vue-jsx`
+* ✅ B02: add vite's entry file `index.html` to root directory
+  * multiple entries defined by the `pages` option in `vue.config.js` is supported
+  * please add entry point like `<script type="module" src="/src/main.js"></script>`. There's no need to add `dev-client` entry point cause vite supports HMR by default
+* ✅ B03: add vite's config file `vite.config.js` to root directory
 * ✅ B04: import and use necessary plugins in `vite.config.js`
-  * necessary `vite-plugin-env-compatible`
-  * Vue2 necessary: `vite-plugin-vue2`, pass `{ jsx: true }` option to enable `jsx` support default
-  * Vue3 necessary: `@vitejs/plugin-vue`, `@vitejs/plugin-vue-jsx`
-* ✅ B05: support imports that omit `.vue` extension
-  * In `vite.config.js`, set the `resolve.extensions` configuration item to `['.mjs','.js','.ts','.jsx','.tsx','.json ','.vue']`,
-    then you may encounter issue like '[Problems caused by using alisaes and omitting file suffixes at the same time](https://github.com/vitejs/vite/issues/3532)',
-    we use patch to fix this issue, in case of vite didn't accept relate PR
-* ✅ B06: sass support
-  * if using `node-sass` dependency before, convert to `sass` dependency
-* ✅ B07: postcss 8 support
-  * if using postcss 8 before, add `postcss` dependency
+  * necessary: `vite-plugin-env-compatible`
+  * necessary for Vue2: `vite-plugin-vue2`, we set `{ jsx: true }` option to enable `jsx` support by default
+  * necessary for Vue3: `@vitejs/plugin-vue`, `@vitejs/plugin-vue-jsx`
+* ✅ B05: imports that omit `.vue` extension is supported
+  * If the `resolve.extensions` is set to be `['.mjs','.js','.ts','.jsx','.tsx','.json ','.vue']`, in `vite.config.js`,
+    then you may encounter errors like '[Problems caused by using alisaes and omitting file suffixes at the same time](https://github.com/vitejs/vite/issues/3532)'.
+    We use a patch to fix this issue, in case of vite didn't accept relate PR
+* ✅ B06: `sass` is supported
+  * if `node-sass` is used in dependency, then we'll convert it to `sass` to dependencies
+* ✅ B07: `postcss 8` is supported
+  * if `postcss 8` is used, then we'll add `postcss` to dependencies
 * ⚠️ B08: fix issue '[No matching export for import typescript interface](https://github.com/vitejs/vite/issues/2117)'
   * Do not re-export typescript type or interface in vite. You can just export it in file A and import it in file B. Don't try to export it in file B again.
-  The following is an error with re-export a type or interface:
+  The following error may occur if a type or a interface is re-exported:
   ```
   Uncaught SyntaxError: The requested module '/src/app/reducers/state.ts' does not provide an export named 'RootState'
   ```
-  * Just remove all re-export type or interface in typescript project and modify relate import path
-* ⚠️ B09: remove Hot Module Replacement (or HMR) relate code because vite support HMR default.
-  * The following error occur when project contain HMR relate code:
+  * Just remove all re-export types or interfaces in typescript project and modify corresponding imports
+* ⚠️ B09: remove `Hot Module Replacement`(aka HMR) related code because vite supports HMR by default.
+  * The following error may occur when project contains HMR relate code:
   ```
   index.tsx:6 Uncaught ReferenceError: module is not defined
     at index.tsx:6
   ```
 * ⚠️ B10: CSS Modules
-  * In vite, any CSS file ending with `.module.css` is considered a CSS modules file
-  * That is mean you need to covert files with a suffix of `.css` to files with a suffix of `.module.css` to implement CSS Modules
+  * In vite, any CSS files ending with `.module.css` is considered a CSS modules file
+  * That means you need to covert files with extension of `.css` to files with extension of `.module.css` to implement CSS Modules
 * ⚠️ B11: default values exposed by plugins
-  * The error `htmlWebpackPlugin is not defined` occured when `index.html` includes `htmlWebpackPlugin.options.variableName`, you need to add plugin options in `vite.config.js`:
-  ```
+  * The error `htmlWebpackPlugin is not defined` may occur if `index.html` includes `htmlWebpackPlugin.options.variableName`. You need to add a plugin in `vite.config.js` like this:
+  ```js
   plugins: [
-    injectHtml:({
+    injectHtml: ({
       injectData: {
         htmlWebpackPlugin: {
           options: {
@@ -116,28 +116,28 @@ Legend of annotations:
   ```
 
 ### Vue-CLI conversion
-> Vue-CLI conversion are base on `vue.config.js`, map configuration to `vite.config.js`
+> Vue-CLI conversion is based on `vue.config.js`. Configurations will be transformed and written to `vite.config.js`
 
 * ✅ V01: base public path
   * `process.env.PUBLIC_URL` or `publicPath` or `baseUrl` -> `base`
 * ✅ V02: css options
   * `css.loaderOptions` -> `css.preprocessorOptions`
   * `css.loaderOptions.less.lessOptions.modifyVars` -> `css.preprocessorOptions.less.modifyVars`
-  * if there is only `css.loaderOptions.sass` options, convert to `css.preprocessorOptions.sass` and `css.preprocessorOptions.sass`.
-    The `sass` configuration takes effect both `sass` and `scss` in Vue-CLI while vite need configure they respectively
+  * with only `css.loaderOptions.sass` option is set, it will be converted to `css.preprocessorOptions.sass` and `css.preprocessorOptions.sass`.
+    The `sass` configuration influence both `sass` and `scss` in Vue-CLI while vite need to configure them respectively
 * ✅ V03: server options
-  * default set `server.strictPort = false`
+  * `server.strictPort = false` is set by default
   * `process.env.PORT` or `devServer.port` -> `server.port`
-  * `process.env.DEV_HOST` or `devServer.public` or `devServer.host` -> `server.host`, and replace `http://` or `https://` to `''`
+  * `process.env.DEV_HOST` or `devServer.public` or `devServer.host` -> `server.host`, and convert `http://` or `https://` to `''`
   * `devServer.open`, `devServer.https` -> `server.open`, `server.https`
-  * `devServer.proxy` -> `server.proxy`, in proxy configuration, convert `pathRewrite` -> `rewrite`
+  * if `devServer.proxy` -> `server.proxy` is transformed in proxy configuration, we'll also `pathRewrite` -> `rewrite`
 * ✅ V04: build options
   * `outputDir` -> `build.outDir`
   * `css.extract` -> `build.cssCodeSplit`
-  * if `process.env.MODERN === 'true'`, set `build.minify = esbuild`
-  * if `process.env.GENERATE_SOURCEMAP === 'true'` or `vueConfig.productionSourceMap` or `css.sourceMap` -> `build.sourcemap`
+  * if `process.env.MODERN === 'true'` is set, we'll also set `build.minify = esbuild`
+  * `process.env.GENERATE_SOURCEMAP === 'true'` or `vueConfig.productionSourceMap` or `css.sourceMap` -> `build.sourcemap`
 * ✅ V05: `resolve.alias` options
-  * add default alias options
+  * add alias options by default
   ```javascript
   resolve: {
     alias: [
@@ -146,13 +146,12 @@ Legend of annotations:
     ]
   }
   ```
-  * convert webpack alias options to match format above
+  * webpack alias options will be converted to match format above
 * ✅ V06: client-side env variables
-  * extract variable names contained in jsp scriptlet tags
+  * extract variable names in jsp scriptlet tags
   * `VUE_APP_VARIABLE` -> `process.env['VUE_APP_VARIABLE']`
 * ✅ V07: css automatic imports
-  * if use 'style-resources-loader' to load css processor resources
-  * `pluginOptions.'style-resources-loader'` -> `css.preprocessorOptions`Example:
+  * if 'style-resources-loader' is used to load css processor resources, the `pluginOptions.'style-resources-loader'`. Configurations will be transformed and written to `css.preprocessorOptions`
   ```javascript
   pluginOptions: {
     'style-resources-loader': {
@@ -176,15 +175,15 @@ Legend of annotations:
   ```
   
 ### Webpack conversion
-> Webpack conversion are base on `webpack.config.js` or `webpack.base.js、webpack.dev.js、webpack.prod.js|webpack.build.js|webpack.production.js`, map configuration to `vite.config.js`
+> Webpack conversion is based on `webpack.config.js` or `webpack.base.js/webpack.dev.js/webpack.prod.js` or `webpack.build.js/webpack.production.js`, map configuration to `vite.config.js`
 
-> Note: if you are not using configuration file above, you need to convert configuration manually instead using tool
+> Note: if you are not using configuration files above, you need to convert configurations manually
 
-* ✅ W01: build input options
-  * if `entry` is `string` type, `entry` -> `build.rollupOptions.input`
-  * if `entry` is `object` type, convert each object property and each array element to `build.rollupOptions.input`
-  * if `entry` is `function` type, convert function execute result to `build.rollupOptions.input`
-* ✅ W02: outDir options
+* ✅ W01: build entry options
+  * if `entry` is `string` type: `entry` -> `build.rollupOptions.input`
+  * if `entry` is `object` type: the properties of `entry` will be converted set to `build.rollupOptions.input`
+  * if `entry` is `function` type: execute result of `entry` will be set to `build.rollupOptions.input`
+* ✅ W02: `outDir` options
   * `output.path` -> `build.outDir`
 * ✅ W03: `resolve.alias` options
   * add default alias options
