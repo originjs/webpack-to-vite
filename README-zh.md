@@ -116,26 +116,34 @@ node ./bin/index -d <project path>
   ```
 
 ### Vue-CLI 转换项
-> Vue-CLI conversion are base on `vue.config.js`, map configuration to `vite.config.js`
+> Vue-CLI转换是将`vue.config.js`中的配置，转换后设置到`vite.config.js`中
 
-* ✅ V01: base public path
-  * `process.env.PUBLIC_URL` or `publicPath` or `baseUrl` -> `base`
-* ✅ V02: css options
+* ✅ V01: public path环境变量
+
+* `process.env.PUBLIC_URL` 或 `publicPath` 或 `baseUrl` -> `base`
+
+* ✅ V02: css配置
   * `css.loaderOptions` -> `css.preprocessorOptions`
+  
   * `css.loaderOptions.less.lessOptions.modifyVars` -> `css.preprocessorOptions.less.modifyVars`
-  * if there is only `css.loaderOptions.sass` options, convert to `css.preprocessorOptions.sass` and `css.preprocessorOptions.sass`.
-    The `sass` configuration takes effect both `sass` and `scss` in Vue-CLI while vite need configure they respectively
-* ✅ V03: server options
-  * default set `server.strictPort = false`
-  * `process.env.PORT` or `devServer.port` -> `server.port`
-  * `process.env.DEV_HOST` or `devServer.public` or `devServer.host` -> `server.host`, and replace `http://` or `https://` to `''`
+  
+  * 如果在项目中对`css.loaderOptions.sass`进行了配置，则`css.preprocessorOptions.sass` 和 `css.preprocessorOptions.sass`也会进行相应的转换。
+  
+    在vue-cli中，`sass`配置可以同时影响`sass`和`scss`，而在vite中需要对它们进行单独配置
+  
+* ✅ V03: server配置
+  * 默认添加`server.strictPort = false`配置
+  * `process.env.PORT` 或 `devServer.port` -> `server.port`
+  * `process.env.DEV_HOST` 或 `devServer.public` 或 `devServer.host` -> `server.host`，并将`http://` 或`https://` 替换为 `''`
   * `devServer.open`, `devServer.https` -> `server.open`, `server.https`
-  * `devServer.proxy` -> `server.proxy`, in proxy configuration, convert `pathRewrite` -> `rewrite`
+  * `devServer.proxy` -> `server.proxy`, 另外在proxy配置中，进行`pathRewrite` -> `rewrite`转换
+  
 * ✅ V04: build options
   * `outputDir` -> `build.outDir`
   * `css.extract` -> `build.cssCodeSplit`
   * if `process.env.MODERN === 'true'`, set `build.minify = esbuild`
   * if `process.env.GENERATE_SOURCEMAP === 'true'` or `vueConfig.productionSourceMap` or `css.sourceMap` -> `build.sourcemap`
+  
 * ✅ V05: `resolve.alias` options
   * add default alias options
   ```javascript
@@ -147,6 +155,7 @@ node ./bin/index -d <project path>
   }
   ```
   * convert webpack alias options to match format above
+  
 * ✅ V06: client-side env variables
   * extract variable names contained in jsp scriptlet tags
   * `VUE_APP_VARIABLE` -> `process.env['VUE_APP_VARIABLE']`
