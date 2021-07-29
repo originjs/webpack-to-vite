@@ -5,7 +5,7 @@ import fs from "fs";
 import {astTransform as addJsxTransform} from "../src/ast-parse/transformations/addJsxTransformation";
 import {astTransform as removeHtmlLangTransform} from "../src/ast-parse/transformations/removeHtmlLangInTemplateTransformation";
 
-beforeAll(async () => {
+beforeAll(() => {
     const srcPath = path.resolve('tests/testdata/ast-parse')
     const destPath = path.resolve('tests/out')
     copyDir(srcPath, destPath)

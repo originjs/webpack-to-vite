@@ -1,7 +1,7 @@
 import path from "path";
 import {genePackageJson, getGreaterVersion, processDependencies} from "../src/generate/genePackageJson";
 import fs from "fs";
-import {readSync} from "../src/utils/file";
+import {removeSync, readSync} from "../src/utils/file";
 
 describe('genePackageJson', () => {
     beforeAll(() => {
@@ -11,7 +11,7 @@ describe('genePackageJson', () => {
         fs.rmdirSync(path.resolve('tests/out'), { recursive: true })
     })
     afterEach(() => {
-        fs.unlinkSync(path.resolve('tests/out/package.json'))
+        removeSync(path.resolve('tests/out/package.json'))
     })
 
     test('generate normal package.json', () => {
