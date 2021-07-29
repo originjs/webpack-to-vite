@@ -186,7 +186,7 @@ Legend of annotations:
 * ✅ W02: `outDir` options
   * `output.path` -> `build.outDir`
 * ✅ W03: `resolve.alias` options
-  * add default alias options
+  * add alias options by default
   ```javascript
   resolve: {
     alias: [
@@ -194,18 +194,18 @@ Legend of annotations:
     ]
   }
   ```
-  * convert webpack alias options to match format above
-  * `resolve.alias` options key has trailing `$`, need to remove '$' and re-assign an exact path value
+  * webpack alias options will also be converted to match the configuration above
+  * for `resolve.alias` configurations trailing with `$`, we'll remove the trailing '$' and set an accurate value
 * ✅ W04: server options
   * `devServer.host`, `devServer.port`, `devServer.proxy`, `devServer.https`, `devServer.contentBase` -> `server.host`, `server.port`, `server.proxy`, `server.https`, `server.base`
 * ✅ W05: define options
   * `new webpack.DefinePlugin()` -> `define`
   
 ### Others
-* ⚠️ O01: use CommonJS syntax, e.g. `require('./')`
-  * add vite plugin `@originjs/vite-plugin-commonjs`, see detail: https://github.com/originjs/vite-plugins/tree/main/packages/vite-plugin-commonjs
-  * plugin above support part of CommonJS syntax, still, some special syntax didn't support, recommend covert to ES Modules syntax
-* ❌ O02: use ElementUI, see detail: https://github.com/vitejs/vite/issues/3370
+* ⚠️ O01: for CommonJS syntax, e.g. `require('./')`
+  * you can use vite plugin `@originjs/vite-plugin-commonjs`, see also [here](https://github.com/originjs/vite-plugins/tree/main/packages/vite-plugin-commonjs).
+    Please note that the plugin only supports part of CommonJS syntax. That means some syntax is not supported. You need to covert them to ES Modules syntax manually
+* ❌ O02: for `Element-UI`, see also [here](https://github.com/vitejs/vite/issues/3370)
   ```
    [vite] Uncaught TypeError: Cannot read property '$isServer' of undefined
     at node_modules/_element-ui@2.15.1@element-ui/lib/utils/dom.js (:8080/node_modules/.vite/element-ui.js?v=675d2c77:1189)
@@ -219,12 +219,12 @@ Legend of annotations:
     at Object.5 (:8080/node_modules/.vite/element-ui.js?v=675d2c77:6861)
     at __webpack_require__ (:8080/node_modules/.vite/element-ui.js?v=675d2c77:6547)
   ```
-* ⚠️ O03: imports path include multiple alias like: `@import '~@/styles/global.scss'`, which is includes alias `~` and `@` 
-  * add an alias configure `{ find: /^~@/, replacement: path.resolve(__dirname, 'src') }` to `resolve.alias` options, and place it on first
-* ⚠️ O04: use `jsx` syntax in `.vue` file
-  * make sure enable `jsx` support, Vue2 add plugin `vite-plugin-vue2` and pass `{ jsx: true }` option, Vue3 add plugin `@vitejs/plugin-vue-jsx`
-  * add attribute `lang="jsx"` to `script` label, e.g. `<script lang="jsx"></script>`
-  * If the following error occurs
+* ⚠️ O03: imports that containing multiple alias like: `@import '~@/styles/global.scss'`, which includes alias `~` and `@` at the same time 
+  * you can add an alias `{ find: /^~@/, replacement: path.resolve(__dirname, 'src') }` to `resolve.alias` options, and place it as the first alias configuration
+* ⚠️ O04: for `jsx` syntax in `.vue` file
+  * you need to enable `jsx` support : In Vue2, add plugin `vite-plugin-vue2` and set `{ jsx: true }` option. In Vue3, add plugin `@vitejs/plugin-vue-jsx`
+  * you also need to add attribute `lang="jsx"` to `script` label if jsx syntax is used, e.g. `<script lang="jsx"></script>`
+  * If you encountered the following error
   ```
   3:54:29 PM [vite] Internal server error: /Users/Chieffo/Documents/project/Vue-mmPlayer/src/base/mm-icon/mm-icon.vue?vue&type=script&lang.tsx: Duplicate declaration "h" (This is an error on an internal node. Probably an internal error.)
   Plugin: vite-plugin-vue2
@@ -246,7 +246,7 @@ Legend of annotations:
       at TraversalContext.visitQueue (/Users/Chieffo/Documents/project/Vue-mmPlayer/node_modules/@babel/traverse/lib/context.js:99:16)
       at TraversalContext.visitSingle (/Users/Chieffo/Documents/project/Vue-mmPlayer/node_modules/@babel/traverse/lib/context.js:73:19)
   ```
-  update config to `babel.config.js`
+  you can try to update configuration of `babel.config.js` like this :
   ```javascript
   module.exports = {
     presets: [
@@ -262,13 +262,13 @@ Legend of annotations:
     ]
   }
   ```
-  see detail: https://vuejs.org/v2/guide/render-function.html#JSX
-* ⚠️ O05: use webpack api `require.context`
-  * add vite plugin `@originjs/vite-plugin-require-context`, see detail: https://github.com/originjs/vite-plugins/tree/main/packages/vite-plugin-require-context
-* ✅ O06: fix issue 'Compiling error when the template of the .vue file has the attribute lang="html"'
-  * remove `lang="html"` attribute from `template` label, see detail: https://github.com/vuejs/vue-loader/issues/1443
-* ❌ O07: use webpack api `require.ensure`
-* ⚠️ O08: convert dynamic imports that paths include alias to absolute path or relative path, see detail: see detail: https://github.com/rollup/plugins/tree/master/packages/dynamic-import-vars#limitations
+  see also [here](https://vuejs.org/v2/guide/render-function.html#JSX)
+* ⚠️ O05: for webpack syntax `require.context`
+  * add vite plugin `@originjs/vite-plugin-require-context`, see also [here](https://github.com/originjs/vite-plugins/tree/main/packages/vite-plugin-require-context)
+* ✅ O06: we have fixed the error `Compiling error when the template of the .vue file has the attribute lang="html"`
+  * we will remove `lang="html"` attribute from `template` label by default, see also [here](https://github.com/vuejs/vue-loader/issues/1443)
+* ❌ O07: webpack syntax `require.ensure` is not supported
+* ⚠️ O08: you need to convert `dynamic imports` that include alias to `absolute paths` or `relative paths` like the followings, see also [here](https://github.com/rollup/plugins/tree/master/packages/dynamic-import-vars#limitations)
   ```javascript
   () => import('@/components/views/test.vue')
   ```
