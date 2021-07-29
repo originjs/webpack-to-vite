@@ -1,60 +1,101 @@
-import { VueCliTransformer } from '../src/transform/transformVuecli';
-import path from 'path';
-import { RawValue, ViteConfig } from '../src/config/vite';
-import { VueCliConfig } from '../src/config/vuecli';
+import {getTransformer, initViteConfig, transformImporters} from "../src/transform/transformer";
+import {RawValue, ViteConfig} from "../src/config/vite";
+import {VueCliTransformer} from "../src/transform/transformVuecli";
+import {WebpackTransformer} from "../src/transform/transformWebpack";
+import {TransformContext} from "../src/transform/context";
 
-test('transformer', async () => {
-  const configPath = path.resolve('./tests/testdata/vue.config.js');
-  const viteConfig = await new VueCliTransformer().transform(path.dirname(configPath));
-  expect(viteConfig.base).toEqual('/');
+test('initViteConfig', () => {
+    const result: ViteConfig = initViteConfig()
+
+    expect(result.resolve).toMatchObject(expect.objectContaining({
+        alias: [
+            { find: new RawValue('/^~/'), replacement: '' },
+            { find: '', replacement: new RawValue('path.resolve(__dirname,\'src\')') }
+        ],
+        extensions: [
+            '.mjs',
+            '.js',
+            '.ts',
+            '.jsx',
+            '.tsx',
+            '.json',
+            '.vue'
+        ]
+    }))
 })
 
-describe('transform vue-cli config', () => {
-  test('transform vue3', async () => {
-    const rootDir = path.resolve('./tests/testdata/transform/vue3')
-    const transformer = new VueCliTransformer();
-    const viteConfig = await transformer.transform(rootDir);
-    expect(viteConfig.plugins).toContainEqual(new RawValue('vue()'));
-    expect(viteConfig.plugins).toContainEqual(new RawValue('vueJsx()'));
-  });
+test('getTransformer', () => {
+    const resultA = getTransformer(null)
+    expect(resultA).toEqual(expect.any(VueCliTransformer))
 
-  test('transform vue2 with jsx', async () => {
-    const rootDir = path.resolve('./tests/testdata/transform/vue2');
-    const transformer = new VueCliTransformer();
-    const viteConfig = await transformer.transform(rootDir);
-    expect(viteConfig.plugins).toContainEqual(new RawValue('createVuePlugin({jsx:true})'));
-  });
+    const resultB = getTransformer('vue-cli')
+    expect(resultB).toEqual(expect.any(VueCliTransformer))
 
-  test('transform devServer', () => {
-    const vueConfig: VueCliConfig = {
-      devServer: {
-        proxy: {
-          '/test': {
-            target: 'http://www.example.org'
-          },
-          '/api': {
-            pathRewrite: {
-              '^/remove/api': ''
-            }
-          }
+    const resultC = getTransformer('webpack')
+    expect(resultC).toEqual(expect.any(WebpackTransformer))
+})
+
+test('transformImports', () => {
+    let context: TransformContext = {
+        vueVersion: null,
+        importers: [],
+        config: {
+            plugins: []
         }
-      }
     }
-    const viteConfig: ViteConfig = {}
-    const transformer = new VueCliTransformer();
-    viteConfig.server = transformer.transformDevServer(vueConfig.devServer)
-    expect(viteConfig).toEqual({
-      server: {
-        proxy: {
-          '/test': {
-            target: 'http://www.example.org'
-          },
-          '/api': {
-            rewrite: new RawValue('(path) => path.replace(/^\\/remove\\/api/, \'\')')
-          }
-        },
-        strictPort: false
-      }
-    });
-  });
+    transformImporters(context)
+    expect(context).toEqual(expect.objectContaining({
+        importers: [
+            'import envCompatible from \'vite-plugin-env-compatible\';',
+            'import { injectHtml } from \'vite-plugin-html\';',
+            'import { viteCommonjs } from \'@originjs/vite-plugin-commonjs\';'
+        ],
+        config: {
+            plugins: [
+                new RawValue('viteCommonjs()'),
+                new RawValue('envCompatible()'),
+                new RawValue('injectHtml()')
+            ]
+        }
+    }))
+
+    let contextVue2: TransformContext = {
+        vueVersion: 2,
+        importers: [],
+        config: {
+            plugins: []
+        }
+    }
+    transformImporters(contextVue2)
+    expect(contextVue2).toEqual(expect.objectContaining({
+        importers: expect.arrayContaining([
+            'import { createVuePlugin } from \'vite-plugin-vue2\';'
+        ]),
+        config: {
+            plugins: expect.arrayContaining([
+                new RawValue('createVuePlugin({jsx:true})')
+            ])
+        }
+    }))
+
+    let contextVue3: TransformContext = {
+        vueVersion: 3,
+        importers: [],
+        config: {
+            plugins: []
+        }
+    }
+    transformImporters(contextVue3)
+    expect(contextVue3).toEqual(expect.objectContaining({
+        importers: expect.arrayContaining([
+            'import vue from \'@vitejs/plugin-vue\';',
+            'import vueJsx from \'@vitejs/plugin-vue-jsx\';'
+        ]),
+        config: {
+            plugins: expect.arrayContaining([
+                new RawValue('vue()'),
+                new RawValue('vueJsx()')
+            ])
+        }
+    }))
 })
