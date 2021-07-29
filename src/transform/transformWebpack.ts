@@ -9,6 +9,7 @@ import { isObject } from '../utils/common'
 import { recordConver } from '../utils/report'
 import { getVueVersion } from '../utils/version';
 import { ServerOptions } from 'vite';
+import { AstParsingResult } from '../ast-parse/astParse'
 
 // convert webpack.config.js => vite.config.js
 export class WebpackTransformer implements Transformer {
@@ -18,10 +19,10 @@ export class WebpackTransformer implements Transformer {
       importers: []
     }
 
-    public async transform (rootDir: string): Promise<ViteConfig> {
+    public async transform (rootDir: string, astParsingResult: AstParsingResult): Promise<ViteConfig> {
       this.context.vueVersion = getVueVersion(rootDir)
       const webpackConfig = await parseWebpackConfig(path.resolve(rootDir, 'webpack.config.js'))
-      transformImporters(this.context)
+      transformImporters(this.context, astParsingResult)
       const config = this.context.config
 
       // convert base config

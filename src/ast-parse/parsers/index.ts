@@ -6,7 +6,9 @@ export type ASTParse<Params = void> = {
 
 export enum ParserType {
     // eslint-disable-next-line no-unused-vars
-    FindJsxInScript = 'FindJsxInScript'
+    FindJsxInScript = 'FindJsxInScript',
+    // eslint-disable-next-line no-unused-vars
+    FindRequireContextParser = 'FindRequireContextParser'
 }
 
 export const parsersMap: {
@@ -16,5 +18,6 @@ export const parsersMap: {
         parserType: ParserType
     }
 } = {
-  FindJsxInScript: require('./findJsxInScriptParser')
+  FindJsxInScript: require('./findJsxInScriptParser'),
+  FindRequireContextParser: require('./findRequireContext')
 }
