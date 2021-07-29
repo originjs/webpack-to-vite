@@ -156,8 +156,6 @@ export class VueCliTransformer implements Transformer {
     }
 
     public transformGlobalCssImports (rootDir: string, pluginOptions, config: ViteConfig) {
-      config.css = {};
-      config.css.preprocessorOptions = {};
       let additionalData = '';
       const preProcessor = pluginOptions['style-resources-loader'].preProcessor;
       const patterns = pluginOptions['style-resources-loader'].patterns;
@@ -165,13 +163,19 @@ export class VueCliTransformer implements Transformer {
         additionalData = additionalData + '@import "' + pattern.slice(rootDir.length + 1).replace(/\\/g, '/') + '";';
       });
       if (preProcessor === 'less') {
-        config.css.preprocessorOptions.less = {};
+        if (config?.css?.preprocessorOptions?.less?.additionalData) {
+          additionalData += config?.css?.preprocessorOptions?.less?.additionalData
+        }
         config.css.preprocessorOptions.less.additionalData = additionalData;
       } else if (preProcessor === 'scss') {
-        config.css.preprocessorOptions.scss = {};
+        if (config?.css?.preprocessorOptions?.scss?.additionalData) {
+          additionalData += config?.css?.preprocessorOptions?.scss?.additionalData
+        }
         config.css.preprocessorOptions.scss.additionalData = additionalData;
       } else if (preProcessor === 'styl') {
-        config.css.preprocessorOptions.styl = {};
+        if (config?.css?.preprocessorOptions?.styl?.additionalData) {
+          additionalData += config?.css?.preprocessorOptions?.styl?.additionalData
+        }
         config.css.preprocessorOptions.styl.additionalData = additionalData;
       }
     }
