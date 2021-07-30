@@ -53,7 +53,8 @@ export type AstParsingResult = {
 }
 
 export async function astParseRoot (rootDir: string, config: Config): Promise<AstParsingResult> {
-  const resolvedPaths : string[] = globby.sync(rootDir.replace(/\\/g, '/'))
+  const replacedRootDir: string = rootDir.replace(/\\/g, '/')
+  const resolvedPaths : string[] = globby.sync([replacedRootDir, `!${replacedRootDir}/**/node_modules`, `!${replacedRootDir}/**/dist`])
   const parsingResults: ParsingResult = {}
   const transformationResults: AstTransformationResult = {}
 
@@ -63,10 +64,6 @@ export async function astParseRoot (rootDir: string, config: Config): Promise<As
   cliInstance.setTotal(cliInstance.total + resolvedPaths.length)
   resolvedPaths.forEach(async filePath => {
     cliInstance.increment({ doSomething: `AST Parsing: ${filePath}` })
-    // skip some files
-    if (filePath.indexOf('/node_modules/') >= 0 || filePath.indexOf('/dist/') >= 0) {
-      return
-    }
 
     const extension = (/\.([^.]*)$/.exec(filePath) || [])[0]
 
