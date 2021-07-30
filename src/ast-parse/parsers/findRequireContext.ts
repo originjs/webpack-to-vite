@@ -5,7 +5,14 @@ import { Node } from 'vue-eslint-parser/ast/nodes'
 import * as parser from 'vue-eslint-parser'
 
 export const astParse: ASTParse = (fileInfo: FileInfo) => {
-  const root : ESLintProgram = parser.parse(fileInfo.source, { filePath: fileInfo.path, sourceType: 'module' })
+  const parserOptions: any = {
+    sourceType: 'module',
+    ecmaVersion: 11,
+    ecmaFeatures: {
+      jsx: true
+    }
+  }
+  const root: ESLintProgram = parser.parse(fileInfo.source, parserOptions)
   const results: ParsingResultOccurrence[] = []
 
   parser.AST.traverseNodes(root, {

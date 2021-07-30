@@ -27,6 +27,7 @@ export type Entry = string | string[] | { [entryAlias: string]: string } | any;
 
 export interface WebpackConfig extends Config {
     mode?: string;
+    context?: string;
     entry?: Entry;
     output?: Output;
     module?: Module;

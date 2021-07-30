@@ -5,15 +5,18 @@ import path from 'path'
 import chalk from 'chalk'
 import * as constants from '../constants/constants'
 import { recordConver } from '../utils/report'
+import { minVersion, gt } from 'semver'
+import { AstParsingResult } from '../ast-parse/astParse'
 
 // TODO: compatible with vue2 and vue3
-export function genePackageJson (packageJsonPath: string): void {
+export function genePackageJson (packageJsonPath: string, astParsingResult?: AstParsingResult): void {
   const rootDir = path.dirname(packageJsonPath)
   const source = readSync(packageJsonPath)
   if (source === '') {
     console.log(chalk.red(`read package.json error, path: ${rootDir}`))
   }
 
+  const originPackageJson = JSON.parse(source)
   const packageJson = JSON.parse(source)
   if (packageJson === '') {
     console.log(chalk.red(`parse json error, path: ${rootDir}`))
@@ -31,6 +34,9 @@ export function genePackageJson (packageJsonPath: string): void {
   packageJson.devDependencies['vite-plugin-env-compatible'] = constants.VITE_PLUGIN_ENV_COMPATIBLE
   packageJson.devDependencies['vite-plugin-html'] = constants.VITE_PLUGIN_HTML
   packageJson.devDependencies.vite = constants.VITE_VERSION
+  if (astParsingResult && astParsingResult.parsingResult.FindRequireContextParser && astParsingResult.parsingResult.FindRequireContextParser.length > 0) {
+    packageJson.devDependencies['@originjs/vite-plugin-require-context'] = constants.VITE_PLUGIN_REQUIRE_CONTEXT_VERSION
+  }
   // TODO scan files to determine whether you need to add the plugin
   packageJson.devDependencies['@originjs/vite-plugin-commonjs'] = constants.VITE_PLUGIN_COMMONJS_VERSION
 
@@ -55,6 +61,47 @@ export function genePackageJson (packageJsonPath: string): void {
   // add postinatall
   packageJson.scripts.postinstall = 'patch-package'
 
+  let result = processDependencies(originPackageJson.dependencies, packageJson.dependencies, packageJson.devDependencies)
+  packageJson.dependencies = result.targetDependencies
+  packageJson.devDependencies = result.restDependencies
+
+  result = processDependencies(originPackageJson.devDependencies, packageJson.devDependencies, packageJson.dependencies)
+  packageJson.dependencies = result.restDependencies
+  packageJson.devDependencies = result.targetDependencies
+
   writeSync(packageJsonPath, JSON.stringify(packageJson, null, 2))
   recordConver({ num: 'B01', feat: 'add package.json' })
+}
+
+export function getGreaterVersion (versionA: string, versionB: string): string {
+  // only compare minimal version because it is hard to compare semantic version
+  const minVersionA = minVersion(versionA).version
+  const minVersionB = minVersion(versionB).version
+  return gt(minVersionA, minVersionB) ? versionA : versionB
+}
+
+// save greatest dependency version to targetDependencies and remove duplicate dependency from restDependencies
+export function processDependencies (
+  originDependencies: object,
+  targetDependencies: object,
+  restDependencies: object
+): {
+  targetDependencies: object,
+  restDependencies: object
+} {
+  originDependencies && Object.keys(originDependencies).forEach(key => {
+    if (targetDependencies && originDependencies[key] !== targetDependencies[key]) {
+      targetDependencies[key] = getGreaterVersion(originDependencies[key], targetDependencies[key])
+    }
+    if (restDependencies && restDependencies[key]) {
+      if (restDependencies[key] !== targetDependencies[key]) {
+        targetDependencies[key] = getGreaterVersion(restDependencies[key], targetDependencies[key])
+      }
+      delete restDependencies[key]
+    }
+  })
+  return {
+    targetDependencies,
+    restDependencies
+  }
 }

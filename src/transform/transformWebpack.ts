@@ -10,6 +10,7 @@ import { recordConver } from '../utils/report'
 import { getVueVersion } from '../utils/version';
 import { ServerOptions } from 'vite';
 import { AstParsingResult } from '../ast-parse/astParse'
+import { relativePathFormat } from '../utils/file'
 
 // convert webpack.config.js => vite.config.js
 export class WebpackTransformer implements Transformer {
@@ -19,7 +20,7 @@ export class WebpackTransformer implements Transformer {
       importers: []
     }
 
-    public async transform (rootDir: string, astParsingResult: AstParsingResult): Promise<ViteConfig> {
+    public async transform (rootDir: string, astParsingResult?: AstParsingResult): Promise<ViteConfig> {
       this.context.vueVersion = getVueVersion(rootDir)
       const webpackConfig = await parseWebpackConfig(path.resolve(rootDir, 'webpack.config.js'))
       transformImporters(this.context, astParsingResult)
@@ -39,18 +40,36 @@ export class WebpackTransformer implements Transformer {
       // convert entry
       if (webpackConfig.entry !== '' && webpackConfig.entry !== null) {
         config.build.rollupOptions = {}
+        let input
         if (isObject(webpackConfig.entry)) {
-          config.build.rollupOptions.input = suitableFormat(webpackConfig.entry)
+          input = suitableFormat(webpackConfig.entry)
         } else if (typeof webpackConfig.entry === 'function') {
-          config.build.rollupOptions.input = webpackConfig.entry()
+          input = webpackConfig.entry()
         } else {
-          config.build.rollupOptions.input = webpackConfig.entry
+          input = webpackConfig.entry
         }
+        if (input && webpackConfig.context) {
+          if (isObject(input)) {
+            Object.keys(input).forEach(key => {
+              const joinPath = path.join(webpackConfig.context, input[key])
+              input[key] = relativePathFormat(rootDir, joinPath)
+            })
+          } else if (Array.isArray(input)) {
+            input = input.map(item => {
+              const joinPath = path.join(webpackConfig.context, item)
+              return relativePathFormat(rootDir, joinPath)
+            })
+          } else {
+            const joinPath = path.join(webpackConfig.context, input)
+            input = relativePathFormat(rootDir, joinPath)
+          }
+        }
+        config.build.rollupOptions.input = input
       }
       recordConver({ num: 'W01', feat: 'build input options' })
       // convert output
       if (webpackConfig.output?.path !== '') {
-        const relativePath = path.relative(rootDir, webpackConfig.output.path).replace(/\\/g, '/')
+        const relativePath = relativePathFormat(rootDir, webpackConfig.output.path)
         config.build.outDir = new RawValue(`path.resolve(__dirname, '${relativePath}')`)
       }
       recordConver({ num: 'W02', feat: 'outDir options' })
@@ -66,8 +85,7 @@ export class WebpackTransformer implements Transformer {
       }
 
       Object.keys(alias).forEach((key) => {
-        let relativePath = path.relative(rootDir, path.resolve(rootDir, alias[key]))
-        relativePath = relativePath.replace(/\\/g, '/')
+        let relativePath = relativePathFormat(rootDir, path.resolve(rootDir, alias[key]))
         if (key === 'vue$') {
           key = key.replace('$', '')
           relativePath = 'node_modules/' + relativePath

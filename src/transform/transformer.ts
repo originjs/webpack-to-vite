@@ -12,7 +12,7 @@ import { AstParsingResult } from '../ast-parse/astParse';
 export interface Transformer{
     context: TransformContext;
 
-    transform(rootDir: string, astParsingResult: AstParsingResult): Promise<ViteConfig>;
+    transform(rootDir: string, astParsingResult?: AstParsingResult): Promise<ViteConfig>;
 
 }
 
@@ -49,20 +49,20 @@ export function getTransformer (projectType: string) : Transformer {
   return new VueCliTransformer()
 }
 
-export function transformImporters (context: TransformContext, astParsingResult: AstParsingResult) : void {
+export function transformImporters (context: TransformContext, astParsingResult?: AstParsingResult) : void {
   const plugins: RawValue[] = []
   if (context.vueVersion === 3) {
     context.importers.push('import vue from \'@vitejs/plugin-vue\';')
     plugins.push(new RawValue('vue()'))
     context.importers.push('import vueJsx from \'@vitejs/plugin-vue-jsx\';')
     plugins.push(new RawValue('vueJsx()'))
-  } else {
+  } else if (context.vueVersion === 2) {
     context.importers.push(
       'import { createVuePlugin } from \'vite-plugin-vue2\';'
     )
     plugins.push(new RawValue('createVuePlugin({jsx:true})'))
   }
-  if (astParsingResult.parsingResult.FindRequireContextParser.length > 0) {
+  if (astParsingResult && astParsingResult.parsingResult.FindRequireContextParser && astParsingResult.parsingResult.FindRequireContextParser.length > 0) {
     context.importers.push('import ViteRequireContext from \'@originjs/vite-plugin-require-context\';')
     plugins.push(new RawValue('ViteRequireContext()'))
   }

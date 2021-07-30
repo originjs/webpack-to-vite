@@ -10,6 +10,7 @@ import { DEFAULT_VUE_VERSION } from '../constants/constants'
 import { recordConver } from '../utils/report'
 import { ServerOptions } from 'vite';
 import { AstParsingResult } from '../ast-parse/astParse'
+import { relativePathFormat } from '../utils/file'
 
 /**
  * parse vue.config.js options and transform to vite.config.js
@@ -21,7 +22,7 @@ export class VueCliTransformer implements Transformer {
       importers: []
     }
 
-    public async transform (rootDir: string, astParsingResult: AstParsingResult): Promise<ViteConfig> {
+    public async transform (rootDir: string, astParsingResult?: AstParsingResult): Promise<ViteConfig> {
       this.context.vueVersion = getVueVersion(rootDir)
       transformImporters(this.context, astParsingResult)
       const config = this.context.config
@@ -30,6 +31,8 @@ export class VueCliTransformer implements Transformer {
       const vueConfig = await parseVueCliConfig(vueConfigFile)
 
       const css = vueConfig.css || {}
+
+      const pluginOptions = vueConfig.pluginOptions || {}
 
       // Base public path
       config.base =
@@ -49,6 +52,13 @@ export class VueCliTransformer implements Transformer {
         }
       }
       recordConver({ num: 'V02', feat: 'css options' })
+
+      // css automatic imports
+      if (pluginOptions['style-resources-loader']) {
+        this.transformGlobalCssImports(rootDir, pluginOptions, config);
+        recordConver({ num: 'V07', feat: 'css automatic imports' });
+      }
+
       // server options
       if (vueConfig.devServer) {
         config.server = this.transformDevServer(vueConfig.devServer)
@@ -99,8 +109,7 @@ export class VueCliTransformer implements Transformer {
         ...aliasOfChainWebpack
       }
       Object.keys(alias).forEach((key) => {
-        let relativePath = path.relative(rootDir, path.resolve(rootDir, alias[key]))
-        relativePath = relativePath.replace(/\\/g, '/')
+        const relativePath = relativePathFormat(rootDir, path.resolve(rootDir, alias[key]))
         defaultAlias.push({
           find: key,
           replacement: new RawValue(`path.resolve(__dirname,'${relativePath}')`)
@@ -149,5 +158,26 @@ export class VueCliTransformer implements Transformer {
       }
       server.proxy = proxy
       return server
+    }
+
+    public transformGlobalCssImports (rootDir: string, pluginOptions, config: ViteConfig) {
+      config.css = {};
+      config.css.preprocessorOptions = {};
+      let additionalData = '';
+      const preProcessor = pluginOptions['style-resources-loader'].preProcessor;
+      const patterns = pluginOptions['style-resources-loader'].patterns;
+      patterns.forEach(pattern => {
+        additionalData = additionalData + '@import "' + pattern.slice(rootDir.length + 1).replace(/\\/g, '/') + '";';
+      });
+      if (preProcessor === 'less') {
+        config.css.preprocessorOptions.less = {};
+        config.css.preprocessorOptions.less.additionalData = additionalData;
+      } else if (preProcessor === 'scss') {
+        config.css.preprocessorOptions.scss = {};
+        config.css.preprocessorOptions.scss.additionalData = additionalData;
+      } else if (preProcessor === 'styl') {
+        config.css.preprocessorOptions.styl = {};
+        config.css.preprocessorOptions.styl.additionalData = additionalData;
+      }
     }
 }
