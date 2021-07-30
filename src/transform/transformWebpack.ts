@@ -7,9 +7,9 @@ import { DEFAULT_VUE_VERSION } from '../constants/constants'
 import { Entry } from '../config/webpack'
 import { isObject } from '../utils/common'
 import { recordConver } from '../utils/report'
-import { getVueVersion } from '../utils/version';
-import { ServerOptions } from 'vite';
 import { AstParsingResult } from '../ast-parse/astParse'
+import { getVueVersion } from '../utils/version'
+import { ServerOptions } from 'vite'
 import { relativePathFormat } from '../utils/file'
 
 // convert webpack.config.js => vite.config.js
