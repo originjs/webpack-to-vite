@@ -25,19 +25,15 @@ export class VueCliTransformer implements Transformer {
       this.context.vueVersion = getVueVersion(rootDir)
       transformImporters(this.context)
       const config = this.context.config
-
       const vueConfigFile = path.resolve(rootDir, 'vue.config.js')
       const vueConfig = await parseVueCliConfig(vueConfigFile)
-
-      const css = vueConfig.css || {}
-
-      const pluginOptions = vueConfig.pluginOptions || {}
 
       // Base public path
       config.base =
             process.env.PUBLIC_URL || vueConfig.publicPath || vueConfig.baseUrl
       recordConver({ num: 'V01', feat: 'base public path' })
       // css options
+      const css = vueConfig.css || {}
       if (css.loaderOptions) {
         config.css = {}
         const strfy = JSON.stringify(css.loaderOptions)
@@ -51,6 +47,7 @@ export class VueCliTransformer implements Transformer {
         }
       }
       // Global css
+      const pluginOptions = vueConfig.pluginOptions || {}
       if (pluginOptions['style-resources-loader']) { this.transformGlobalCssImports(rootDir, pluginOptions, config); }
       recordConver({ num: 'V02', feat: 'css options' })
 
