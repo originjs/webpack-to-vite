@@ -32,6 +32,7 @@ export class VueCliTransformer implements Transformer {
       config.base =
             process.env.PUBLIC_URL || vueConfig.publicPath || vueConfig.baseUrl
       recordConver({ num: 'V01', feat: 'base public path' })
+
       // css options
       const css = vueConfig.css || {}
       if (css.loaderOptions) {
@@ -46,10 +47,12 @@ export class VueCliTransformer implements Transformer {
           config.css.preprocessorOptions.scss = JSON.parse(strfy).sass
         }
       }
+      recordConver({ num: 'V02', feat: 'css options' })
+
       // Global css
       const pluginOptions = vueConfig.pluginOptions || {}
       if (pluginOptions['style-resources-loader']) { this.transformGlobalCssImports(rootDir, pluginOptions, config); }
-      recordConver({ num: 'V02', feat: 'css options' })
+      recordConver({ num: 'V07', feat: 'css automatic imports' })
 
       // server options
       if (vueConfig.devServer) {
