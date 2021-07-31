@@ -9,6 +9,7 @@ import { getVueVersion } from '../utils/version'
 import { DEFAULT_VUE_VERSION } from '../constants/constants'
 import { recordConver } from '../utils/report'
 import { ServerOptions } from 'vite';
+import { AstParsingResult } from '../ast-parse/astParse'
 import { relativePathFormat } from '../utils/file'
 
 /**
@@ -21,9 +22,9 @@ export class VueCliTransformer implements Transformer {
       importers: []
     }
 
-    public async transform (rootDir: string): Promise<ViteConfig> {
+    public async transform (rootDir: string, astParsingResult?: AstParsingResult): Promise<ViteConfig> {
       this.context.vueVersion = getVueVersion(rootDir)
-      transformImporters(this.context)
+      transformImporters(this.context, astParsingResult)
       const config = this.context.config
 
       const vueConfigFile = path.resolve(rootDir, 'vue.config.js')

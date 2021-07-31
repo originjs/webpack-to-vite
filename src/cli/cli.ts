@@ -55,9 +55,9 @@ export async function start (config : Config): Promise<void> {
   const rootDir = path.resolve(config.rootDir)
 
   const astParsingResult: AstParsingResult = await astParseRoot(rootDir, config)
-  genePackageJson(path.resolve(rootDir, 'package.json'))
+  genePackageJson(path.resolve(rootDir, 'package.json'), astParsingResult)
 
-  await geneViteConfig(rootDir, rootDir, config)
+  await geneViteConfig(rootDir, rootDir, config, astParsingResult)
 
   // generate index.html must be after generate vite.config.js
   await geneIndexHtml(rootDir, config, astParsingResult)
