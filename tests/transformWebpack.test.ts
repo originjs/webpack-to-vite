@@ -6,8 +6,8 @@ import * as fs from "fs";
 
 describe('WebpackTransformer', () => {
     beforeEach(() => {
-        const srcPath = path.resolve('tests/testdata/transform-webpack')
-        const destPath = path.resolve('tests/out')
+        const srcPath = path.resolve('tests/testdata/transform-webpack/build')
+        const destPath = path.resolve('tests/out/build')
         copyDir(srcPath, destPath)
     })
     afterEach(() => {
