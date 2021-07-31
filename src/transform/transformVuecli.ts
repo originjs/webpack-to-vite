@@ -50,10 +50,10 @@ export class VueCliTransformer implements Transformer {
           config.css.preprocessorOptions.scss = JSON.parse(strfy).sass
         }
       }
-      recordConver({ num: 'V02', feat: 'css options' })
-
       // Global css
       if (pluginOptions['style-resources-loader']) { this.transformGlobalCssImports(rootDir, pluginOptions, config); }
+      recordConver({ num: 'V02', feat: 'css options' })
+
       // server options
       if (vueConfig.devServer) {
         config.server = this.transformDevServer(vueConfig.devServer)
@@ -107,7 +107,7 @@ export class VueCliTransformer implements Transformer {
         const relativePath = relativePathFormat(rootDir, path.resolve(rootDir, alias[key]))
         defaultAlias.push({
           find: key,
-          replacement: new RawValue(`path.resolve(__dirname,'${relativePath}')`)
+          replacement: new RawValue(`path.resolve(__dirname, '${relativePath}')`)
         })
       })
 
