@@ -7,15 +7,15 @@ import fs from "fs";
 describe('VueCliTransformer', () => {
     beforeEach(() => {
         const srcPath = path.resolve('tests/testdata/transform-vue-cli')
-        const destPath = path.resolve('tests/out')
+        const destPath = path.resolve('tests/out-transform-vue-cli')
         copyDir(srcPath, destPath)
     })
     afterEach(() => {
-        fs.rmdirSync(path.resolve('tests/out'), { recursive: true })
+        fs.rmdirSync(path.resolve('tests/out-transform-vue-cli'), { recursive: true })
     })
     test('transform', async () => {
         const transformer: VueCliTransformer = new VueCliTransformer()
-        const viteConfig: ViteConfig = await transformer.transform(path.resolve('tests/out'))
+        const viteConfig: ViteConfig = await transformer.transform(path.resolve('tests/out-transform-vue-cli'))
         expect(viteConfig.base).toBe('/')
         expect(viteConfig.css).toMatchObject({
             preprocessorOptions: {

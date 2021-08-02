@@ -5,21 +5,21 @@ import {removeSync, readSync} from "../src/utils/file";
 
 describe('genePackageJson', () => {
     beforeAll(() => {
-        fs.mkdirSync(path.resolve('tests/out'), { recursive: true })
+        fs.mkdirSync(path.resolve('tests/out-package-json'), { recursive: true })
     })
     afterAll(() => {
-        fs.rmdirSync(path.resolve('tests/out'), { recursive: true })
+        fs.rmdirSync(path.resolve('tests/out-package-json'), { recursive: true })
     })
     afterEach(() => {
-        removeSync(path.resolve('tests/out/package.json'))
+        removeSync(path.resolve('tests/out-package-json/package.json'))
     })
 
     test('generate normal package.json', () => {
         const testPackageJsonPath = path.resolve('tests/testdata/package-json/package-normal.json')
-        const packageJsonPath = path.resolve('tests/out/package.json')
+        const packageJsonPath = path.resolve('tests/out-package-json/package.json')
         fs.copyFileSync(testPackageJsonPath, packageJsonPath)
         const testPostcssConfigPath = path.resolve('tests/testdata/package-json/postcss.config.js')
-        const postcssConfigPath = path.resolve('tests/out/postcss.config.js')
+        const postcssConfigPath = path.resolve('tests/out-package-json/postcss.config.js')
         fs.copyFileSync(testPostcssConfigPath, postcssConfigPath)
         genePackageJson(packageJsonPath);
         const packageJsonContent = JSON.parse(readSync(packageJsonPath))
@@ -40,7 +40,7 @@ describe('genePackageJson', () => {
 
     test('generate vue2 package.json', () => {
         const testPackageJsonPath = path.resolve('tests/testdata/package-json/package-vue2.json')
-        const packageJsonPath = path.resolve('tests/out/package.json')
+        const packageJsonPath = path.resolve('tests/out-package-json/package.json')
         fs.copyFileSync(testPackageJsonPath, packageJsonPath)
         genePackageJson(packageJsonPath);
         const packageJsonContent = JSON.parse(readSync(packageJsonPath))
@@ -51,7 +51,7 @@ describe('genePackageJson', () => {
 
     test('generate vue3 package.json', () => {
         const testPackageJsonPath = path.resolve('tests/testdata/package-json/package-vue3.json')
-        const packageJsonPath = path.resolve('tests/out/package.json')
+        const packageJsonPath = path.resolve('tests/out-package-json/package.json')
         fs.copyFileSync(testPackageJsonPath, packageJsonPath)
         genePackageJson(packageJsonPath);
         const packageJsonContent = JSON.parse(readSync(packageJsonPath))

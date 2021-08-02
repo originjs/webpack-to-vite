@@ -7,15 +7,15 @@ import {astTransform as removeHtmlLangTransform} from "../src/ast-parse/transfor
 
 beforeAll(() => {
     const srcPath = path.resolve('tests/testdata/ast-parse')
-    const destPath = path.resolve('tests/out')
+    const destPath = path.resolve('tests/out-ast-parse')
     copyDir(srcPath, destPath)
 })
 afterAll(() => {
-    fs.rmdirSync(path.resolve('tests/out'), { recursive: true })
+    fs.rmdirSync(path.resolve('tests/out-ast-parse'), { recursive: true })
 })
 
 test('addJsxTransformation', async () => {
-    const filePath: string = path.resolve('tests/out/addJsx.vue')
+    const filePath: string = path.resolve('tests/out-ast-parse/addJsx.vue')
     const source: string = readSync(filePath).replace(/\r\n/g, '\n')
     const fileInfo: FileInfo = {
         path: filePath,
@@ -31,7 +31,7 @@ test('addJsxTransformation', async () => {
 })
 
 test('removeHtmlLangInTemplateTransformation', async () => {
-    const filePath: string = path.resolve('tests/out/removeHtmlLang.vue')
+    const filePath: string = path.resolve('tests/out-ast-parse/removeHtmlLang.vue')
     const source: string = readSync(filePath).replace(/\r\n/g, '\n')
     const fileInfo: FileInfo = {
         path: filePath,

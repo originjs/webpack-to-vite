@@ -5,7 +5,7 @@ import {readSync} from "../src/utils/file";
 import fs from "fs";
 
 test('render vite.config.js from template',  () => {
-  const outDir: string = path.resolve('tests/out')
+  const outDir: string = path.resolve('tests/out-render')
   const templatePath: string = path.resolve('src/template/vite.config.ejs')
   const data: TemplateData = {
     IMPORT_LIST: [

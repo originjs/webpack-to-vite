@@ -7,15 +7,15 @@ import * as fs from "fs";
 describe('WebpackTransformer', () => {
     beforeEach(() => {
         const srcPath = path.resolve('tests/testdata/transform-webpack/build')
-        const destPath = path.resolve('tests/out/build')
+        const destPath = path.resolve('tests/out-transform-webpack/build')
         copyDir(srcPath, destPath)
     })
     afterEach(() => {
-        fs.rmdirSync(path.resolve('tests/out'), { recursive: true })
+        fs.rmdirSync(path.resolve('tests/out-transform-webpack'), { recursive: true })
     })
     test('transform', async () => {
         const transformer: WebpackTransformer = new WebpackTransformer()
-        const viteConfig: ViteConfig = await transformer.transform(path.resolve('tests/out'))
+        const viteConfig: ViteConfig = await transformer.transform(path.resolve('tests/out-transform-webpack'))
         expect(viteConfig.mode).toBe('development')
         expect(viteConfig.build.rollupOptions.input).toMatchObject({
             app: new RawValue(`path.resolve(__dirname, 'build/src/app.js')`)
