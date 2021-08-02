@@ -64,7 +64,7 @@ export async function start (config : Config): Promise<void> {
   printReport(config.rootDir, beginTime) // output conversion
 
   // generate patches
-  const patchesDir = path.resolve(__dirname, '../../../patches')
+  const patchesDir = path.resolve(rootDir, 'patches')
   genePatches(patchesDir)
   recordConver({ num: 'B05', feat: 'required plugins' })
   console.log(chalk.green('************************ Done ! ************************'))
