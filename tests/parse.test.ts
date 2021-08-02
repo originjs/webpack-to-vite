@@ -1,32 +1,61 @@
 import path from 'path';
-// import fs from 'fs';
 import { parseVueCliConfig, parseWebpackConfig } from '../src/config/parse';
 import { WebpackConfig } from '../src/config/webpack';
 import { VueCliConfig } from '../src/config/vuecli';
+import fs from "fs";
+import {copyDir} from "../src/utils/file";
 
-test('parse webpack.config.js', async () => {
-  let webpackConfig: WebpackConfig = {};
-  const configPath = path.resolve('tests/testdata/webpack/webpack.config.js');
-  await parseWebpackConfig(configPath).then(res => {
-    webpackConfig = res;
+beforeEach(() => {
+  fs.mkdirSync(path.resolve('tests/out'), { recursive: true })
+})
+afterEach(() => {
+  fs.rmdirSync(path.resolve('tests/out'), { recursive: true })
+})
+
+describe('parseWebpackConfig', () => {
+  test('parse webpack.config.js', async () => {
+    const srcPath: string = path.resolve('tests/testdata/transform-webpack/webpack.config.js')
+    const destPath: string = path.resolve('tests/out/webpack.config.js')
+    fs.copyFileSync(srcPath, destPath)
+
+    const configPath: string = path.resolve('tests/out/webpack.config.js');
+    const webpackConfig: WebpackConfig = await parseWebpackConfig(configPath)
+    expect(webpackConfig.entry).toEqual('./main.js');
   });
-  expect(webpackConfig.entry).toEqual('./main.js');
-});
 
-test('parse build/webpack.dev.conf.js', async () => {
-  let webpackConfig: WebpackConfig = {};
-  const filePath = path.resolve('tests/testdata/webpack/build/webpack.dev.conf.js');
-  await parseWebpackConfig(filePath).then(res => {
-    webpackConfig = res
+  test('parse build/webpack.dev.conf.js', async () => {
+    const srcPath: string = path.resolve('tests/testdata/transform-webpack/build')
+    const destPath: string = path.resolve('tests/out/build')
+    copyDir(srcPath, destPath)
+
+    const configPath: string = path.resolve('tests/out/webpack.config.js');
+    const webpackConfig: WebpackConfig = await parseWebpackConfig(configPath)
+    expect(webpackConfig.entry).toEqual({"app": "./app.js"});
   })
-  expect(webpackConfig.entry['app']).toEqual('./src/app.js');
+
+  test('parse webpack/webpack.dev.conf.js', async () => {
+    const srcPath: string = path.resolve('tests/testdata/transform-webpack/webpack')
+    const destPath: string = path.resolve('tests/out/webpack')
+    copyDir(srcPath, destPath)
+
+    const configPath: string = path.resolve('tests/out/webpack.config.js');
+    const webpackConfig: WebpackConfig = await parseWebpackConfig(configPath)
+    expect(webpackConfig.entry).toEqual('./src/main.js');
+  })
+
+  test('parse webpack/custom.conf.js', async () => {
+    const configPath: string = path.resolve('tests/out/custom.conf.js');
+    const webpackConfig: WebpackConfig = await parseWebpackConfig(configPath)
+    expect(webpackConfig).toEqual({});
+  })
 })
 
 test('parseVueCliConfig', async () => {
-  let vueCliConfig: VueCliConfig = {}
-  const configPath = path.resolve('tests/testdata/vue.config.js');
-  await parseVueCliConfig(configPath).then(res => {
-    vueCliConfig = res;
-  });
+  const srcPath: string = path.resolve('tests/testdata/transform-vue-cli/vue.config.js')
+  const destPath: string = path.resolve('tests/out/vue.config.js')
+  fs.copyFileSync(srcPath, destPath)
+
+  const configPath: string = path.resolve('tests/out/vue.config.js');
+  const vueCliConfig: VueCliConfig = await parseVueCliConfig(configPath)
   expect(vueCliConfig.baseUrl).toEqual('/src');
 });
