@@ -7,24 +7,11 @@ convert a webpack project to a vite project
 
 1. download
 ```
-git clone https://github.com/originjs/webpack-to-vite.git
-cd webpack-to-vite
+npm install @originjs/webpack-to-vite -g
 ```
-2. install
-
-with npm, run
+2. convert
 ```
-npm install
-npm run build
-```
-with yarn, run
-```
-yarn
-yarn build
-```
-3. convert
-```
-node ./bin/index -d <project path>
+webpack-to-vite -d <project path>
 ```
 
 ## Demos

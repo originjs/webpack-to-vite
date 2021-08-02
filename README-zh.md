@@ -7,24 +7,11 @@
 
 1. 下载
 ```
-git clone https://github.com/originjs/webpack-to-vite.git
-cd webpack-to-vite
+npm install @originjs/webpack-to-vite -g
 ```
-2. 安装
-
-使用 npm, 运行
+2. 转换
 ```
-npm install
-npm run build
-```
-使用 yarn, 运行
-```
-yarn
-yarn build
-```
-3. 转换
-```
-node ./bin/index -d <project path>
+webpack-to-vite -d <project path>
 ```
 
 ## 演示项目
