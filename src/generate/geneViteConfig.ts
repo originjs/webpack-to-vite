@@ -5,7 +5,7 @@ import { render, serializeObject } from './render'
 import { AstParsingResult } from '../ast-parse/astParse'
 
 export async function geneViteConfig (rootDir: string, outDir: string, config: Config, astParsingResult?: AstParsingResult): Promise<void> {
-  const template = path.resolve('src/template/vite.config.ejs')
+  const template = path.resolve(__dirname, '../template/vite.config.ejs')
   const transformer = getTransformer(config.projectType)
   const viteConfig = await transformer.transform(rootDir, astParsingResult)
   const configStr = serializeObject(viteConfig)

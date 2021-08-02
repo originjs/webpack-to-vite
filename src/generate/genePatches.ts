@@ -4,7 +4,7 @@ import { readSync, writeSync } from '../utils/file'
 
 export function genePatches (patchesDir: string): void {
   // read all patches name
-  const patchesInfo = fs.readdirSync('patches');
+  const patchesInfo = fs.readdirSync(patchesDir);
   // inject patch
   patchesInfo.forEach(patch => {
     const filePath = path.resolve(patchesDir, patch);
