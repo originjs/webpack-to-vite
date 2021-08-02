@@ -22,7 +22,7 @@ const beginTime = Date.now()
 
 export function run (): void {
   const program = new Command()
-  const version = require('../../package.json').version
+  const version = require('../../../package.json').version
   program
     .version(version, '-v, --version', 'output the version number')
     .option('-d --rootDir <path>', 'the directory of project to be transfered')
