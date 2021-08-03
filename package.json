@@ -1,6 +1,6 @@
 {
   "name": "@originjs/webpack-to-vite",
-  "version": "1.0.0-beta10",
+  "version": "1.0.0-beta11",
   "description": "convert a webpack project to a vite project",
   "main": "dist/bin/index.js",
   "bin": {
@@ -16,8 +16,7 @@
     "postbuild": "cpy 'template/*' ../dist/src --cwd=src/ --no-overwrite --parents",
     "test": "jest",
     "test-c": "jest-coverage",
-    "lint": "eslint --ext .js,.ts src/",
-    "postinstall": "patch-package"
+    "lint": "eslint --ext .js,.ts src/"
   },
   "repository": {
     "type": "git",
