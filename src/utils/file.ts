@@ -5,7 +5,7 @@ export function writeSync (filePath: string, data: string):void {
   try {
     const dir = path.dirname(filePath)
     if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir)
+      fs.mkdirSync(dir, { recursive: true })
     }
     fs.writeFileSync(filePath, data)
   } catch (e) {

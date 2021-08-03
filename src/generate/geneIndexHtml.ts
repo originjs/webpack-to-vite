@@ -13,7 +13,8 @@ export async function geneIndexHtml (rootDir: string, config: Config, astParsing
   const projectType: string = config.projectType
 
   let entries : string[] = []
-  if (config.entry !== undefined && config.entry !== '' && config.entry.length !== 0 && JSON.stringify(config.entry) !== '{}') {
+  // `config.entry` can be type of string | array | object | function
+  if (config.entry && (config.entry.length || Object.keys(config.entry).length || typeof config.entry === 'function')) {
     entries = getEntries(rootDir, config.entry)
   } else {
     entries = await getDefaultEntries(rootDir, projectType)
@@ -24,7 +25,7 @@ export async function geneIndexHtml (rootDir: string, config: Config, astParsing
   recordConver({ num: 'B02', feat: 'add index.html' })
 }
 
-function generateEntriesHtml (entries: string[]): string {
+export function generateEntriesHtml (entries: string[]): string {
   let entriesHtml: string = ''
   for (const entry of entries) {
     if (entry !== undefined) {
@@ -55,7 +56,7 @@ export function generateWithVueCliPublicIndex (astParsingResult: AstParsingResul
   return stringFormat(indexHtmlContent, generateEntriesHtml(entries))
 }
 
-async function getDefaultEntries (rootDir: string, projectType: string): Promise<string[]> {
+export async function getDefaultEntries (rootDir: string, projectType: string): Promise<string[]> {
   const entries: string[] = []
   // TODO: vue-cli pages config
   if (projectType !== 'webpack') {
@@ -64,7 +65,9 @@ async function getDefaultEntries (rootDir: string, projectType: string): Promise
     const entryConfig = vueConfig.pages
     if (entryConfig) {
       Object.keys(entryConfig).forEach(key => {
-        const entryPath: string = Object.prototype.toString.call(entryConfig[key]) === '[object String]' ? entryConfig[key] : entryConfig[key].entry
+        const entryPath: string = Object.prototype.toString.call(entryConfig[key]) === '[object String]'
+          ? relativePathFormat(rootDir, entryConfig[key])
+          : relativePathFormat(rootDir, entryConfig[key].entry)
         entries.push(entryPath)
       })
     }
@@ -82,14 +85,19 @@ async function getDefaultEntries (rootDir: string, projectType: string): Promise
   return entries
 }
 
-function getEntries (rootDir: string, entry: any) : string[] {
-  const entries: string[] = []
+export function getEntries (rootDir: string, entry: any) : string[] {
+  let entries: string[] = []
   if (entry === undefined) {
     return entries
   }
-  if (isObject(entry)) {
+  if (isObject(entry) || Array.isArray(entry)) {
     Object.keys(entry).forEach(function (name) {
-      entries.push(relativePathFormat(rootDir, entry[name]))
+      if (typeof entry[name] === 'string') {
+        entries.push(relativePathFormat(rootDir, entry[name]))
+      } else {
+        const deepEntries = getEntries(rootDir, entry[name])
+        entries = entries.concat(deepEntries)
+      }
     })
   }
   if (typeof entry === 'function') {
@@ -100,10 +108,6 @@ function getEntries (rootDir: string, entry: any) : string[] {
   }
 
   // vite support hmr by default, so do not need to import webpack-hot-middleware
-  entries.forEach((item, index) => {
-    if (item.indexOf('dev-client') !== -1) {
-      delete (entries[index])
-    }
-  })
+  entries = entries.filter(item => !item.includes('dev-client'))
   return entries
 }
