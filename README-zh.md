@@ -125,14 +125,14 @@ webpack-to-vite -d <project path>
   * `devServer.open`, `devServer.https` -> `server.open`, `server.https`
   * `devServer.proxy` -> `server.proxy`, 另外在proxy配置中，进行`pathRewrite` -> `rewrite`转换
   
-* ✅ V04: build options
+* ✅ V04: build配置
   * `outputDir` -> `build.outDir`
   * `css.extract` -> `build.cssCodeSplit`
-  * if `process.env.MODERN === 'true'`, set `build.minify = esbuild`
-  * if `process.env.GENERATE_SOURCEMAP === 'true'` or `vueConfig.productionSourceMap` or `css.sourceMap` -> `build.sourcemap`
+  * 如果原来有`process.env.MODERN === 'true'`配置, 则自动进行 `build.minify = esbuild`配置
+  * 如果原来有 `process.env.GENERATE_SOURCEMAP === 'true'` 或 `vueConfig.productionSourceMap` 或 `css.sourceMap`配置 ->则进行 `build.sourcemap`配置
   
-* ✅ V05: `resolve.alias` options
-  * add default alias options
+* ✅ V05: `resolve.alias`配置
+  * 默认添加alias配置
   ```javascript
   resolve: {
     alias: [
@@ -141,25 +141,26 @@ webpack-to-vite -d <project path>
     ]
   }
   ```
-  * convert webpack alias options to match format above
-  
-* ✅ V06: client-side env variables
-  * extract variable names contained in jsp scriptlet tags
+  * webpack中的alias配置也会按照类似的方式进行转换
+
+* ✅ client侧环境变量
+
+  * 将jsp脚本tag中的环境变量进行扩展
   * `VUE_APP_VARIABLE` -> `process.env['VUE_APP_VARIABLE']`
-  
+
 ### Webpack 转换项
-> Webpack conversion are base on `webpack.config.js` or `webpack.base.js、webpack.dev.js、webpack.prod.js|webpack.build.js|webpack.production.js`, map configuration to `vite.config.js`
+> Webpack转换是将`webpack.config.js` 或 `webpack.base.js/webpack.dev.js/webpack.prod.js` 或 `webpack.build.js/webpack.production.js`中的配置，转换后设置到`vite.config.js`中
 
-> Note: if you are not using configuration file above, you need to convert configuration manually instead using tool
+> 注意：如果你没有使用上述文件进行webpack配置，那么工具奖无法进行配置转换，你需要通过手工进行ite配置
 
-* ✅ W01: build input options
-  * if `entry` is `string` type, `entry` -> `build.rollupOptions.input`
-  * if `entry` is `object` type, convert each object property and each array element to `build.rollupOptions.input`
-  * if `entry` is `function` type, convert function execute result to `build.rollupOptions.input`
-* ✅ W02: outDir options
+* ✅ W01: 构建入口配置
+  * 如果 `entry` 类型是 `string` , `entry` -> `build.rollupOptions.input`
+  * 如果 `entry` 类型是 `object` , 则将object中的每条属性配置到 `build.rollupOptions.input`中
+  * 如果 `entry` 类型是 `function` , 则将function的运行结果佩知道`build.rollupOptions.input`中
+* ✅ W02: outDir配置
   * `output.path` -> `build.outDir`
-* ✅ W03: `resolve.alias` options
-  * add default alias options
+* ✅ W03: `resolve.alias` 配置
+  * 添加默认alias配置
   ```javascript
   resolve: {
     alias: [
@@ -167,11 +168,11 @@ webpack-to-vite -d <project path>
     ]
   }
   ```
-  * convert webpack alias options to match format above
-  * `resolve.alias` options key has trailing `$`, need to remove '$' and re-assign an exact path value
-* ✅ W04: server options
+  * webpack的其他别名配置也会按照上述格式进行转换
+  * 以`$`结尾的`resolve.alias` 配置, 需要删除`$`并配置为准确的值
+* ✅ W04: server配置
   * `devServer.host`, `devServer.port`, `devServer.proxy`, `devServer.https`, `devServer.contentBase` -> `server.host`, `server.port`, `server.proxy`, `server.https`, `server.base`
-* ✅ W05: define options
+* ✅ W05: define配置
   * `new webpack.DefinePlugin()` -> `define`
   
 ### 其他转换项
