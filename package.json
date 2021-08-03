@@ -13,7 +13,7 @@
   "scripts": {
     "prebuild": "del-cli dist/",
     "build": "tsc -p tsconfig.json",
-    "postbuild": "cpy 'template/*' ../dist/src --cwd=src/ --no-overwrite --parents",
+    "postbuild": "cpy \"template/*\" ../dist/src --cwd=src/ --no-overwrite --parents",
     "test": "jest",
     "test-c": "jest-coverage",
     "lint": "eslint --ext .js,.ts src/"
