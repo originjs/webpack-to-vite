@@ -71,12 +71,12 @@ test('serializeObject', () => {
   }
   const resultB = serializeObject(objB);
   expect(resultB).toMatch('{\n' +
-        '    key1: {\n' +
-        '        key3: false,\n' +
-        '        key4: 0,\n' +
-        '        key5: \'0\',\n' +
-        '        abbreviatedKey: \'abbreviatedKey\'\n' +
-        '    }\n' +
+        '  key1: {\n' +
+        '    key3: false,\n' +
+        '    key4: 0,\n' +
+        '    key5: \'0\',\n' +
+        '    abbreviatedKey: \'abbreviatedKey\'\n' +
+        '  }\n' +
         '}');
 
   const objC = {
@@ -90,11 +90,11 @@ test('serializeObject', () => {
   }
   const resultC = serializeObject(objC);
   expect(resultC).toMatch('{\n' +
-        '    key1: [\n' +
-        '        false,\n' +
-        '        0,\n' +
-        '        \'0\'\n' +
-        '    ]\n' +
+        '  key1: [\n' +
+        '    false,\n' +
+        '    0,\n' +
+        '    \'0\'\n' +
+        '  ]\n' +
         '}'
   );
 
@@ -105,14 +105,14 @@ test('serializeObject', () => {
   }
   const resultD = serializeObject(objD);
   expect(resultD).toMatch('{\n' +
-        '    key1: [\n' +
-        '        {\n' +
-        '            key3: false,\n' +
-        '            key4: 0,\n' +
-        '            key5: \'0\',\n' +
-        '            abbreviatedKey: \'abbreviatedKey\'\n' +
-        '        }\n' +
-        '    ]\n' +
+        '  key1: [\n' +
+        '    {\n' +
+        '      key3: false,\n' +
+        '      key4: 0,\n' +
+        '      key5: \'0\',\n' +
+        '      abbreviatedKey: \'abbreviatedKey\'\n' +
+        '    }\n' +
+        '  ]\n' +
         '}'
   );
 
@@ -127,12 +127,12 @@ test('serializeObject', () => {
   }
   const resultE = serializeObject(objE);
   expect(resultE).toMatch('{\n' +
-        '    key3: function () { console.log(\'anonymous function\'); },\n' +
-        '    key4: function () { console.log(\'anonymous function2\'); },\n' +
-        '    key5: () => { console.log(\'arrow function\'); },\n' +
-        '    key6: () => { console.log(\'arrow function\'); },\n' +
-        '    key7() { console.log(\'abbreviated function\'); },\n' +
-        '    key8() { console.log(\'abbreviated function\'); },\n' +
-        '    key9() { /* key9 */ console.log(\'abbreviated function\'); }\n' +
+        '  key3: function () { console.log(\'anonymous function\'); },\n' +
+        '  key4: function () { console.log(\'anonymous function2\'); },\n' +
+        '  key5: () => { console.log(\'arrow function\'); },\n' +
+        '  key6: () => { console.log(\'arrow function\'); },\n' +
+        '  key7() { console.log(\'abbreviated function\'); },\n' +
+        '  key8() { console.log(\'abbreviated function\'); },\n' +
+        '  key9() { /* key9 */ console.log(\'abbreviated function\'); }\n' +
         '}');
 });

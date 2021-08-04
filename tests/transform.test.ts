@@ -22,7 +22,7 @@ describe('transform vue-cli config', () => {
     const rootDir = path.resolve('./tests/testdata/transform/vue2');
     const transformer = new VueCliTransformer();
     const viteConfig = await transformer.transform(rootDir);
-    expect(viteConfig.plugins).toContainEqual(new RawValue('createVuePlugin({jsx:true})'));
+    expect(viteConfig.plugins).toContainEqual(new RawValue('createVuePlugin({ jsx: true })'));
   });
 
   test('transform devServer', () => {
