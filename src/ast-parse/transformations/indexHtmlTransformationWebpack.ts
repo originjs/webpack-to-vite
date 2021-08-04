@@ -5,7 +5,6 @@ import { ESLintProgram, VAttribute, VDirective } from 'vue-eslint-parser/ast'
 import * as parser from 'vue-eslint-parser'
 import { Node } from 'vue-eslint-parser/ast/nodes'
 import { stringSplice } from '../../utils/common'
-import { pathFormat } from '../../utils/file'
 import path from 'path'
 import fs from 'fs'
 
@@ -24,7 +23,7 @@ export const astTransform:ASTTransformation = async (fileInfo: FileInfo, transfo
   const rootDir: string = transformationParams.config.rootDir
   let indexPath: string
   if (fs.existsSync(path.resolve(rootDir, 'index.html'))) {
-    indexPath = pathFormat(path.resolve(rootDir, 'index.html'))
+    indexPath = path.resolve(rootDir, 'index.html')
   } else {
     indexPath = null
   }
