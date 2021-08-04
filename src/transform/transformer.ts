@@ -60,7 +60,7 @@ export function transformImporters (context: TransformContext, astParsingResult?
     context.importers.push(
       'import { createVuePlugin } from \'vite-plugin-vue2\';'
     )
-    plugins.push(new RawValue('createVuePlugin({jsx:true})'))
+    plugins.push(new RawValue('createVuePlugin({ jsx: true })'))
   }
   if (astParsingResult && astParsingResult.parsingResult.FindRequireContextParser && astParsingResult.parsingResult.FindRequireContextParser.length > 0) {
     context.importers.push('import ViteRequireContext from \'@originjs/vite-plugin-require-context\';')
