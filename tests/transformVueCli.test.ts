@@ -1,14 +1,14 @@
 import {VueCliTransformer} from "../src/transform/transformVuecli";
 import path from "path";
 import {RawValue, ViteConfig} from "../src/config/vite";
-import {copyDir} from "../src/utils/file";
+import {copyDirSync} from "../src/utils/file";
 import fs from "fs";
 
 describe('VueCliTransformer', () => {
     beforeEach(() => {
         const srcPath = path.resolve('tests/testdata/transform-vue-cli')
         const destPath = path.resolve('tests/out-transform-vue-cli')
-        copyDir(srcPath, destPath)
+        copyDirSync(srcPath, destPath)
     })
     afterEach(() => {
         fs.rmdirSync(path.resolve('tests/out-transform-vue-cli'), { recursive: true })

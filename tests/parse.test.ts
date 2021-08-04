@@ -3,7 +3,7 @@ import { parseVueCliConfig, parseWebpackConfig } from '../src/config/parse';
 import { WebpackConfig } from '../src/config/webpack';
 import { VueCliConfig } from '../src/config/vuecli';
 import fs from "fs";
-import {copyDir} from "../src/utils/file";
+import {copyDirSync} from "../src/utils/file";
 
 beforeEach(() => {
   fs.mkdirSync(path.resolve('tests/out-parse'), { recursive: true })
@@ -26,7 +26,7 @@ describe('parseWebpackConfig', () => {
   test('parse build/webpack.dev.conf.js', async () => {
     const srcPath: string = path.resolve('tests/testdata/transform-webpack/build')
     const destPath: string = path.resolve('tests/out-parse/build')
-    copyDir(srcPath, destPath)
+    copyDirSync(srcPath, destPath)
 
     const configPath: string = path.resolve('tests/out-parse/webpack.config.js');
     const webpackConfig: WebpackConfig = await parseWebpackConfig(configPath)
@@ -36,7 +36,7 @@ describe('parseWebpackConfig', () => {
   test('parse webpack/webpack.dev.conf.js', async () => {
     const srcPath: string = path.resolve('tests/testdata/transform-webpack/webpack')
     const destPath: string = path.resolve('tests/out-parse/webpack')
-    copyDir(srcPath, destPath)
+    copyDirSync(srcPath, destPath)
 
     const configPath: string = path.resolve('tests/out-parse/webpack.config.js');
     const webpackConfig: WebpackConfig = await parseWebpackConfig(configPath)

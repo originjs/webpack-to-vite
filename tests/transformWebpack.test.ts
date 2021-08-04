@@ -1,6 +1,6 @@
 import path from "path";
 import {RawValue, ViteConfig} from "../src/config/vite";
-import {copyDir} from "../src/utils/file";
+import {copyDirSync} from "../src/utils/file";
 import {WebpackTransformer} from "../src/transform/transformWebpack";
 import * as fs from "fs";
 
@@ -8,7 +8,7 @@ describe('WebpackTransformer', () => {
     beforeEach(() => {
         const srcPath = path.resolve('tests/testdata/transform-webpack/build')
         const destPath = path.resolve('tests/out-transform-webpack/build')
-        copyDir(srcPath, destPath)
+        copyDirSync(srcPath, destPath)
     })
     afterEach(() => {
         fs.rmdirSync(path.resolve('tests/out-transform-webpack'), { recursive: true })
