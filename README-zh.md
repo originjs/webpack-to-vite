@@ -218,7 +218,7 @@ webpack-to-vite -d <project path>
     at Object.5 (:8080/node_modules/.vite/element-ui.js?v=675d2c77:6861)
     at __webpack_require__ (:8080/node_modules/.vite/element-ui.js?v=675d2c77:6547)
   ```
-* ⚠️ O03: 包含多个别名的导入，如: `@import '~@/styles/global.scss'`, 包含了同时包含了别名 `~` 和 `@`
+* ⚠️ O03: 包含多个别名的导入，如: `@import '~@/styles/global.scss'`, 同时包含了别名 `~` 和 `@`
   * 您可以添加别名配置 `{ find: /^~@/, replacement: path.resolve(__dirname, 'src') }` 到 `resolve.alias` 配置中, 并且把该项配置移到别名配置中的第一项
 * ⚠️ O04: 在 `.vue` 文件中使用 `jsx` 语法
   * 确保您开启了 `jsx` 支持, 在 Vue2 中，需要添加 `vite-plugin-vue2` 插件并传入 `{ jsx: true }` 配置, 在 Vue3 中需要添加 `@vitejs/plugin-vue-jsx` 插件
