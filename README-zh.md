@@ -66,7 +66,7 @@ webpack-to-vite -d <project path>
   * Vue3 必要的: `@vitejs/plugin-vue`, `@vitejs/plugin-vue-jsx`
 * ✅ B05: 支持省略 `.vue` 扩展名的导入
   * 在 `vite.config.js` 中，设置 `resolve.extensions` 配置项为 `['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.vue']`，
-    然后你可能会遇到 "[Problems caused by using alisaes and omitting file suffixes at the same time](https://github.com/vitejs/vite/issues/3532)" 这样的问题，
+    然后您可能会遇到 "[Problems caused by using alisaes and omitting file suffixes at the same time](https://github.com/vitejs/vite/issues/3532)" 这样的问题，
     我们使用补丁来解决这个问题，以防万一 vite 不接受相关 PR
 * ✅ B06: sass 支持
   * 如果之前使用 `node-sass` 依赖，则转换为 `sass` 依赖
@@ -87,7 +87,7 @@ webpack-to-vite -d <project path>
   ```
 * ⚠️ B10: CSS Modules
   * 在 vite 中, 任何以 `.module.css` 为后缀名的 CSS 文件都被认为是一个 CSS modules 文件
-  * 这意味着你需要将以 `.css` 为后缀文件转换为以 `.module.css` 为后缀的文件来实现 CSS Modules
+  * 这意味着您需要将以 `.css` 为后缀文件转换为以 `.module.css` 为后缀的文件来实现 CSS Modules
   * ⚠️ B11: 插件暴露的默认值
   * 当 `index.html` 包含 `htmlWebpackPlugin.options.variableName` 时出现 `htmlWebpackPlugin is not defined` 错误，需要在 `vite.config.js` 中添加插件选项：
   ```
@@ -145,20 +145,43 @@ webpack-to-vite -d <project path>
   ```
   * webpack中的alias配置也会按照类似的方式进行转换
 
-* ✅ client侧环境变量
+* ✅ V06: 客户端环境变量
 
-  * 将jsp脚本tag中的环境变量进行扩展
+  * 提取jsp脚本tag中的环境变量
   * `VUE_APP_VARIABLE` -> `process.env['VUE_APP_VARIABLE']`
-
+  
+* ✅ V07: css 自动化导入
+  * 如果使用 'style-resources-loader' 加载 css 预处理器资源，即 `pluginOptions['style-resources-loader']`。 配置将被转换并写入`css.preprocessorOptions`
+  ```javascript
+  pluginOptions: {
+    'style-resources-loader': {
+      preProcessor: 'less',
+      patterns: [
+        resolve('src/styles/var.less'),
+        resolve('src/styles/mixin.less')
+      ]
+    }
+  }
+  ```
+  ->
+  ```javascript
+  css: {
+    preprocessorOptions: {
+      less: {
+        additionalData: `@import "src/styles/var.less";@import "src/styles/mixin.less";`
+      }
+    }
+  }
+  ```
 ### Webpack 转换项
 > Webpack转换是将`webpack.config.js` 或 `webpack.base.js/webpack.dev.js/webpack.prod.js` 或 `webpack.build.js/webpack.production.js`中的配置，转换后设置到`vite.config.js`中
 
-> 注意：如果你没有使用上述文件进行webpack配置，那么工具奖无法进行配置转换，你需要通过手工进行ite配置
+> 注意：如果您没有使用上述文件进行webpack配置，那么工具将无法进行配置转换，您需要通过手工进行配置
 
 * ✅ W01: 构建入口配置
   * 如果 `entry` 类型是 `string` , `entry` -> `build.rollupOptions.input`
   * 如果 `entry` 类型是 `object` , 则将object中的每条属性配置到 `build.rollupOptions.input`中
-  * 如果 `entry` 类型是 `function` , 则将function的运行结果佩知道`build.rollupOptions.input`中
+  * 如果 `entry` 类型是 `function` , 则将function的运行结果配置到`build.rollupOptions.input`中
 * ✅ W02: outDir配置
   * `output.path` -> `build.outDir`
 * ✅ W03: `resolve.alias` 配置
@@ -178,10 +201,10 @@ webpack-to-vite -d <project path>
   * `new webpack.DefinePlugin()` -> `define`
   
 ### 其他转换项
-* ⚠️ O01: use CommonJS syntax, e.g. `require('./')`
-  * add vite plugin `@originjs/vite-plugin-commonjs`, see detail: https://github.com/originjs/vite-plugins/tree/main/packages/vite-plugin-commonjs
-  * plugin above support part of CommonJS syntax, still, some special syntax didn't support, recommend covert to ES Modules syntax
-* ❌ O02: use ElementUI, see detail: https://github.com/vitejs/vite/issues/3370
+* ⚠️ O01: 使用 CommonJS 规范语法, 例如 `require('./')`
+  * 添加 vite 插件 `@originjs/vite-plugin-commonjs`, 参阅[这里](https://github.com/originjs/vite-plugins/tree/main/packages/vite-plugin-commonjs)
+  * 请注意该插件只支持部分 CommonJS 规范语法, 这意味着一些语法是不支持的, 您需要手动转换为 ES Modules 规范语法
+* ❌ O02: 对于 `Element-UI`, 参阅[这里](https://github.com/vitejs/vite/issues/3370)
   ```
    [vite] Uncaught TypeError: Cannot read property '$isServer' of undefined
     at node_modules/_element-ui@2.15.1@element-ui/lib/utils/dom.js (:8080/node_modules/.vite/element-ui.js?v=675d2c77:1189)
@@ -195,35 +218,12 @@ webpack-to-vite -d <project path>
     at Object.5 (:8080/node_modules/.vite/element-ui.js?v=675d2c77:6861)
     at __webpack_require__ (:8080/node_modules/.vite/element-ui.js?v=675d2c77:6547)
   ```
-* ⚠️ O03: css automatic imports
-  * if use `style-resources-loader` before, try to replace by `additionalData`. Example:
-  ```javascript
-  pluginOptions: {
-    'style-resources-loader': {
-      preProcessor: 'less',
-      patterns: [
-        resolve('src/styles/var.less'),
-        resolve('src/styles/mixin.less')
-      ]
-    }
-  }
-  ```
-  ->
-  ```javascript
-  css: {
-    preprocessorOptions: {
-      less: {
-        additionalData: `@import 'src/styles/var.less';` + `@import 'src/styles/mixin.less';`
-      }
-    }
-  }
-  ```
-* ⚠️ O04: imports path include multiple alias like: `@import '~@/styles/global.scss'`, which is includes alias `~` and `@` 
-  * add an alias configure `{ find: /^~@/, replacement: path.resolve(__dirname, 'src') }` to `resolve.alias` options, and place it on first
-* ⚠️ O05: use `jsx` syntax in `.vue` file
-  * make sure enable `jsx` support, Vue2 add plugin `vite-plugin-vue2` and pass `{ jsx: true }` option, Vue3 add plugin `@vitejs/plugin-vue-jsx`
-  * add attribute `lang="jsx"` to `script` label, e.g. `<script lang="jsx"></script>`
-  * If the following error occurs
+* ⚠️ O03: 包含多个别名的导入，如: `@import '~@/styles/global.scss'`, 包含了同时包含了别名 `~` 和 `@`
+  * 您可以添加别名配置 `{ find: /^~@/, replacement: path.resolve(__dirname, 'src') }` 到 `resolve.alias` 配置中, 并且把该项配置移到别名配置中的第一项
+* ⚠️ O04: 在 `.vue` 文件中使用 `jsx` 语法
+  * 确保您开启了 `jsx` 支持, 在 Vue2 中，需要添加 `vite-plugin-vue2` 插件并传入 `{ jsx: true }` 配置, 在 Vue3 中需要添加 `@vitejs/plugin-vue-jsx` 插件
+  * 添加 `lang="jsx"` 属性到 `script` 标签, 例如 `<script lang="jsx"></script>`
+  * 如果您遇到以下错误
   ```
   3:54:29 PM [vite] Internal server error: /Users/Chieffo/Documents/project/Vue-mmPlayer/src/base/mm-icon/mm-icon.vue?vue&type=script&lang.tsx: Duplicate declaration "h" (This is an error on an internal node. Probably an internal error.)
   Plugin: vite-plugin-vue2
@@ -245,7 +245,7 @@ webpack-to-vite -d <project path>
       at TraversalContext.visitQueue (/Users/Chieffo/Documents/project/Vue-mmPlayer/node_modules/@babel/traverse/lib/context.js:99:16)
       at TraversalContext.visitSingle (/Users/Chieffo/Documents/project/Vue-mmPlayer/node_modules/@babel/traverse/lib/context.js:73:19)
   ```
-  update config to `babel.config.js`
+  您可以尝试更新 `babel.config.js` 配置文件，如下：
   ```javascript
   module.exports = {
     presets: [
@@ -261,13 +261,13 @@ webpack-to-vite -d <project path>
     ]
   }
   ```
-  see detail: https://vuejs.org/v2/guide/render-function.html#JSX
-* ⚠️ O06: use webpack api `require.context`
-  * add vite plugin `@originjs/vite-plugin-require-context`, see detail: https://github.com/originjs/vite-plugins/tree/main/packages/vite-plugin-require-context
-* ✅ O07: fix issue 'Compiling error when the template of the .vue file has the attribute lang="html"'
-  * remove `lang="html"` attribute from `template` label, see detail: https://github.com/vuejs/vue-loader/issues/1443
-* ❌ O08: use webpack api `require.ensure`
-* ⚠️ O09: convert dynamic imports that paths include alias to absolute path or relative path, see detail: see detail: https://github.com/rollup/plugins/tree/master/packages/dynamic-import-vars#limitations
+  参阅[这里](https://vuejs.org/v2/guide/render-function.html#JSX)
+* ⚠️ O05: 对于 Webpack 语法 `require.context`
+  * 添加 vite 插件 `@originjs/vite-plugin-require-context`, 参阅[这里](https://github.com/originjs/vite-plugins/tree/main/packages/vite-plugin-require-context)
+* ✅ O06: 我们修复了错误 'Compiling error when the template of the .vue file has the attribute lang="html"'
+  * 从 `template` 标签中移除 `lang="html"` 属性, 参阅[这里](https://github.com/vuejs/vue-loader/issues/1443)
+* ❌ O07: 不支持 Webpack 语法 `require.ensure`
+* ⚠️ O08: 如下所示，您需要手动把包含别名的动态导入转换为绝对路径或相对路径导入。参阅[这里](https://github.com/rollup/plugins/tree/master/packages/dynamic-import-vars#limitations)
   ```javascript
   () => import('@/components/views/test.vue')
   ```
