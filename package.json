@@ -1,17 +1,22 @@
 {
-  "name": "webpack-to-vite",
-  "version": "0.0.1",
+  "name": "@originjs/webpack-to-vite",
+  "version": "1.0.0-beta12",
   "description": "convert a webpack project to a vite project",
-  "main": "bin/index.js",
+  "main": "dist/bin/index.js",
   "bin": {
-    "webpack-to-vite": "bin/index.js"
+    "webpack-to-vite": "dist/bin/index.js"
   },
+  "files": [
+    "dist",
+    "patches"
+  ],
   "scripts": {
+    "prebuild": "del-cli dist/",
     "build": "tsc -p tsconfig.json",
+    "postbuild": "cpy \"template/*\" ../dist/src --cwd=src/ --no-overwrite --parents",
     "test": "jest",
     "test-c": "jest-coverage",
-    "lint": "eslint --ext .js,.ts src/",
-    "postinstall": "patch-package"
+    "lint": "eslint --ext .js,.ts src/"
   },
   "repository": {
     "type": "git",
@@ -37,6 +42,8 @@
     "@types/webpack": "4.41.26",
     "@typescript-eslint/eslint-plugin": "^4.27.0",
     "@typescript-eslint/parser": "^4.27.0",
+    "cpy-cli": "^2.0.0",
+    "del-cli": "^3.0.0",
     "eslint": "^7.28.0",
     "eslint-config-standard": "^16.0.3",
     "eslint-plugin-import": "^2.23.4",
@@ -44,7 +51,6 @@
     "eslint-plugin-promise": "^5.1.0",
     "jest": "^27.0.4",
     "lint-staged": "^11.0.0",
-    "patch-package": "^6.4.7",
     "postinstall-postinstall": "^2.1.0",
     "prettier": "^2.3.1",
     "ts-jest": "^27.0.3",
@@ -62,7 +68,9 @@
     "cli-progress": "^3.9.0",
     "commander": "^7.2.0",
     "ejs": "^3.1.6",
+    "globby": "^11.0.3",
     "jscodeshift": "^0.12.0",
+    "patch-package": "^6.4.7",
     "semver": "^7.3.5",
     "table": "^6.7.1",
     "vue-eslint-parser": "^7.6.0",

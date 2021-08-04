@@ -6,7 +6,7 @@ import { JSCodeshift } from 'jscodeshift/src/core'
 import { ESLintProgram } from 'vue-eslint-parser/ast'
 import { Config } from '../config/config'
 import { cliInstance } from '../cli/cli'
-import { readSync, writeSync } from '../utils/file';
+import { pathFormat, readSync, writeSync } from '../utils/file';
 
 export type FileInfo = {
   path: string,
@@ -53,7 +53,8 @@ export type AstParsingResult = {
 }
 
 export async function astParseRoot (rootDir: string, config: Config): Promise<AstParsingResult> {
-  const resolvedPaths : string[] = globby.sync(rootDir.replace(/\\/g, '/'))
+  const replacedRootDir: string = pathFormat(rootDir)
+  const resolvedPaths : string[] = globby.sync([replacedRootDir, `!${replacedRootDir}/**/node_modules`, `!${replacedRootDir}/**/dist`])
   const parsingResults: ParsingResult = {}
   const transformationResults: AstTransformationResult = {}
 
@@ -63,10 +64,6 @@ export async function astParseRoot (rootDir: string, config: Config): Promise<As
   cliInstance.setTotal(cliInstance.total + resolvedPaths.length)
   for (const filePath of resolvedPaths) {
     cliInstance.increment({ doSomething: `AST Parsing: ${filePath}` })
-    // skip some files
-    if (filePath.indexOf('/node_modules/') >= 0 || filePath.indexOf('/dist/') >= 0) {
-      continue;
-    }
 
     const extension = (/\.([^.]*)$/.exec(filePath) || [])[0]
 

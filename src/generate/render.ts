@@ -101,6 +101,10 @@ export function serializeObject (val: unknown): string {
       return ret
     }
 
+    if (val.indexOf(newLine) !== -1) {
+      return `\`${val}\``
+    }
+
     return `'${val}'`
   }
 

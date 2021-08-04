@@ -1,3 +1,7 @@
+English | [简体中文](./README-zh.md)
+
+[![Test](https://github.com/originjs/webpack-to-vite/actions/workflows/test.yml/badge.svg)](https://github.com/originjs/webpack-to-vite/actions/workflows/test.yml/) [<img src="https://img.shields.io/npm/v/@originjs/webpack-to-vite" alt="npm" />](https://www.npmjs.com/package/@originjs/webpack-to-vite)
+
 ## webpack-to-vite
 convert a webpack project to a vite project
 
@@ -5,24 +9,11 @@ convert a webpack project to a vite project
 
 1. download
 ```
-git clone https://github.com/originjs/webpack-to-vite.git
-cd webpack-to-vite
+npm install @originjs/webpack-to-vite -g
 ```
-2. install
-
-with npm, run
+2. convert
 ```
-npm install
-npm run build
-```
-with yarn, run
-```
-yarn
-yarn build
-```
-3. convert
-```
-node ./bin/index -d <project path>
+webpack-to-vite -d <project path>
 ```
 
 ## Demos
@@ -61,47 +52,47 @@ Legend of annotations:
 |❌|not support now|
 
 ### Base conversion
-* ✅ B01: add required devDependencies and dependencies in `package.json`
-  * required: `vite-plugin-env-compatible`, `vite-plugin-html`, `vite`,
-  * Vue2 required: `vite-plugin-vue2`
-  * Vue3 required: `@vue/compiler-sfc`, `@vitejs/plugin-vue`, `@vitejs/plugin-vue-jsx`
-* ✅ B02: add vite entry file `index.html` to root directory
-  * support multiple entries defined by the `pages` option in `vue.config.js`
-  * add entry point like: `<script type="module" src="/src/main.js"></script>`, don't need to add `dev-client` entry point because vite support HMR default
-* ✅ B03: add vite config file `vite.config.js` to root directory
-* ✅ B04: import and use required plugins in `vite.config.js`
-  * required `vite-plugin-env-compatible`
-  * Vue2 required: `vite-plugin-vue2`, pass `{ jsx: true }` option to enable `jsx` support default
-  * Vue3 required: `@vitejs/plugin-vue`, `@vitejs/plugin-vue-jsx`
-* ✅ B05: support imports that omit `.vue` extension
-  * in `vite.config.js`, add `.vue` to `resolve.extensions` to default configuration,
-    then you may encounter issue like '[Problems caused by using alisaes and omitting file suffixes at the same time](https://github.com/vitejs/vite/issues/3532)',
-    we use patch to fix this issue, in case of vite didn't accept relate PR
-* ✅ B06: sass support
-  * if using `node-sass` dependency before, convert to `sass` dependency
-* ✅ B07: postcss 8 support
-  * if using postcss 8 before, add `postcss` dependency
+* ✅ B01: add necessary devDependencies and dependencies in `package.json`
+  * necessary: `vite-plugin-env-compatible`, `vite-plugin-html`, `vite`,
+  * necessary for Vue2: `vite-plugin-vue2`
+  * necessary for Vue3: `@vue/compiler-sfc`, `@vitejs/plugin-vue`, `@vitejs/plugin-vue-jsx`
+* ✅ B02: add vite's entry file `index.html` to root directory
+  * multiple entries defined by the `pages` option in `vue.config.js` is supported
+  * please add entry point like `<script type="module" src="/src/main.js"></script>`. There's no need to add `dev-client` entry point cause vite supports HMR by default
+* ✅ B03: add vite's config file `vite.config.js` to root directory
+* ✅ B04: import and use necessary plugins in `vite.config.js`
+  * necessary: `vite-plugin-env-compatible`
+  * necessary for Vue2: `vite-plugin-vue2`, we set `{ jsx: true }` option to enable `jsx` support by default
+  * necessary for Vue3: `@vitejs/plugin-vue`, `@vitejs/plugin-vue-jsx`
+* ✅ B05: imports that omit `.vue` extension is supported
+  * If the `resolve.extensions` is set to be `['.mjs','.js','.ts','.jsx','.tsx','.json ','.vue']`, in `vite.config.js`,
+    then you may encounter errors like '[Problems caused by using alisaes and omitting file suffixes at the same time](https://github.com/vitejs/vite/issues/3532)'.
+    We use a patch to fix this issue, in case of vite didn't accept relate PR
+* ✅ B06: `sass` is supported
+  * if `node-sass` is used in dependency, then we'll convert it to `sass` to dependencies
+* ✅ B07: `postcss 8` is supported
+  * if `postcss 8` is used, then we'll add `postcss` to dependencies
 * ⚠️ B08: fix issue '[No matching export for import typescript interface](https://github.com/vitejs/vite/issues/2117)'
-  * Do not re-export type or interface in vite. You can just export it in file A and import it in file B. Don't try to export it in file B again.
-  The following is an error with re-export a type or interface:
+  * Do not re-export typescript type or interface in vite. You can just export it in file A and import it in file B. Don't try to export it in file B again.
+  The following error may occur if a type or a interface is re-exported:
   ```
   Uncaught SyntaxError: The requested module '/src/app/reducers/state.ts' does not provide an export named 'RootState'
   ```
-  * Just remove all re-export type or interface in typescript project and modify relate import path
-* ⚠️ B09: remove Hot Module Replacement (or HMR) relate code because vite support HMR default.
-  * The following error occur when project contain HMR relate code:
+  * Just remove all re-export types or interfaces in typescript project and modify corresponding imports
+* ⚠️ B09: remove `Hot Module Replacement`(aka HMR) related code because vite supports HMR by default.
+  * The following error may occur when project contains HMR relate code:
   ```
   index.tsx:6 Uncaught ReferenceError: module is not defined
     at index.tsx:6
   ```
 * ⚠️ B10: CSS Modules
-  * In vite, any CSS file ending with .module.css is considered a CSS modules file
-  * That is mean you need to covert `.css` file to `.module.css` to implement CSS Modules
+  * In vite, any CSS files ending with `.module.css` is considered a CSS modules file
+  * That means you need to covert files with extension of `.css` to files with extension of `.module.css` to implement CSS Modules
 * ⚠️ B11: default values exposed by plugins
-  * The error `htmlWebpackPlugin is not defined` occured when `index.html` includes `htmlWebpackPlugin.options.variableName`, you need to add plugin options in `vite.config.js`:
-  ```
+  * The error `htmlWebpackPlugin is not defined` may occur if `index.html` includes `htmlWebpackPlugin.options.variableName`. You need to add a plugin in `vite.config.js` like this:
+  ```js
   plugins: [
-    injectHtml:({
+    injectHtml: ({
       injectData: {
         htmlWebpackPlugin: {
           options: {
@@ -114,28 +105,28 @@ Legend of annotations:
   ```
 
 ### Vue-CLI conversion
-> Vue-CLI conversion are base on `vue.config.js`, map configuration to `vite.config.js`
+> Vue-CLI conversion is based on `vue.config.js`. Configurations will be transformed and written to `vite.config.js`
 
 * ✅ V01: base public path
   * `process.env.PUBLIC_URL` or `publicPath` or `baseUrl` -> `base`
 * ✅ V02: css options
   * `css.loaderOptions` -> `css.preprocessorOptions`
   * `css.loaderOptions.less.lessOptions.modifyVars` -> `css.preprocessorOptions.less.modifyVars`
-  * if there is only `css.loaderOptions.sass` options, convert to `css.preprocessorOptions.sass` and `css.preprocessorOptions.sass`.
-    The `sass` configuration takes effect both `sass` and `scss` in Vue-CLI while vite need configure they respectively
+  * with only `css.loaderOptions.sass` option is set, it will be converted to `css.preprocessorOptions.sass` and `css.preprocessorOptions.sass`.
+    The `sass` configuration influence both `sass` and `scss` in Vue-CLI while vite need to configure them respectively
 * ✅ V03: server options
-  * default set `server.strictPort = false`
+  * `server.strictPort = false` is set by default
   * `process.env.PORT` or `devServer.port` -> `server.port`
-  * `process.env.DEV_HOST` or `devServer.public` or `devServer.host` -> `server.host`, and replace `http://` or `https://` to `''`
+  * `process.env.DEV_HOST` or `devServer.public` or `devServer.host` -> `server.host`, and convert `http://` or `https://` to `''`
   * `devServer.open`, `devServer.https` -> `server.open`, `server.https`
-  * `devServer.proxy` -> `server.proxy`, in proxy configuration, convert `pathRewrite` -> `rewrite`
+  * if `devServer.proxy` -> `server.proxy` is transformed in proxy configuration, we'll also `pathRewrite` -> `rewrite`
 * ✅ V04: build options
   * `outputDir` -> `build.outDir`
   * `css.extract` -> `build.cssCodeSplit`
-  * if `process.env.MODERN === 'true'`, set `build.minify = esbuild`
-  * if `process.env.GENERATE_SOURCEMAP === 'true'` or `vueConfig.productionSourceMap` or `css.sourceMap` -> `build.sourcemap`
+  * if `process.env.MODERN === 'true'` is set, we'll also set `build.minify = esbuild`
+  * `process.env.GENERATE_SOURCEMAP === 'true'` or `vueConfig.productionSourceMap` or `css.sourceMap` -> `build.sourcemap`
 * ✅ V05: `resolve.alias` options
-  * add default alias options
+  * add alias options by default
   ```javascript
   resolve: {
     alias: [
@@ -144,58 +135,12 @@ Legend of annotations:
     ]
   }
   ```
-  * convert webpack alias options to match format above
+  * webpack alias options will be converted to match format above
 * ✅ V06: client-side env variables
-  * extract variable names contained in jsp scriptlet tags
+  * extract variable names in jsp scriptlet tags
   * `VUE_APP_VARIABLE` -> `process.env['VUE_APP_VARIABLE']`
-  
-### Webpack conversion
-> Webpack conversion are base on `webpack.config.js` or `webpack.base.js、webpack.dev.js、webpack.prod.js|webpack.build.js|webpack.production.js`, map configuration to `vite.config.js`
-
-> Note: if you are not using configuration file above, you need to convert configuration manually instead using tool
-
-* ✅ W01: build input options
-  * if `entry` is `string` type, `entry` -> `build.rollupOptions.input`
-  * if `entry` is `object` type, convert each object property and each array element to `build.rollupOptions.input`
-  * if `entry` is `function` type, convert function execute result to `build.rollupOptions.input`
-* ✅ W02: outDir options
-  * `output.path` -> `build.outDir`
-* ✅ W03: `resolve.alias` options
-  * add default alias options
-  ```javascript
-  resolve: {
-    alias: [
-      { find: '@', replacement: path.resolve(__dirname,'src') }
-    ]
-  }
-  ```
-  * convert webpack alias options to match format above
-  * `resolve.alias` options key has trailing `$`, need to remove '$' and re-assign an exact path value
-* ✅ W04: server options
-  * `devServer.host`, `devServer.port`, `devServer.proxy`, `devServer.https`, `devServer.contentBase` -> `server.host`, `server.port`, `server.proxy`, `server.https`, `server.base`
-* ✅ W05: define options
-  * `new webpack.DefinePlugin()` -> `define`
-  
-### Others
-* ⚠️ O01: use CommonJS syntax, e.g. `require('./')`
-  * add vite plugin `@originjs/vite-plugin-commonjs`, see detail: https://github.com/originjs/vite-plugins/tree/main/packages/vite-plugin-commonjs
-  * plugin above support part of CommonJS syntax, still, some special syntax didn't support, recommend covert to ES Modules syntax
-* ❌ O02: use ElementUI, see detail: https://github.com/vitejs/vite/issues/3370
-  ```
-   [vite] Uncaught TypeError: Cannot read property '$isServer' of undefined
-    at node_modules/_element-ui@2.15.1@element-ui/lib/utils/dom.js (:8080/node_modules/.vite/element-ui.js?v=675d2c77:1189)
-    at __require (:8080/node_modules/.vite/chunk-6VNJZP5B.js?v=675d2c77:12)
-    at node_modules/_element-ui@2.15.1@element-ui/lib/utils/popup/popup-manager.js (:8080/node_modules/.vite/element-ui.js?v=675d2c77:1478)
-    at __require (:8080/node_modules/.vite/chunk-6VNJZP5B.js?v=675d2c77:12)
-    at node_modules/_element-ui@2.15.1@element-ui/lib/utils/popup/index.js (:8080/node_modules/.vite/element-ui.js?v=675d2c77:1701)
-    at __require (:8080/node_modules/.vite/chunk-6VNJZP5B.js?v=675d2c77:12)
-    at node_modules/_element-ui@2.15.1@element-ui/lib/utils/vue-popper.js (:8080/node_modules/.vite/element-ui.js?v=675d2c77:2546)
-    at __require (:8080/node_modules/.vite/chunk-6VNJZP5B.js?v=675d2c77:12)
-    at Object.5 (:8080/node_modules/.vite/element-ui.js?v=675d2c77:6861)
-    at __webpack_require__ (:8080/node_modules/.vite/element-ui.js?v=675d2c77:6547)
-  ```
-* ⚠️ O03: css automatic imports
-  * if use `style-resources-loader` before, try to replace by `additionalData`. Example:
+* ✅ V07: css automatic imports
+  * if 'style-resources-loader' is used to load css processor resources, the `pluginOptions.'style-resources-loader'`. Configurations will be transformed and written to `css.preprocessorOptions`
   ```javascript
   pluginOptions: {
     'style-resources-loader': {
@@ -212,17 +157,63 @@ Legend of annotations:
   css: {
     preprocessorOptions: {
       less: {
-        additionalData: `@import 'src/styles/var.less';` + `@import 'src/styles/mixin.less';`
+        additionalData: `@import "src/styles/var.less";@import "src/styles/mixin.less";`
       }
     }
   }
   ```
-* ⚠️ O04: imports path include multiple alias like: `@import '~@/styles/global.scss'`, which is includes alias `~` and `@` 
-  * add an alias configure `{ find: /^~@/, replacement: path.resolve(__dirname, 'src') }` to `resolve.alias` options, and place it on first
-* ⚠️ O05: use `jsx` syntax in `.vue` file
-  * make sure enable `jsx` support, Vue2 add plugin `vite-plugin-vue2` and pass `{ jsx: true }` option, Vue3 add plugin `@vitejs/plugin-vue-jsx`
-  * add attribute `lang="jsx"` to `script` label, e.g. `<script lang="jsx"></script>`
-  * If the following error occurs
+  
+### Webpack conversion
+> Webpack conversion is based on `webpack.config.js` or `webpack.base.js/webpack.dev.js/webpack.prod.js` or `webpack.build.js/webpack.production.js`, map configuration to `vite.config.js`
+
+> Note: if you are not using configuration files above, you need to convert configurations manually
+
+* ✅ W01: build entry options
+  * if `entry` is `string` type: `entry` -> `build.rollupOptions.input`
+  * if `entry` is `object` type: the properties of `entry` will be converted set to `build.rollupOptions.input`
+  * if `entry` is `function` type: execute result of `entry` will be set to `build.rollupOptions.input`
+* ✅ W02: `outDir` options
+  * `output.path` -> `build.outDir`
+* ✅ W03: `resolve.alias` options
+  * add alias options by default
+  ```javascript
+  resolve: {
+    alias: [
+      { find: '@', replacement: path.resolve(__dirname,'src') }
+    ]
+  }
+  ```
+  * webpack alias options will also be converted to match the configuration above
+  * for `resolve.alias` configurations trailing with `$`, we'll remove the trailing '$' and set an accurate value
+* ✅ W04: server options
+  * `devServer.host`, `devServer.port`, `devServer.proxy`, `devServer.https`, `devServer.contentBase` -> `server.host`, `server.port`, `server.proxy`, `server.https`, `server.base`
+* ✅ W05: define options
+  * `new webpack.DefinePlugin()` -> `define`
+  
+### Others
+* ⚠️ O01: for CommonJS syntax, e.g. `require('./')`
+  * you can use vite plugin `@originjs/vite-plugin-commonjs`, see also [here](https://github.com/originjs/vite-plugins/tree/main/packages/vite-plugin-commonjs).
+    Please note that the plugin only supports part of CommonJS syntax. That means some syntax is not supported. You need to covert them to ES Modules syntax manually
+* ❌ O02: for `Element-UI`, see also [here](https://github.com/vitejs/vite/issues/3370)
+  ```
+   [vite] Uncaught TypeError: Cannot read property '$isServer' of undefined
+    at node_modules/_element-ui@2.15.1@element-ui/lib/utils/dom.js (:8080/node_modules/.vite/element-ui.js?v=675d2c77:1189)
+    at __require (:8080/node_modules/.vite/chunk-6VNJZP5B.js?v=675d2c77:12)
+    at node_modules/_element-ui@2.15.1@element-ui/lib/utils/popup/popup-manager.js (:8080/node_modules/.vite/element-ui.js?v=675d2c77:1478)
+    at __require (:8080/node_modules/.vite/chunk-6VNJZP5B.js?v=675d2c77:12)
+    at node_modules/_element-ui@2.15.1@element-ui/lib/utils/popup/index.js (:8080/node_modules/.vite/element-ui.js?v=675d2c77:1701)
+    at __require (:8080/node_modules/.vite/chunk-6VNJZP5B.js?v=675d2c77:12)
+    at node_modules/_element-ui@2.15.1@element-ui/lib/utils/vue-popper.js (:8080/node_modules/.vite/element-ui.js?v=675d2c77:2546)
+    at __require (:8080/node_modules/.vite/chunk-6VNJZP5B.js?v=675d2c77:12)
+    at Object.5 (:8080/node_modules/.vite/element-ui.js?v=675d2c77:6861)
+    at __webpack_require__ (:8080/node_modules/.vite/element-ui.js?v=675d2c77:6547)
+  ```
+* ⚠️ O03: imports that containing multiple alias like: `@import '~@/styles/global.scss'`, which includes alias `~` and `@` at the same time 
+  * you can add an alias `{ find: /^~@/, replacement: path.resolve(__dirname, 'src') }` to `resolve.alias` options, and place it as the first alias configuration
+* ⚠️ O04: for `jsx` syntax in `.vue` file
+  * you need to enable `jsx` support : In Vue2, add plugin `vite-plugin-vue2` and set `{ jsx: true }` option. In Vue3, add plugin `@vitejs/plugin-vue-jsx`
+  * you also need to add attribute `lang="jsx"` to `script` label if jsx syntax is used, e.g. `<script lang="jsx"></script>`
+  * If you encountered the following error
   ```
   3:54:29 PM [vite] Internal server error: /Users/Chieffo/Documents/project/Vue-mmPlayer/src/base/mm-icon/mm-icon.vue?vue&type=script&lang.tsx: Duplicate declaration "h" (This is an error on an internal node. Probably an internal error.)
   Plugin: vite-plugin-vue2
@@ -244,7 +235,7 @@ Legend of annotations:
       at TraversalContext.visitQueue (/Users/Chieffo/Documents/project/Vue-mmPlayer/node_modules/@babel/traverse/lib/context.js:99:16)
       at TraversalContext.visitSingle (/Users/Chieffo/Documents/project/Vue-mmPlayer/node_modules/@babel/traverse/lib/context.js:73:19)
   ```
-  update config to `babel.config.js`
+  you can try to update configuration of `babel.config.js` like this :
   ```javascript
   module.exports = {
     presets: [
@@ -260,13 +251,13 @@ Legend of annotations:
     ]
   }
   ```
-  see detail: https://vuejs.org/v2/guide/render-function.html#JSX
-* ⚠️ O06: use webpack api `require.context`
-  * add vite plugin `@originjs/vite-plugin-require-context`, see detail: https://github.com/originjs/vite-plugins/tree/main/packages/vite-plugin-require-context
-* ✅ O07: fix issue 'Compiling error when the template of the .vue file has the attribute lang="html"'
-  * remove `lang="html"` attribute from `template` label, see detail: https://github.com/vuejs/vue-loader/issues/1443
-* ❌ O08: use webpack api `require.ensure`
-* ⚠️ O09: convert dynamic imports that paths include alias to absolute path or relative path, see detail: see detail: https://github.com/rollup/plugins/tree/master/packages/dynamic-import-vars#limitations
+  see also [here](https://vuejs.org/v2/guide/render-function.html#JSX)
+* ⚠️ O05: for webpack syntax `require.context`
+  * add vite plugin `@originjs/vite-plugin-require-context`, see also [here](https://github.com/originjs/vite-plugins/tree/main/packages/vite-plugin-require-context)
+* ✅ O06: we have fixed the error `Compiling error when the template of the .vue file has the attribute lang="html"`
+  * we will remove `lang="html"` attribute from `template` label by default, see also [here](https://github.com/vuejs/vue-loader/issues/1443)
+* ❌ O07: webpack syntax `require.ensure` is not supported
+* ⚠️ O08: you need to convert `dynamic imports` that include alias to `absolute paths` or `relative paths` like the followings, see also [here](https://github.com/rollup/plugins/tree/master/packages/dynamic-import-vars#limitations)
   ```javascript
   () => import('@/components/views/test.vue')
   ```

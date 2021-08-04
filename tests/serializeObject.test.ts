@@ -9,10 +9,10 @@ test('serialize string', () => {
         src`
     }
     const resultA = serializeObject(objA);
-    expect(resultA).toMatch('key1: \'\r\n \\src\'');
+    expect(resultA).toMatch('key1: \`\r\n \\src\`');
     expect(resultA).toMatch('key2: \'\'src\'\'');
     expect(resultA).toMatch('key3: \'"src"\'');
-    expect(resultA).toMatch('key4: \'newline\n');
+    expect(resultA).toMatch('key4: \`newline\n        src\`');
 });
 
 test('serializeObject', () => {

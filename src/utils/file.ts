@@ -39,7 +39,7 @@ export function pathFormat (filePath: string): string {
 }
 
 export function relativePathFormat (rootDir: string, filePath: string): string {
-  return path.relative(rootDir, path.resolve(rootDir, filePath)).replace(/\\/g, '/')
+  return pathFormat(path.relative(rootDir, path.resolve(rootDir, filePath)))
 }
 
 export function copyDirSync (src: string, dest: string): void {

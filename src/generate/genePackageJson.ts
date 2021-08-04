@@ -6,9 +6,10 @@ import chalk from 'chalk'
 import * as constants from '../constants/constants'
 import { recordConver } from '../utils/report'
 import { minVersion, gt } from 'semver'
+import { AstParsingResult } from '../ast-parse/astParse'
 
 // TODO: compatible with vue2 and vue3
-export function genePackageJson (packageJsonPath: string): void {
+export function genePackageJson (packageJsonPath: string, astParsingResult?: AstParsingResult): void {
   const rootDir = path.dirname(packageJsonPath)
   const source = readSync(packageJsonPath)
   if (source === '') {
@@ -33,6 +34,9 @@ export function genePackageJson (packageJsonPath: string): void {
   packageJson.devDependencies['vite-plugin-env-compatible'] = constants.VITE_PLUGIN_ENV_COMPATIBLE
   packageJson.devDependencies['vite-plugin-html'] = constants.VITE_PLUGIN_HTML
   packageJson.devDependencies.vite = constants.VITE_VERSION
+  if (astParsingResult && astParsingResult.parsingResult.FindRequireContextParser && astParsingResult.parsingResult.FindRequireContextParser.length > 0) {
+    packageJson.devDependencies['@originjs/vite-plugin-require-context'] = constants.VITE_PLUGIN_REQUIRE_CONTEXT_VERSION
+  }
   // TODO scan files to determine whether you need to add the plugin
   packageJson.devDependencies['@originjs/vite-plugin-commonjs'] = constants.VITE_PLUGIN_COMMONJS_VERSION
 

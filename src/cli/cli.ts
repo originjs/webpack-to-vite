@@ -22,7 +22,7 @@ const beginTime = Date.now()
 
 export function run (): void {
   const program = new Command()
-  const version = require('../../package.json').version
+  const version = require('../../../package.json').version
   program
     .version(version, '-v, --version', 'output the version number')
     .option('-d --rootDir <path>', 'the directory of project to be transfered')
@@ -55,9 +55,9 @@ export async function start (config : Config): Promise<void> {
   const rootDir = path.resolve(config.rootDir)
 
   const astParsingResult: AstParsingResult = await astParseRoot(rootDir, config)
-  genePackageJson(path.resolve(rootDir, 'package.json'))
+  genePackageJson(path.resolve(rootDir, 'package.json'), astParsingResult)
 
-  await geneViteConfig(rootDir, rootDir, config)
+  await geneViteConfig(rootDir, rootDir, config, astParsingResult)
 
   // generate index.html must be after generate vite.config.js
   await geneIndexHtml(rootDir, config, astParsingResult)

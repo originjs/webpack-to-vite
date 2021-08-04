@@ -3,6 +3,7 @@ import { RawValue, ViteConfig } from '../config/vite';
 import { VueCliTransformer } from './transformVuecli';
 import { WebpackTransformer } from './transformWebpack';
 import { recordConver } from '../utils/report'
+import { AstParsingResult } from '../ast-parse/astParse';
 
 /**
  * general implementation for vue.config.js and webpack.config.js
@@ -11,7 +12,7 @@ import { recordConver } from '../utils/report'
 export interface Transformer{
     context: TransformContext;
 
-    transform(rootDir: string): Promise<ViteConfig>;
+    transform(rootDir: string, astParsingResult?: AstParsingResult): Promise<ViteConfig>;
 
 }
 
@@ -48,7 +49,7 @@ export function getTransformer (projectType: string) : Transformer {
   return new VueCliTransformer()
 }
 
-export function transformImporters (context: TransformContext) : void {
+export function transformImporters (context: TransformContext, astParsingResult?: AstParsingResult) : void {
   const plugins: RawValue[] = []
   if (context.vueVersion === 3) {
     context.importers.push('import vue from \'@vitejs/plugin-vue\';')
@@ -60,6 +61,10 @@ export function transformImporters (context: TransformContext) : void {
       'import { createVuePlugin } from \'vite-plugin-vue2\';'
     )
     plugins.push(new RawValue('createVuePlugin({jsx:true})'))
+  }
+  if (astParsingResult && astParsingResult.parsingResult.FindRequireContextParser && astParsingResult.parsingResult.FindRequireContextParser.length > 0) {
+    context.importers.push('import ViteRequireContext from \'@originjs/vite-plugin-require-context\';')
+    plugins.push(new RawValue('ViteRequireContext()'))
   }
   recordConver({ num: 'B04', feat: 'required plugins' })
   context.importers.push('import envCompatible from \'vite-plugin-env-compatible\';')
