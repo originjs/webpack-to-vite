@@ -73,7 +73,7 @@ test('transformImports', () => {
         ]),
         config: {
             plugins: expect.arrayContaining([
-                new RawValue('createVuePlugin({jsx:true})')
+                new RawValue('createVuePlugin({ jsx: true })')
             ])
         }
     }))
