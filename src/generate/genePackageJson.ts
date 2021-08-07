@@ -48,7 +48,7 @@ export function genePackageJson (packageJsonPath: string, astParsingResult?: Ast
   // postcss 8 support
   const postcssConfig = path.resolve(rootDir, 'postcss.config.js')
   if (fs.existsSync(postcssConfig)) {
-    packageJson.dependencies.postcss = constants.POSTCSS_VERSION
+    packageJson.devDependencies.postcss = constants.POSTCSS_VERSION
   }
 
   // patch-package support

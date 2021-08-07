@@ -26,19 +26,16 @@ export class VueCliTransformer implements Transformer {
       this.context.vueVersion = getVueVersion(rootDir)
       transformImporters(this.context, astParsingResult)
       const config = this.context.config
-
       const vueConfigFile = path.resolve(rootDir, 'vue.config.js')
       const vueConfig = await parseVueCliConfig(vueConfigFile)
-
-      const css = vueConfig.css || {}
-
-      const pluginOptions = vueConfig.pluginOptions || {}
 
       // Base public path
       config.base =
             process.env.PUBLIC_URL || vueConfig.publicPath || vueConfig.baseUrl
       recordConver({ num: 'V01', feat: 'base public path' })
+
       // css options
+      const css = vueConfig.css || {}
       if (css.loaderOptions) {
         config.css = {}
         const strfy = JSON.stringify(css.loaderOptions)
@@ -54,9 +51,10 @@ export class VueCliTransformer implements Transformer {
       recordConver({ num: 'V02', feat: 'css options' })
 
       // css automatic imports
+      const pluginOptions = vueConfig.pluginOptions || {}
       if (pluginOptions['style-resources-loader']) {
         this.transformGlobalCssImports(rootDir, pluginOptions, config);
-        recordConver({ num: 'V07', feat: 'css automatic imports' });
+        recordConver({ num: 'V07', feat: 'css automatic imports' })
       }
 
       // server options
@@ -112,7 +110,7 @@ export class VueCliTransformer implements Transformer {
         const relativePath = relativePathFormat(rootDir, path.resolve(rootDir, alias[key]))
         defaultAlias.push({
           find: key,
-          replacement: new RawValue(`path.resolve(__dirname,'${relativePath}')`)
+          replacement: new RawValue(`path.resolve(__dirname, '${relativePath}')`)
         })
       })
 
@@ -161,8 +159,6 @@ export class VueCliTransformer implements Transformer {
     }
 
     public transformGlobalCssImports (rootDir: string, pluginOptions, config: ViteConfig) {
-      config.css = {};
-      config.css.preprocessorOptions = {};
       let additionalData = '';
       const preProcessor = pluginOptions['style-resources-loader'].preProcessor;
       const patterns = pluginOptions['style-resources-loader'].patterns;
@@ -170,13 +166,19 @@ export class VueCliTransformer implements Transformer {
         additionalData = additionalData + '@import "' + pattern.slice(rootDir.length + 1).replace(/\\/g, '/') + '";';
       });
       if (preProcessor === 'less') {
-        config.css.preprocessorOptions.less = {};
+        if (config?.css?.preprocessorOptions?.less?.additionalData) {
+          additionalData += config?.css?.preprocessorOptions?.less?.additionalData
+        }
         config.css.preprocessorOptions.less.additionalData = additionalData;
       } else if (preProcessor === 'scss') {
-        config.css.preprocessorOptions.scss = {};
+        if (config?.css?.preprocessorOptions?.scss?.additionalData) {
+          additionalData += config?.css?.preprocessorOptions?.scss?.additionalData
+        }
         config.css.preprocessorOptions.scss.additionalData = additionalData;
       } else if (preProcessor === 'styl') {
-        config.css.preprocessorOptions.styl = {};
+        if (config?.css?.preprocessorOptions?.styl?.additionalData) {
+          additionalData += config?.css?.preprocessorOptions?.styl?.additionalData
+        }
         config.css.preprocessorOptions.styl.additionalData = additionalData;
       }
     }

@@ -5,9 +5,20 @@ import { writeSync } from '../utils/file'
 import { TemplateData } from '../config/config'
 import { RawValue } from '../config/vite'
 import { recordConver } from '../utils/report'
+import { isObject } from '../utils/common'
 
-function isObject (obj) {
-  return obj !== null && (typeof obj === 'object' || typeof obj === 'function')
+function isEmptyObject (obj) {
+  let isEmpty = true
+  for (const key in obj) {
+    if (obj[key] !== null && obj[key] !== undefined) {
+      isEmpty = false
+      break
+    }
+    if (typeof obj[key] === 'object') {
+      isEmpty = isEmptyObject(obj[key])
+    }
+  }
+  return isEmpty
 }
 
 export function serializeObject (val: unknown): string {
@@ -15,7 +26,7 @@ export function serializeObject (val: unknown): string {
 
   function serializeInternal (val, pad) {
     const newLine = '\n'
-    const indent = '    '
+    const indent = '  '
     pad = pad || ''
     const curIndent = pad + indent
 
@@ -61,10 +72,11 @@ export function serializeObject (val: unknown): string {
         return val.value
       }
 
-      const objKeys = Object.keys(val)
-      if (objKeys.length === 0) {
+      if (isEmptyObject(val)) {
         return '{}'
       }
+
+      const objKeys = Object.keys(val)
 
       seen.push(val)
       const ret =

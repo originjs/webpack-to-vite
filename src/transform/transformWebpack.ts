@@ -51,24 +51,24 @@ export class WebpackTransformer implements Transformer {
         if (input && webpackConfig.context) {
           if (isObject(input)) {
             Object.keys(input).forEach(key => {
-              const joinPath = path.join(webpackConfig.context, input[key])
-              input[key] = relativePathFormat(rootDir, joinPath)
+              const relativePath = relativePathFormat(rootDir, path.join(webpackConfig.context, input[key]))
+              input[key] = new RawValue(`path.resolve(__dirname, '${relativePath}')`)
             })
           } else if (Array.isArray(input)) {
             input = input.map(item => {
-              const joinPath = path.join(webpackConfig.context, item)
-              return relativePathFormat(rootDir, joinPath)
+              const relativePath = relativePathFormat(rootDir, path.join(webpackConfig.context, item))
+              return new RawValue(`path.resolve(__dirname, '${relativePath}')`)
             })
           } else {
-            const joinPath = path.join(webpackConfig.context, input)
-            input = relativePathFormat(rootDir, joinPath)
+            const relativePath = relativePathFormat(rootDir, path.join(webpackConfig.context, input))
+            input = new RawValue(`path.resolve(__dirname, '${relativePath}')`)
           }
         }
         config.build.rollupOptions.input = input
       }
       recordConver({ num: 'W01', feat: 'build input options' })
       // convert output
-      if (webpackConfig.output?.path !== '') {
+      if (webpackConfig.output?.path) {
         const relativePath = relativePathFormat(rootDir, webpackConfig.output.path)
         config.build.outDir = new RawValue(`path.resolve(__dirname, '${relativePath}')`)
       }
@@ -78,7 +78,7 @@ export class WebpackTransformer implements Transformer {
       const alias = {
         '@': `${rootDir}/src`
       }
-      if (webpackConfig.resolve?.alias !== undefined) {
+      if (webpackConfig.resolve?.alias) {
         Object.keys(webpackConfig.resolve.alias).forEach((key) => {
           alias[key] = webpackConfig.resolve.alias[key]
         })
@@ -99,27 +99,29 @@ export class WebpackTransformer implements Transformer {
       recordConver({ num: 'W03', feat: 'resolve.alias options' })
       // convert devServer
       if (webpackConfig.devServer) {
-        config.server = this.transformDevServer(webpackConfig.devServer)
+        config.server = this.transformDevServer(webpackConfig.devServer, rootDir)
         recordConver({ num: 'W04', feat: 'server options' })
       }
       // convert plugins
       // webpack.DefinePlugin
-      config.define = {}
-      webpackConfig.plugins.forEach((item : any) => {
-        if (item.constructor.name === 'DefinePlugin') {
-          Object.keys(item).forEach((definitions) => {
-            const val = item[definitions]
-            Object.keys(val).forEach((variable) => {
-              config.define[variable] = val[variable]
+      if (webpackConfig.plugins && Array.isArray(webpackConfig.plugins)) {
+        config.define = {}
+        webpackConfig.plugins.forEach((item : any) => {
+          if (item.constructor.name === 'DefinePlugin') {
+            Object.keys(item).forEach((definitions) => {
+              const val = item[definitions]
+              Object.keys(val).forEach((variable) => {
+                config.define[variable] = val[variable]
+              })
             })
-          })
-        }
-      })
+          }
+        })
+      }
       recordConver({ num: 'W05', feat: 'define options' })
       return config
     }
 
-    public transformDevServer (devServer): ServerOptions {
+    public transformDevServer (devServer, rootDir): ServerOptions {
       let server: ServerOptions = {}
       server = {}
       server.strictPort = false
@@ -155,7 +157,9 @@ export class WebpackTransformer implements Transformer {
         }
       }
       server.proxy = proxy
-      server.base = devServer.contentBase
+      const relativePath = relativePathFormat(rootDir, devServer.contentBase)
+      // @ts-ignore
+      server.base = new RawValue(`path.resolve(__dirname, '${relativePath}')`)
       return server
     }
 }

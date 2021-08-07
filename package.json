@@ -15,7 +15,7 @@
     "build": "tsc -p tsconfig.json",
     "postbuild": "cpy \"template/*\" ../dist/src --cwd=src/ --no-overwrite --parents",
     "test": "jest",
-    "test-c": "jest-coverage",
+    "test-c": "jest --coverage",
     "lint": "eslint --ext .js,.ts src/"
   },
   "repository": {

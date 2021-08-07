@@ -1,34 +1,24 @@
 {
-  "name": "helloworld-vue3",
+  "name": "helloworld-vue2",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint",
-    "serve-vite": "vite",
-    "build-vite": "vite build",
-    "postinstall": "patch-package"
+    "lint": "vue-cli-service lint"
   },
   "dependencies": {
     "core-js": "^3.6.5",
-    "vue": "^3.0.0"
+    "vue": "^2.6.11"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.0",
     "@vue/cli-plugin-eslint": "~4.5.0",
     "@vue/cli-service": "~4.5.0",
-    "@vue/compiler-sfc": "^3.0.5",
     "babel-eslint": "^10.1.0",
     "eslint": "^6.7.2",
-    "eslint-plugin-vue": "^7.0.0",
-    "@vitejs/plugin-vue": "^1.2.1",
-    "vite-plugin-env-compatible": "^1.0.0",
-    "vite": "2.3.8",
-    "@vitejs/plugin-vue-jsx": "^1.1.5",
-    "@originjs/vite-plugin-commonjs": "^1.0.0-beta3",
-    "vite-plugin-html": "2.0.7",
-    "patch-package": "^6.4.7"
+    "eslint-plugin-vue": "^6.2.2",
+    "vue-template-compiler": "^2.6.11"
   },
   "eslintConfig": {
     "root": true,
@@ -36,7 +26,7 @@
       "node": true
     },
     "extends": [
-      "plugin:vue/vue3-essential",
+      "plugin:vue/essential",
       "eslint:recommended"
     ],
     "parserOptions": {

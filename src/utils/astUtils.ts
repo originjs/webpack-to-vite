@@ -1,12 +1,12 @@
-import fs from 'fs';
 import { vueSfcAstParser } from '@originjs/vue-sfc-ast-parser';
 import { FileInfo, VueSFCContext } from '../ast-parse/astParse';
 import getParser from 'jscodeshift/src/getParser'
 import jscodeshift from 'jscodeshift'
+import { readSync } from './file';
 
 export function parseVueSfc (fileInfo: FileInfo) : VueSFCContext {
   if (!fileInfo.source || fileInfo.source.length === 0) {
-    fileInfo.source = fs.readFileSync(fileInfo.path).toString().split('\r\n').join('\n')
+    fileInfo.source = readSync(fileInfo.path).replace(/\r\n/g, '\n')
   }
   const astParseResult = vueSfcAstParser(fileInfo)
   const context : VueSFCContext = {
@@ -23,7 +23,7 @@ export function parseVueSfc (fileInfo: FileInfo) : VueSFCContext {
 
 export function parseScriptSfc (fileInfo: FileInfo, lang?: string) : any {
   if (!fileInfo.source || fileInfo.source.length === 0) {
-    fileInfo.source = fs.readFileSync(fileInfo.path).toString().split('\r\n').join('\n')
+    fileInfo.source = readSync(fileInfo.path).replace(/\r\n/g, '\n')
   }
   const parserOptions: string = lang || 'babylon'
   const parser = getParser(parserOptions)

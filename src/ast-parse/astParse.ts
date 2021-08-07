@@ -1,12 +1,12 @@
-import { transformationMap, TransformationType } from './transformations/index'
-import { parsersMap, ParserType } from './parsers/index'
+import { transformationMap, TransformationType } from './transformations'
+import { parsersMap, ParserType } from './parsers'
 import { SFCDescriptor } from '@originjs/vue-sfc-ast-parser'
 import * as globby from 'globby'
-import fs from 'fs'
 import { JSCodeshift } from 'jscodeshift/src/core'
 import { ESLintProgram } from 'vue-eslint-parser/ast'
 import { Config } from '../config/config'
 import { cliInstance } from '../cli/cli'
+import { pathFormat, readSync, writeSync } from '../utils/file';
 
 export type FileInfo = {
   path: string,
@@ -53,7 +53,7 @@ export type AstParsingResult = {
 }
 
 export async function astParseRoot (rootDir: string, config: Config): Promise<AstParsingResult> {
-  const replacedRootDir: string = rootDir.replace(/\\/g, '/')
+  const replacedRootDir: string = pathFormat(rootDir)
   const resolvedPaths : string[] = globby.sync([replacedRootDir, `!${replacedRootDir}/**/node_modules`, `!${replacedRootDir}/**/dist`])
   const parsingResults: ParsingResult = {}
   const transformationResults: AstTransformationResult = {}
@@ -62,12 +62,12 @@ export async function astParseRoot (rootDir: string, config: Config): Promise<As
     config: config
   }
   cliInstance.setTotal(cliInstance.total + resolvedPaths.length)
-  resolvedPaths.forEach(async filePath => {
+  for (const filePath of resolvedPaths) {
     cliInstance.increment({ doSomething: `AST Parsing: ${filePath}` })
 
     const extension = (/\.([^.]*)$/.exec(filePath) || [])[0]
 
-    const source: string = fs.readFileSync(filePath).toString().split('\r\n').join('\n')
+    const source: string = readSync(filePath).replace(/\r\n/g, '\n')
     const fileInfo: FileInfo = {
       path: filePath,
       source: source
@@ -100,7 +100,7 @@ export async function astParseRoot (rootDir: string, config: Config): Promise<As
         fileInfo.source = transformationResultContent
       }
       if (transformation.needWriteToOriginFile) {
-        fs.writeFileSync(filePath, transformationResultContent)
+        writeSync(filePath, transformationResultContent)
       }
     }
 
@@ -124,7 +124,7 @@ export async function astParseRoot (rootDir: string, config: Config): Promise<As
       }
       parsingResults[parser.parserType].push.apply(parsingResults[parser.parserType], parsingResult)
     }
-  })
+  }
 
   return {
     parsingResult: parsingResults,
