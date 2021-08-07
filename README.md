@@ -140,7 +140,7 @@ Legend of annotations:
   * extract variable names in jsp scriptlet tags
   * `VUE_APP_VARIABLE` -> `process.env['VUE_APP_VARIABLE']`
 * ✅ V07: css automatic imports
-  * if 'style-resources-loader' is used to load css processor resources, the `pluginOptions.'style-resources-loader'`. Configurations will be transformed and written to `css.preprocessorOptions`
+  * if 'style-resources-loader' is used to load css preprocessor resources, which is `pluginOptions['style-resources-loader']`. Configurations will be transformed and written to `css.preprocessorOptions`
   ```javascript
   pluginOptions: {
     'style-resources-loader': {
