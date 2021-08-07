@@ -1,38 +1,53 @@
 import { ASTParse, ParserType } from './index';
-import { FileInfo, ParsingResultOccurrence } from '../astParse';
-import { ESLintProgram } from 'vue-eslint-parser/ast'
+import { FileInfo, ParsingResultOccurrence, VueSFCContext } from '../astParse';
 import { Node } from 'vue-eslint-parser/ast/nodes'
 import * as parser from 'vue-eslint-parser'
+import { parseVueSfc, parseScriptSfc } from '../../utils/astUtils';
 
 export const astParse: ASTParse = (fileInfo: FileInfo) => {
-  const parserOptions: any = {
-    sourceType: 'module',
-    ecmaVersion: 11,
-    ecmaFeatures: {
-      jsx: true
+  let nodePaths: Node[]
+  if (/.vue$/.test(fileInfo.path)) {
+    const context: VueSFCContext = parseVueSfc(fileInfo)
+    if (!context.scriptAST || !context.scriptAST.__paths) {
+      return null
     }
+    nodePaths = context.scriptAST.__paths
+  } else if (/.ts$/.test(fileInfo.path)) {
+    const context = parseScriptSfc(fileInfo, 'ts')
+    if (!context || !context.__paths) {
+      return null
+    }
+    nodePaths = context.__paths
+  } else {
+    const context = parseScriptSfc(fileInfo)
+    if (!context || !context.__paths) {
+      return null
+    }
+    nodePaths = context.__paths
   }
-  const root: ESLintProgram = parser.parse(fileInfo.source, parserOptions)
+
   const results: ParsingResultOccurrence[] = []
 
-  parser.AST.traverseNodes(root, {
-    enterNode (node: Node) {
-      if (node.type === 'MemberExpression') {
-        const includeRequire: boolean = node.object.type === 'Identifier' && node.object.name === 'require'
-        const includeRequireContext: boolean = node.property.type === 'Identifier' && node.property.name === 'context'
-        if (includeRequire && includeRequireContext) {
-          const result: ParsingResultOccurrence = {
-            fileInfo: fileInfo,
-            offsetBegin: node.start,
-            offsetEnd: node.end,
-            type: parserType
+  nodePaths.forEach(root => {
+    parser.AST.traverseNodes(root, {
+      enterNode (node: Node) {
+        if (node.type === 'MemberExpression') {
+          const includeRequire: boolean = node.object.type === 'Identifier' && node.object.name === 'require'
+          const includeRequireContext: boolean = node.property.type === 'Identifier' && node.property.name === 'context'
+          if (includeRequire && includeRequireContext) {
+            const result: ParsingResultOccurrence = {
+              fileInfo: fileInfo,
+              offsetBegin: node.start,
+              offsetEnd: node.end,
+              type: parserType
+            }
+            results.push(result)
           }
-          results.push(result)
         }
-      }
-    },
-    leaveNode () {}
-  })
+      },
+      leaveNode () {}
+    })
+  });
 
   return results
 }
