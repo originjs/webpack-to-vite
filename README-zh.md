@@ -108,17 +108,12 @@ webpack-to-vite -d <project path>
 > Vue-CLI转换是将`vue.config.js`中的配置，转换后设置到`vite.config.js`中
 
 * ✅ V01: public path环境变量
-
-* `process.env.PUBLIC_URL` 或 `publicPath` 或 `baseUrl` -> `base`
+  * `process.env.PUBLIC_URL` 或 `publicPath` 或 `baseUrl` -> `base`
 
 * ✅ V02: css配置
   * `css.loaderOptions` -> `css.preprocessorOptions`
-  
   * `css.loaderOptions.less.lessOptions.modifyVars` -> `css.preprocessorOptions.less.modifyVars`
-  
-  * 如果在项目中对`css.loaderOptions.sass`进行了配置，则`css.preprocessorOptions.sass` 和 `css.preprocessorOptions.sass`也会进行相应的转换。
-  
-    在vue-cli中，`sass`配置可以同时影响`sass`和`scss`，而在vite中需要对它们进行单独配置
+  * 在Vue-CLI中，`sass`配置可以同时影响`sass`和`scss`，而在vite中需要对它们进行单独配置。因此，如果在Vue-CLI中只进行了`css.loaderOptions.sass`配置，在vite中也会生成`css.preprocessorOptions.sass` 和 `css.preprocessorOptions.scss`两个配置；而如果在Vue-CLI中只进行了`css.loaderOptions.scss`配置，在vite中则只会生成`css.preprocessorOptions.scss`配置
   
 * ✅ V03: server配置
   * 默认添加`server.strictPort = false`配置

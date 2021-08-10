@@ -112,8 +112,10 @@ Legend of annotations:
 * ✅ V02: css options
   * `css.loaderOptions` -> `css.preprocessorOptions`
   * `css.loaderOptions.less.lessOptions.modifyVars` -> `css.preprocessorOptions.less.modifyVars`
-  * with only `css.loaderOptions.sass` option is set, it will be converted to `css.preprocessorOptions.sass` and `css.preprocessorOptions.sass`.
-    The `sass` configuration influence both `sass` and `scss` in Vue-CLI while vite need to configure them respectively
+  * The `sass` configuration will influence both `sass` and `scss` in Vue-CLI, but in vite we need to configure them respectively. 
+    So with only `css.loaderOptions.sass` option is set in Vue-CLI, it will be converted to `css.preprocessorOptions.sass` and `css.preprocessorOptions.scss`.
+    On the other hand, with only `css.loaderOptions.scss` option is set in Vue-CLI, it will be converted to `css.preprocessorOptions.scss`.
+
 * ✅ V03: server options
   * `server.strictPort = false` is set by default
   * `process.env.PORT` or `devServer.port` -> `server.port`
