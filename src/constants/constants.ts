@@ -1,6 +1,6 @@
 export const DEFAULT_VUE_VERSION = undefined
 export const VUE_COMPILER_SFC_VERSION = '^3.0.5'
-export const VITE_VERSION = '2.3.8'
+export const VITE_VERSION = '2.4.4'
 export const VITE_PLUGIN_VUE_VERSION = '^1.2.1'
 export const VITE_PLUGIN_VUE_JSX_VERSION = '^1.1.5'
 export const VITE_PLUGIN_VUE_TWO_VERSION = '^1.5.1'
