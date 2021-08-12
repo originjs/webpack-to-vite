@@ -50,7 +50,7 @@ export function generateWithVueCliPublicIndex (astParsingResult: AstParsingResul
   if (indexHtmlTransformationResult) {
     indexHtmlContent = indexHtmlTransformationResult[0].content
   } else {
-    indexHtmlContent = readSync(path.resolve('src/template/index.html'))
+    indexHtmlContent = readSync(path.join(__dirname, '../template/index.html'))
   }
   return stringFormat(indexHtmlContent, generateEntriesHtml(entries))
 }
