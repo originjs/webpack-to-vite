@@ -52,44 +52,47 @@ webpack-to-vite -d <project path>
 |❌|目前不支持|
 
 ### 基础转换项
-* ✅ B01: 在 `package.json` 中添加必要的 devDependencies 和 dependencies
-  * 必要的: `vite-plugin-env-compatible`, `vite-plugin-html`, `vite`,
-  * Vue2 必要的: `vite-plugin-vue2`
-  * Vue3 必要的: `@vue/compiler-sfc`, `@vitejs/plugin-vue`, `@vitejs/plugin-vue-jsx`
+* ✅ B01: 在 `package.json` 中添加需要的 devDependencies 和 dependencies
+  * 必要的依赖：`vite-plugin-env-compatible`, `vite-plugin-html`, `vite`,
+  * Vue2 项目需要的依赖：`vite-plugin-vue2`
+  * Vue3 项目需要的依赖：`@vue/compiler-sfc`, `@vitejs/plugin-vue`, `@vitejs/plugin-vue-jsx`
 * ✅ B02: 将 vite 入口文件 `index.html` 添加到根目录
-  * 支持 `vue.config.js` 中 `pages` 选项定义的多个配置项
-  * 添加像这样的入口点：`<script type="module" src="/src/main.js"></script>`，不需要添加 `dev-client` 入口点，因为 vite 默认支持 HMR
+  * 支持在 `vue.config.js` 的 `pages` 选项中配置的多个入口的转换
+  * 以这种方式添加入口：`<script type="module" src="/src/main.js"></script>`，不需要添加 `dev-client` 入口，因为 vite 默认支持 HMR
 * ✅ B03: 将 vite 配置文件 `vite.config.js` 添加到根目录
-* ✅ B04: 在 `vite.config.js` 中导入和使用必要的插件
-  * 必要的 `vite-plugin-env-compatible`
-  * Vue2 必要的: `vite-plugin-vue2`，通过 `{ jsx: true }` 选项启用 `jsx` 默认支持
-  * Vue3 必要的: `@vitejs/plugin-vue`, `@vitejs/plugin-vue-jsx`
+* ✅ B04: 在 `vite.config.js` 中导入和使用需要的插件
+  * 必要的插件： `vite-plugin-env-compatible`
+  * Vue2 项目需要的插件：`vite-plugin-vue2`，默认通过 `{ jsx: true }` 选项启用 `jsx` 支持
+  * Vue3 项目需要的插件：`@vitejs/plugin-vue`, `@vitejs/plugin-vue-jsx`
 * ✅ B05: 支持省略 `.vue` 扩展名的导入
   * 在 `vite.config.js` 中，设置 `resolve.extensions` 配置项为 `['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.vue']`，
     然后您可能会遇到 "[Problems caused by using alisaes and omitting file suffixes at the same time](https://github.com/vitejs/vite/issues/3532)" 这样的问题，
-    我们使用补丁来解决这个问题，以防万一 vite 不接受相关 PR
+    我们使用补丁来解决这个问题，在 vite 接受相关 PR 之前
 * ✅ B06: sass 支持
-  * 如果之前使用 `node-sass` 依赖，则转换为 `sass` 依赖
+  * 如果项目使用到 `node-sass` 依赖，则转换为 `sass` 依赖
 * ✅ B07: postcss 8 支持
-  * 如果之前使用 postcss 8，请添加 `postcss` 依赖
+  * 如果项目使用到 `postcss 8` ，则添加 `postcss` 依赖
 * ⚠️ B08: 修复问题 '[No matching export for import typescript interface](https://github.com/vitejs/vite/issues/2117)'
   * 请勿在 vite 中重复导出 typescript 类型或接口。 您只能在文件 A 中将其导出，然后在文件 B 中将其导入。不要尝试在文件 B 中将其再次导出。
     以下是重复导出类型或接口时出现的错误：
+
   ```
   Uncaught SyntaxError: The requested module '/src/app/reducers/state.ts' does not provide an export named 'RootState'
   ```
-  * 只要删除 typescript 项目中所有重复导出的类型或接口，并修改相关导入路径
+  * 删除 typescript 项目中所有重复导出的类型或接口，并修改相关导入路径即可
 * ⚠️ B09: 删除模块热更新（或 HMR）相关代码，因为 vite 默认支持 HMR
   * 项目包含 HMR 相关代码时出现以下错误：
+
   ```
   index.tsx:6 Uncaught ReferenceError: module is not defined
     at index.tsx:6
   ```
 * ⚠️ B10: CSS Modules
-  * 在 vite 中, 任何以 `.module.css` 为后缀名的 CSS 文件都被认为是一个 CSS modules 文件
-  * 这意味着您需要将以 `.css` 为后缀文件转换为以 `.module.css` 为后缀的文件来实现 CSS Modules
+  * 在 vite 中，任何以 `.module.css` 为后缀名的 CSS 文件都被认为是一个 CSS modules 文件
+  * 这意味着您需要将以 `.css` 为后缀的文件转换为以 `.module.css` 为后缀的文件来实现 CSS Modules
   * ⚠️ B11: 插件暴露的默认值
-  * 当 `index.html` 包含 `htmlWebpackPlugin.options.variableName` 时出现 `htmlWebpackPlugin is not defined` 错误，需要在 `vite.config.js` 中添加插件选项：
+  * 当 `index.html` 包含 `htmlWebpackPlugin.options.variableName` 时，会出现 `htmlWebpackPlugin is not defined` 错误，您需要在 `vite.config.js` 中添加插件选项：
+
   ```
   plugins: [
     injectHtml:({
@@ -105,31 +108,34 @@ webpack-to-vite -d <project path>
   ```
 
 ### Vue-CLI 转换项
-> Vue-CLI转换是将`vue.config.js`中的配置，转换后设置到`vite.config.js`中
+> Vue-CLI 转换是将 `vue.config.js` 中的配置，转换后设置到 `vite.config.js` 中
 
-* ✅ V01: public path环境变量
-  * `process.env.PUBLIC_URL` 或 `publicPath` 或 `baseUrl` -> `base`
+* ✅ V01: public path 环境变量
 
-* ✅ V02: css配置
+* `process.env.PUBLIC_URL` 或 `publicPath` 或 `baseUrl` -> `base`
+
+* ✅ V02: css 配置
   * `css.loaderOptions` -> `css.preprocessorOptions`
+  
   * `css.loaderOptions.less.lessOptions.modifyVars` -> `css.preprocessorOptions.less.modifyVars`
-  * 在Vue-CLI中，`sass`配置可以同时影响`sass`和`scss`，而在vite中需要对它们进行单独配置。因此，如果在Vue-CLI中只进行了`css.loaderOptions.sass`配置，在vite中也会生成`css.preprocessorOptions.sass` 和 `css.preprocessorOptions.scss`两个配置；而如果在Vue-CLI中只进行了`css.loaderOptions.scss`配置，在vite中则只会生成`css.preprocessorOptions.scss`配置
+  * 在 Vue-CLI 项目中，`sass` 配置可以同时生效于 `sass` 和 `scss` ，而在 vite 项目中需要对它们分别进行单独配置。因此，即使在 Vue-CLI 项目中只进行了 `css.loaderOptions.sass` 配置，也会在 vite 项目中生成 `css.preprocessorOptions.sass` 和 `css.preprocessorOptions.scss` 两个配置；而如果在 Vue-CLI 项目中只进行 `css.loaderOptions.scss` 配置，则在 vite 项目中只生成 `css.preprocessorOptions.scss` 配置
   
-* ✅ V03: server配置
-  * 默认添加`server.strictPort = false`配置
+* ✅ V03: server 配置
+  * 默认添加 `server.strictPort = false` 配置
   * `process.env.PORT` 或 `devServer.port` -> `server.port`
-  * `process.env.DEV_HOST` 或 `devServer.public` 或 `devServer.host` -> `server.host`，并将`http://` 或`https://` 替换为 `''`
+  * `process.env.DEV_HOST` 或 `devServer.public` 或 `devServer.host` -> `server.host` ，并将 `http://` 或 `https://` 替换为 `''`
   * `devServer.open`, `devServer.https` -> `server.open`, `server.https`
-  * `devServer.proxy` -> `server.proxy`, 另外在proxy配置中，进行`pathRewrite` -> `rewrite`转换
+  * `devServer.proxy` -> `server.proxy` ，另外在 proxy 配置中，进行 `pathRewrite` -> `rewrite` 转换
   
-* ✅ V04: build配置
+* ✅ V04: build 配置
   * `outputDir` -> `build.outDir`
   * `css.extract` -> `build.cssCodeSplit`
-  * 如果原来有`process.env.MODERN === 'true'`配置, 则自动进行 `build.minify = esbuild`配置
-  * 如果原来有 `process.env.GENERATE_SOURCEMAP === 'true'` 或 `vueConfig.productionSourceMap` 或 `css.sourceMap`配置 ->则进行 `build.sourcemap`配置
+  * 如果配置了 `process.env.MODERN === 'true'` ，则添加配置 `build.minify = esbuild`
+  * `process.env.GENERATE_SOURCEMAP === 'true'` 或 `vueConfig.productionSourceMap` 或 `css.sourceMap` -> `build.sourcemap`
   
-* ✅ V05: `resolve.alias`配置
-  * 默认添加alias配置
+* ✅ V05: `resolve.alias` 配置
+  * 默认添加 alias 配置
+
   ```javascript
   resolve: {
     alias: [
@@ -138,15 +144,15 @@ webpack-to-vite -d <project path>
     ]
   }
   ```
-  * webpack中的alias配置也会按照类似的方式进行转换
+  * webpack 中的 alias 配置也会按照类似的方式进行转换
 
 * ✅ V06: 客户端环境变量
-
-  * 提取jsp脚本tag中的环境变量
+  * 提取 jsp 脚本 tag 中的环境变量
   * `VUE_APP_VARIABLE` -> `process.env['VUE_APP_VARIABLE']`
   
 * ✅ V07: css 自动化导入
-  * 如果使用 'style-resources-loader' 加载 css 预处理器资源，即 `pluginOptions['style-resources-loader']`。 配置将被转换并写入`css.preprocessorOptions`
+  * 如果使用 'style-resources-loader' 加载 css 预处理器资源，即 `pluginOptions['style-resources-loader']` ，配置将被转换并写入`css.preprocessorOptions`
+
   ```javascript
   pluginOptions: {
     'style-resources-loader': {
@@ -169,18 +175,19 @@ webpack-to-vite -d <project path>
   }
   ```
 ### Webpack 转换项
-> Webpack转换是将`webpack.config.js` 或 `webpack.base.js/webpack.dev.js/webpack.prod.js` 或 `webpack.build.js/webpack.production.js`中的配置，转换后设置到`vite.config.js`中
+> Webpack 转换是将`webpack.config.js` 或 `webpack.base.js/webpack.dev.js/webpack.prod.js` 或 `webpack.build.js/webpack.production.js` 中的配置，转换后设置到 `vite.config.js` 中
 
-> 注意：如果您没有使用上述文件进行webpack配置，那么工具将无法进行配置转换，您需要通过手工进行配置
+> 注意：如果您没有在上述文件中进行 webpack 配置，那么工具将无法进行配置转换，您需要手工配置
 
 * ✅ W01: 构建入口配置
-  * 如果 `entry` 类型是 `string` , `entry` -> `build.rollupOptions.input`
-  * 如果 `entry` 类型是 `object` , 则将object中的每条属性配置到 `build.rollupOptions.input`中
-  * 如果 `entry` 类型是 `function` , 则将function的运行结果配置到`build.rollupOptions.input`中
-* ✅ W02: outDir配置
+  * 如果 `entry` 类型是 `string` ，`entry` -> `build.rollupOptions.input`
+  * 如果 `entry` 类型是 `object` ，则将 object 中的每条属性配置到 `build.rollupOptions.input` 中
+  * 如果 `entry` 类型是 `function` ，则将 function 的运行结果配置到 `build.rollupOptions.input` 中
+* ✅ W02: outDir 配置
   * `output.path` -> `build.outDir`
 * ✅ W03: `resolve.alias` 配置
-  * 添加默认alias配置
+  * 添加默认 alias 配置
+
   ```javascript
   resolve: {
     alias: [
@@ -188,18 +195,19 @@ webpack-to-vite -d <project path>
     ]
   }
   ```
-  * webpack的其他别名配置也会按照上述格式进行转换
-  * 以`$`结尾的`resolve.alias` 配置, 需要删除`$`并配置为准确的值
-* ✅ W04: server配置
+  * webpack 配置的其他别名也会按照上述格式进行转换
+  * 以 `$` 结尾的 `resolve.alias` 配置，需要删除 `$` 并配置为确切的值
+* ✅ W04: server 配置
   * `devServer.host`, `devServer.port`, `devServer.proxy`, `devServer.https`, `devServer.contentBase` -> `server.host`, `server.port`, `server.proxy`, `server.https`, `server.base`
-* ✅ W05: define配置
+* ✅ W05: define 配置
   * `new webpack.DefinePlugin()` -> `define`
   
 ### 其他转换项
-* ⚠️ O01: 使用 CommonJS 规范语法, 例如 `require('./')`
-  * 添加 vite 插件 `@originjs/vite-plugin-commonjs`, 参阅[这里](https://github.com/originjs/vite-plugins/tree/main/packages/vite-plugin-commonjs)
-  * 请注意该插件只支持部分 CommonJS 规范语法, 这意味着一些语法是不支持的, 您需要手动转换为 ES Modules 规范语法
-* ❌ O02: 对于 `Element-UI`, 参阅[这里](https://github.com/vitejs/vite/issues/3370)
+* ⚠️ O01: 使用 CommonJS 规范语法，例如 `require('./')`
+  * 添加 vite 插件 `@originjs/vite-plugin-commonjs` ，参阅[这里](https://github.com/originjs/vite-plugins/tree/main/packages/vite-plugin-commonjs)
+  * 请注意该插件只支持部分 CommonJS 规范语法，这意味着一些语法是不支持的，您需要手动转换为 ES Modules 规范语法
+* ❌ O02: 对于 `Element-UI` ，参阅[这里](https://github.com/vitejs/vite/issues/3370)
+
   ```
    [vite] Uncaught TypeError: Cannot read property '$isServer' of undefined
     at node_modules/_element-ui@2.15.1@element-ui/lib/utils/dom.js (:8080/node_modules/.vite/element-ui.js?v=675d2c77:1189)
@@ -213,12 +221,13 @@ webpack-to-vite -d <project path>
     at Object.5 (:8080/node_modules/.vite/element-ui.js?v=675d2c77:6861)
     at __webpack_require__ (:8080/node_modules/.vite/element-ui.js?v=675d2c77:6547)
   ```
-* ⚠️ O03: 包含多个别名的导入，如: `@import '~@/styles/global.scss'`, 同时包含了别名 `~` 和 `@`
-  * 您可以添加别名配置 `{ find: /^~@/, replacement: path.resolve(__dirname, 'src') }` 到 `resolve.alias` 配置中, 并且把该项配置移到别名配置中的第一项
+* ⚠️ O03: 包含多个别名的导入，如：`@import '~@/styles/global.scss'`，同时包含了别名 `~` 和 `@`
+  * 您可以添加别名配置 `{ find: /^~@/, replacement: path.resolve(__dirname, 'src') }` 到 `resolve.alias` 配置中，并且把该项配置移到别名配置中的第一项
 * ⚠️ O04: 在 `.vue` 文件中使用 `jsx` 语法
-  * 确保您开启了 `jsx` 支持, 在 Vue2 中，需要添加 `vite-plugin-vue2` 插件并传入 `{ jsx: true }` 配置, 在 Vue3 中需要添加 `@vitejs/plugin-vue-jsx` 插件
-  * 添加 `lang="jsx"` 属性到 `script` 标签, 例如 `<script lang="jsx"></script>`
+  * 确保您开启了 `jsx` 支持，在 Vue2 中，需要添加 `vite-plugin-vue2` 插件并传入 `{ jsx: true }` 配置，在 Vue3 中需要添加 `@vitejs/plugin-vue-jsx` 插件
+  * 添加 `lang="jsx"` 属性到 `script` 标签，例如 `<script lang="jsx"></script>`
   * 如果您遇到以下错误
+
   ```
   3:54:29 PM [vite] Internal server error: /Users/Chieffo/Documents/project/Vue-mmPlayer/src/base/mm-icon/mm-icon.vue?vue&type=script&lang.tsx: Duplicate declaration "h" (This is an error on an internal node. Probably an internal error.)
   Plugin: vite-plugin-vue2
@@ -241,6 +250,7 @@ webpack-to-vite -d <project path>
       at TraversalContext.visitSingle (/Users/Chieffo/Documents/project/Vue-mmPlayer/node_modules/@babel/traverse/lib/context.js:73:19)
   ```
   您可以尝试更新 `babel.config.js` 配置文件，如下：
+
   ```javascript
   module.exports = {
     presets: [
@@ -258,11 +268,12 @@ webpack-to-vite -d <project path>
   ```
   参阅[这里](https://vuejs.org/v2/guide/render-function.html#JSX)
 * ⚠️ O05: 对于 Webpack 语法 `require.context`
-  * 添加 vite 插件 `@originjs/vite-plugin-require-context`, 参阅[这里](https://github.com/originjs/vite-plugins/tree/main/packages/vite-plugin-require-context)
+  * 添加 vite 插件 `@originjs/vite-plugin-require-context` ，参阅[这里](https://github.com/originjs/vite-plugins/tree/main/packages/vite-plugin-require-context)
 * ✅ O06: 我们修复了错误 'Compiling error when the template of the .vue file has the attribute lang="html"'
-  * 从 `template` 标签中移除 `lang="html"` 属性, 参阅[这里](https://github.com/vuejs/vue-loader/issues/1443)
+  * 从 `template` 标签中移除 `lang="html"` 属性，参阅[这里](https://github.com/vuejs/vue-loader/issues/1443)
 * ❌ O07: 不支持 Webpack 语法 `require.ensure`
 * ⚠️ O08: 如下所示，您需要手动把包含别名的动态导入转换为绝对路径或相对路径导入。参阅[这里](https://github.com/rollup/plugins/tree/master/packages/dynamic-import-vars#limitations)
+
   ```javascript
   () => import('@/components/views/test.vue')
   ```
