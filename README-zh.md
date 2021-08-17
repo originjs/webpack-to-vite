@@ -90,7 +90,7 @@ webpack-to-vite -d <project path>
 * ⚠️ B10: CSS Modules
   * 在 vite 中，任何以 `.module.css` 为后缀名的 CSS 文件都被认为是一个 CSS modules 文件
   * 这意味着您需要将以 `.css` 为后缀的文件转换为以 `.module.css` 为后缀的文件来实现 CSS Modules
-  * ⚠️ B11: 插件暴露的默认值
+* ⚠️ B11: 插件暴露的默认值
   * 当 `index.html` 包含 `htmlWebpackPlugin.options.variableName` 时，会出现 `htmlWebpackPlugin is not defined` 错误，您需要在 `vite.config.js` 中添加插件选项：
 
   ```
