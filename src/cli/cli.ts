@@ -4,11 +4,10 @@ import chalk from 'chalk'
 import { geneIndexHtml } from '../generate/geneIndexHtml'
 import { genePackageJson } from '../generate/genePackageJson'
 import { geneViteConfig } from '../generate/geneViteConfig'
-import { genePatches } from '../generate/genePatches'
 import { Command } from 'commander'
 import { Config } from '../config/config'
 import { astParseRoot, AstParsingResult } from '../ast-parse/astParse'
-import { printReport, recordConver } from '../utils/report'
+import { printReport } from '../utils/report'
 import cliProgress from 'cli-progress'
 
 const cliInstance = new cliProgress.SingleBar({
@@ -63,10 +62,6 @@ export async function start (config : Config): Promise<void> {
   await geneIndexHtml(rootDir, config, astParsingResult)
   printReport(config.rootDir, beginTime) // output conversion
 
-  // generate patches
-  const patchesDir = path.resolve(rootDir, 'patches')
-  genePatches(patchesDir)
-  recordConver({ num: 'B05', feat: 'required plugins' })
   console.log(chalk.green('************************ Done ! ************************'))
   const pkgManager = fs.existsSync(path.resolve(rootDir, 'yarn.lock'))
     ? 'yarn'

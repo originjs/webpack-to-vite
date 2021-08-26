@@ -51,15 +51,9 @@ export function genePackageJson (packageJsonPath: string, astParsingResult?: Ast
     packageJson.devDependencies.postcss = constants.POSTCSS_VERSION
   }
 
-  // patch-package support
-  packageJson.devDependencies['patch-package'] = constants.PATCH_PACKAGE_VERSION
-
   // add vite dev script
   packageJson.scripts['serve-vite'] = 'vite'
   packageJson.scripts['build-vite'] = 'vite build'
-
-  // add postinatall
-  packageJson.scripts.postinstall = 'patch-package'
 
   let result = processDependencies(originPackageJson.dependencies, packageJson.dependencies, packageJson.devDependencies)
   packageJson.dependencies = result.targetDependencies

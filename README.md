@@ -65,9 +65,10 @@ Legend of annotations:
   * necessary for Vue2: `vite-plugin-vue2`, we set `{ jsx: true }` option to enable `jsx` support by default
   * necessary for Vue3: `@vitejs/plugin-vue`, `@vitejs/plugin-vue-jsx`
 * ✅ B05: imports that omit `.vue` extension is supported
-  * If the `resolve.extensions` is set to be `['.mjs','.js','.ts','.jsx','.tsx','.json ','.vue']`, in `vite.config.js`,
+  * ~~If the `resolve.extensions` is set to be `['.mjs','.js','.ts','.jsx','.tsx','.json ','.vue']`, in `vite.config.js`,
     then you may encounter errors like '[Problems caused by using alisaes and omitting file suffixes at the same time](https://github.com/vitejs/vite/issues/3532)'.
-    We use a patch to fix this issue, in case of vite didn't accept relate PR
+    We use a patch to fix this issue, in case of vite didn't accept relate PR~~
+    fixed since vite released version `^2.5.0`
 * ✅ B06: `sass` is supported
   * if `node-sass` is used in dependency, then we'll convert it to `sass` to dependencies
 * ✅ B07: `postcss 8` is supported
