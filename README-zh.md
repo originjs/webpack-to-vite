@@ -65,9 +65,10 @@ webpack-to-vite -d <project path>
   * Vue2 项目需要的插件：`vite-plugin-vue2`，默认通过 `{ jsx: true }` 选项启用 `jsx` 支持
   * Vue3 项目需要的插件：`@vitejs/plugin-vue`, `@vitejs/plugin-vue-jsx`
 * ✅ B05: 支持省略 `.vue` 扩展名的导入
-  * 在 `vite.config.js` 中，设置 `resolve.extensions` 配置项为 `['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.vue']`，
+  * ~~在 `vite.config.js` 中，设置 `resolve.extensions` 配置项为 `['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.vue']`，
     然后您可能会遇到 "[Problems caused by using alisaes and omitting file suffixes at the same time](https://github.com/vitejs/vite/issues/3532)" 这样的问题，
-    我们使用补丁来解决这个问题，在 vite 接受相关 PR 之前
+    我们使用补丁来解决这个问题，在 vite 接受相关 PR 之前~~
+    自从 vite 发布 `^2.5.0` 版本后已修复
 * ✅ B06: sass 支持
   * 如果项目使用到 `node-sass` 依赖，则转换为 `sass` 依赖
 * ✅ B07: postcss 8 支持

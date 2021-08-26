@@ -7,8 +7,7 @@
     "webpack-to-vite": "dist/bin/index.js"
   },
   "files": [
-    "dist",
-    "patches"
+    "dist"
   ],
   "scripts": {
     "prebuild": "del-cli dist/",
@@ -51,11 +50,10 @@
     "eslint-plugin-promise": "^5.1.0",
     "jest": "^27.0.4",
     "lint-staged": "^11.0.0",
-    "postinstall-postinstall": "^2.1.0",
     "prettier": "^2.3.1",
     "ts-jest": "^27.0.3",
     "typescript": "^4.3.2",
-    "vite": "2.4.4",
+    "vite": "^2.5.1",
     "vite-plugin-env-compatible": "^1.0.0",
     "vite-plugin-vue2": "^1.6.2",
     "vue-loader": "^15.9.7",
@@ -70,7 +68,6 @@
     "ejs": "^3.1.6",
     "globby": "^11.0.3",
     "jscodeshift": "^0.12.0",
-    "patch-package": "^6.4.7",
     "semver": "^7.3.5",
     "table": "^6.7.1",
     "vue-eslint-parser": "^7.6.0",

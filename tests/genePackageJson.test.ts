@@ -29,12 +29,10 @@ describe('genePackageJson', () => {
             'vite': expect.any(String),
             'sass': expect.any(String),
             'postcss': expect.any(String),
-            'patch-package': expect.any(String),
         }))
         expect(packageJsonContent.scripts).toMatchObject(expect.objectContaining({
             'serve-vite': 'vite',
             'build-vite': 'vite build',
-            'postinstall': 'patch-package',
         }))
     });
 
