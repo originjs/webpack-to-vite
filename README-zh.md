@@ -15,21 +15,31 @@ npm install @originjs/webpack-to-vite -g
 ```
 webpack-to-vite -d <project path>
 ```
+> 注意：默认转换的是 vue-cli 项目。 传入 `-t webpack` 选项来转换 webpack 项目。
 
-## 演示项目
+## 选项
+该命令行工具提供以下选项：
+```
+$ webpack-to-vite --help
+  
+Usage: webpack-to-vite [options]
+
+Options:
+  -v, --version            显示版本号
+  -d --rootDir <path>      要转换的项目目录
+  -t --projectType <type>  项目类型，传入 vue-cli 或 webpack（默认：vue-cli）
+  -e --entry <type>        整个构建过程的入口，webpack 或 vite 会从那些入口文件开始构建，如果没有指定入口文件，则默认使用 src/main.ts 或 src/main.js
+  -h, --help               显示命令帮助
+```
+
+## 成功转换的项目
 
 以下是使用工具成功从 webpack 项目转换为 vite 项目的项目列表
 
+### demos
 - [helloworld-vue2](https://github.com/originjs/webpack-to-vite-demos/tree/main/helloworld-vue2)
 - [helloworld-vue3](https://github.com/originjs/webpack-to-vite-demos/tree/main/helloworld-vue3)
 - [helloworld-webpack](https://github.com/originjs/webpack-to-vite-demos/tree/main/helloworld-webpack)
-- [vue-manage-system-vite](https://github.com/originjs/webpack-to-vite-demos/tree/main/vue-manage-system-vite)
-- [newbee-mall-vue3-app-vite](https://github.com/originjs/webpack-to-vite-demos/tree/main/newbee-mall-vue3-app-vite)
-- [vue-realworld-example-app-vite](https://github.com/originjs/webpack-to-vite-demos/tree/main/vue-realworld-example-app-vite)
-- [vue-uploader-vite](https://github.com/originjs/webpack-to-vite-demos/tree/main/vue-uploader-vite)
-- [douban-vite](https://github.com/originjs/webpack-to-vite-demos/tree/main/douban-vite)
-
-## 成功转换的项目
 
 ### vue-cli
 - [vue-manage-system](https://github.com/lin-xin/vue-manage-system) -> [vue-manage-system-vite](https://github.com/originjs/webpack-to-vite-demos/tree/main/vue-manage-system-vite)

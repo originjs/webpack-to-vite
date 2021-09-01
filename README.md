@@ -15,21 +15,31 @@ npm install @originjs/webpack-to-vite -g
 ```
 webpack-to-vite -d <project path>
 ```
+> Note: the default conversion is vue-cli project. Pass in the `-t webpack` option to convert a webpack project.
 
-## Demos
+## Options
+The CLI provides the following options:
+```
+$ webpack-to-vite --help
+  
+Usage: webpack-to-vite [options]
+
+Options:
+  -v, --version            display version number
+  -d --rootDir <path>      the directory of project to be converted
+  -t --projectType <type>  the type of the project, use vue-cli or webpack (default: vue-cli)
+  -e --entry <type>        entrance of the entire build process, webpack or vite will start from those entry files to build, if no entry file is specified, src/main.ts or src/main.js will be used as default
+  -h, --help               display help for command
+```
+
+## Awesome projects successfully converted
 
 The following is a list of projects that successfully converted from a webpack project to a vite project using the tool
 
+### demos
 - [helloworld-vue2](https://github.com/originjs/webpack-to-vite-demos/tree/main/helloworld-vue2)
 - [helloworld-vue3](https://github.com/originjs/webpack-to-vite-demos/tree/main/helloworld-vue3)
 - [helloworld-webpack](https://github.com/originjs/webpack-to-vite-demos/tree/main/helloworld-webpack)
-- [vue-manage-system-vite](https://github.com/originjs/webpack-to-vite-demos/tree/main/vue-manage-system-vite)
-- [newbee-mall-vue3-app-vite](https://github.com/originjs/webpack-to-vite-demos/tree/main/newbee-mall-vue3-app-vite)
-- [vue-realworld-example-app-vite](https://github.com/originjs/webpack-to-vite-demos/tree/main/vue-realworld-example-app-vite)
-- [vue-uploader-vite](https://github.com/originjs/webpack-to-vite-demos/tree/main/vue-uploader-vite)
-- [douban-vite](https://github.com/originjs/webpack-to-vite-demos/tree/main/douban-vite)
-
-## Awesome projects successfully converted
 
 ### vue-cli
 - [vue-manage-system](https://github.com/lin-xin/vue-manage-system) -> [vue-manage-system-vite](https://github.com/originjs/webpack-to-vite-demos/tree/main/vue-manage-system-vite)
