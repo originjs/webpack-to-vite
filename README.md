@@ -3,7 +3,8 @@ English | [简体中文](./README-zh.md)
 [![Test](https://github.com/originjs/webpack-to-vite/actions/workflows/test.yml/badge.svg)](https://github.com/originjs/webpack-to-vite/actions/workflows/test.yml/) [<img src="https://img.shields.io/npm/v/@originjs/webpack-to-vite" alt="npm" />](https://www.npmjs.com/package/@originjs/webpack-to-vite)
 
 # Webpack to Vite
-convert a webpack project to a vite project
+convert a webpack project to a vite project.<br/>
+It has been offically included, [detail](https://github.com/vitejs/awesome-vite#migrations)
 
 ## Quick Start
 
