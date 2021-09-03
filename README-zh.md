@@ -2,8 +2,9 @@
 
 [![Test](https://github.com/originjs/webpack-to-vite/actions/workflows/test.yml/badge.svg)](https://github.com/originjs/webpack-to-vite/actions/workflows/test.yml/) [<img src="https://img.shields.io/npm/v/@originjs/webpack-to-vite" alt="npm" />](https://www.npmjs.com/package/@originjs/webpack-to-vite)
 
-## webpack-to-vite
-将 webpack 项目转换为 vite 项目
+# Webpack to Vite
+将 webpack 项目转换为 vite 项目。<br/>
+webpack-to-vite 已被官方收录，[详情](https://github.com/vitejs/awesome-vite#migrations)
 
 ## 快速开始
 
