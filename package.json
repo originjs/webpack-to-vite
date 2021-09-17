@@ -26,8 +26,8 @@
     "webpack",
     "vue-cli"
   ],
-  "author": "ygj6",
-  "license": "ISC",
+  "author": "@originjs",
+  "license": "MulanPSL2",
   "bugs": {
     "url": "https://github.com/originjs/webpack-to-vite/issues"
   },
