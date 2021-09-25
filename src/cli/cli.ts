@@ -79,7 +79,7 @@ export async function start (config: Config): Promise<void> {
     console.log()
   } catch (e) {
     cliInstance.stop()
-    console.log(e.message)
+    console.log(e)
     if (e.code === 'MODULE_NOT_FOUND') {
       console.log()
       console.log('Conversion failed. Make sure you have installed the dependencies in your project.')
