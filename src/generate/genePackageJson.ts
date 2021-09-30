@@ -69,8 +69,8 @@ export function genePackageJson (packageJsonPath: string, astParsingResult?: Ast
 
 export function getGreaterVersion (versionA: string, versionB: string): string {
   // only compare minimal version because it is hard to compare semantic version
-  const minVersionA = minVersion(versionA || '0.0.1').version
-  const minVersionB = minVersion(versionB || '0.0.1').version
+  const minVersionA = minVersion(versionA || '').version
+  const minVersionB = minVersion(versionB || '').version
   return gt(minVersionA, minVersionB) ? versionA : versionB
 }
 
