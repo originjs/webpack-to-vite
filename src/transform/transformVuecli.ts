@@ -167,19 +167,19 @@ export class VueCliTransformer implements Transformer {
       });
       if (preProcessor === 'less') {
         if (config?.css?.preprocessorOptions?.less?.additionalData) {
-          additionalData += config?.css?.preprocessorOptions?.less?.additionalData
+          additionalData += config.css.preprocessorOptions.less.additionalData
+          config.css.preprocessorOptions.less.additionalData = additionalData;
         }
-        config.css.preprocessorOptions.less.additionalData = additionalData;
       } else if (preProcessor === 'scss') {
         if (config?.css?.preprocessorOptions?.scss?.additionalData) {
-          additionalData += config?.css?.preprocessorOptions?.scss?.additionalData
+          additionalData += config.css.preprocessorOptions.scss.additionalData
+          config.css.preprocessorOptions.scss.additionalData = additionalData;
         }
-        config.css.preprocessorOptions.scss.additionalData = additionalData;
       } else if (preProcessor === 'styl') {
         if (config?.css?.preprocessorOptions?.styl?.additionalData) {
-          additionalData += config?.css?.preprocessorOptions?.styl?.additionalData
+          additionalData += config.css.preprocessorOptions.styl.additionalData
+          config.css.preprocessorOptions.styl.additionalData = additionalData;
         }
-        config.css.preprocessorOptions.styl.additionalData = additionalData;
       }
     }
 }
