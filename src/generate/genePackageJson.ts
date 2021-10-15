@@ -54,6 +54,7 @@ export function genePackageJson (packageJsonPath: string, astParsingResult?: Ast
   // add vite dev script
   packageJson.scripts['serve-vite'] = 'vite'
   packageJson.scripts['build-vite'] = 'vite build'
+  packageJson.scripts['preview-vite'] = 'vite preview'
 
   let result = processDependencies(originPackageJson.dependencies, packageJson.dependencies, packageJson.devDependencies)
   packageJson.dependencies = result.targetDependencies

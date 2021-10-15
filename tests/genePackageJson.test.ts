@@ -33,6 +33,7 @@ describe('genePackageJson', () => {
         expect(packageJsonContent.scripts).toMatchObject(expect.objectContaining({
             'serve-vite': 'vite',
             'build-vite': 'vite build',
+            'preview-vite': 'vite preview',
         }))
     });
 
