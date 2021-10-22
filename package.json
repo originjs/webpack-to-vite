@@ -1,6 +1,6 @@
 {
   "name": "@originjs/webpack-to-vite",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "convert a webpack project to a vite project",
   "main": "dist/bin/index.js",
   "bin": {
@@ -10,6 +10,7 @@
     "dist"
   ],
   "scripts": {
+    "dev": "tsc -w -p tsconfig.json",
     "prebuild": "del-cli dist/",
     "build": "tsc -p tsconfig.json",
     "postbuild": "cpy \"template/*\" ../dist/src --cwd=src/ --no-overwrite --parents",
@@ -41,7 +42,7 @@
     "@types/webpack": "4.41.26",
     "@typescript-eslint/eslint-plugin": "^4.27.0",
     "@typescript-eslint/parser": "^4.27.0",
-    "cpy-cli": "^2.0.0",
+    "cpy-cli": "^3.1.1",
     "del-cli": "^3.0.0",
     "eslint": "^7.28.0",
     "eslint-config-standard": "^16.0.3",
@@ -57,7 +58,7 @@
     "vite-plugin-env-compatible": "^1.0.0",
     "vite-plugin-vue2": "^1.6.2",
     "vue-loader": "^15.9.7",
-    "webpack": "4.46.0",
+    "webpack": "^5.59.1",
     "yorkie": "^2.0.0"
   },
   "dependencies": {

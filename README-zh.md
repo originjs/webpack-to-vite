@@ -8,13 +8,14 @@ webpack-to-vite 已被官方收录，[详情](https://github.com/vitejs/awesome-
 
 ## 快速开始
 
-1. 下载
+直接通过 npx 使用:
 ```
-npm install @originjs/webpack-to-vite -g
+$ npx @originjs/webpack-to-vite <project path>
 ```
-2. 转换
+...或者全局安装使用:
 ```
-webpack-to-vite -d <project path>
+$ npm install @originjs/webpack-to-vite -g
+$ webpack-to-vite <project path>
 ```
 > 注意：默认转换的是 vue-cli 项目。 传入 `-t webpack` 选项来转换 webpack 项目。
 
@@ -23,7 +24,7 @@ webpack-to-vite -d <project path>
 ```
 $ webpack-to-vite --help
   
-Usage: webpack-to-vite [options]
+Usage: webpack-to-vite [options] [root]
 
 Options:
   -v, --version            显示版本号

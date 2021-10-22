@@ -23,22 +23,22 @@ export function run (): void {
   const program = new Command()
   const version = require('../../../package.json').version
   program
+    .arguments('[root]')
     .version(version, '-v, --version', 'display version number')
     .option('-d --rootDir <path>', 'the directory of project to be converted')
     .option('-t --projectType <type>', 'the type of the project, use vue-cli or webpack (default: vue-cli)')
     .option('-e --entry <type>', 'entrance of the entire build process, webpack or vite will start from ' +
             'those entry files to build, if no entry file is specified, src/main.ts or src/main.js will be ' +
             'used as default')
+    .action((root, options) => {
+      const config: Config = {
+        rootDir: options.rootDir || root,
+        projectType: options.projectType,
+        entry: options.entry
+      }
+      start(config)
+    })
     .parse(process.argv)
-
-  const keys = ['rootDir', 'projectType', 'entry']
-  const config: Config = {}
-  keys.forEach(function (k) {
-    if (Object.prototype.hasOwnProperty.call(program.opts(), k)) {
-      config[k] = program.opts()[k]
-    }
-  })
-  start(config)
 }
 
 export async function start (config: Config): Promise<void> {

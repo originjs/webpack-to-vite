@@ -8,13 +8,14 @@ It has been offically included, [detail](https://github.com/vitejs/awesome-vite#
 
 ## Quick Start
 
-1. download
+Use it directly with npx:
 ```
-npm install @originjs/webpack-to-vite -g
+$ npx @originjs/webpack-to-vite <project path>
 ```
-2. convert
+...or install it globally:
 ```
-webpack-to-vite -d <project path>
+$ npm install @originjs/webpack-to-vite -g
+$ webpack-to-vite <project path>
 ```
 > Note: the default conversion is vue-cli project. Pass in the `-t webpack` option to convert a webpack project.
 
@@ -23,7 +24,7 @@ The CLI provides the following options:
 ```
 $ webpack-to-vite --help
   
-Usage: webpack-to-vite [options]
+Usage: webpack-to-vite [options] [root]
 
 Options:
   -v, --version            display version number
