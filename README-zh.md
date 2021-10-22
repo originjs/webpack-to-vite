@@ -219,6 +219,60 @@ Options:
 * ⚠️ O01: 使用 CommonJS 规范语法，例如 `require('./')`
   * 添加 vite 插件 `@originjs/vite-plugin-commonjs` ，参阅[这里](https://github.com/originjs/vite-plugins/tree/main/packages/vite-plugin-commonjs)
   * 请注意该插件只支持部分 CommonJS 规范语法，这意味着一些语法是不支持的，您需要手动转换为 ES Modules 规范语法
+  * 使用 Vite 的 API `import.meta.glob` 来转换动态 require(例如：`require('@assets/images/' + options.src)`)，你可以参考以下步骤
+  1. 创建一个模型保存已导入的模块,使用异步方法动态地导入模块并更新到模型中
+  ```js
+  // src/store/index.js
+  import Vue from 'vue'
+  import Vuex from 'vuex'
+  const assets = import.meta.glob('../assets/**')
+  Vue.use(Vuex)
+  export default new Vuex.Store({
+    state: {
+      assets: {}
+    },
+    mutations: {
+      setAssets(state, data) {
+        state.assets = Object.assign({}, state.assets, data)
+      }
+    },
+    actions: {
+      async getAssets({ commit }, url) {
+        const getAsset = assets[url]
+        if (!getAsset) {
+          commit('setAssets', { [url]: ''})
+        } else {
+          const asset = await getAsset()
+          commit('setAssets', { [url]: asset.default })
+        }
+      }
+    }
+  })
+  ```
+  2. 在 `.vue` 单文件组件中使用
+  ```js
+  // img1.vue
+  <template>
+    <img :src="$store.state.assets['../assets/images/' + options.src]" />
+  </template>
+  <script>
+  export default {
+    name: "img1",
+    props: {
+      options: Object
+    },
+    watch: {
+      'options.src': {
+        handler (val) {
+          this.$store.dispatch('getAssets', `../assets/images/${val}`)
+        },
+        immediate: true,
+        deep: true
+      }
+    }
+  }
+  </script>
+  ```
 * ❌ O02: 对于 `Element-UI` ，参阅[这里](https://github.com/vitejs/vite/issues/3370)
 
   ```
@@ -294,3 +348,6 @@ Options:
   ```javascript
   () => import('./components/views/test.vue')
   ```
+* ⚠️ O09：如果您遇到构建错误 `[rollup-plugin-dynamic-import-variables] Unexpected token`，则需要删除 `<img>` 标签中的空属性 `srcset` 或 `srcset=""`
+* ⚠️ O10: Vite 无法解析一些静态资源，如`.PNG`，你可以把它放在 `assetsInclude` 选项中，比如 `assetsInclude: ['**.PNG']`
+* ⚠️ O11：支持 `.md` markdown 文件作为 vue 组件，需要添加 [`vite-plugin-md`](https://github.com/antfu/vite-plugin-md) 插件

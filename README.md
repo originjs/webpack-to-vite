@@ -209,6 +209,60 @@ Legend of annotations:
 * ⚠️ O01: for CommonJS syntax, e.g. `require('./')`
   * you can use vite plugin `@originjs/vite-plugin-commonjs`, see also [here](https://github.com/originjs/vite-plugins/tree/main/packages/vite-plugin-commonjs).
     Please note that the plugin only supports part of CommonJS syntax. That means some syntax is not supported. You need to covert them to ES Modules syntax manually
+  * use Vite's API `import.meta.glob` to convert dynamic require(e.g. `require('@assets/images/' + options.src)`), you can refer to the following steps
+  1. create a Model to save the imported modules, use async methods to dynamically import the modules and update them to the Model
+  ```js
+  // src/store/index.js
+  import Vue from 'vue'
+  import Vuex from 'vuex'
+  const assets = import.meta.glob('../assets/**')
+  Vue.use(Vuex)
+  export default new Vuex.Store({
+    state: {
+      assets: {}
+    },
+    mutations: {
+      setAssets(state, data) {
+        state.assets = Object.assign({}, state.assets, data)
+      }
+    },
+    actions: {
+      async getAssets({ commit }, url) {
+        const getAsset = assets[url]
+        if (!getAsset) {
+          commit('setAssets', { [url]: ''})
+        } else {
+          const asset = await getAsset()
+          commit('setAssets', { [url]: asset.default })
+        }
+      }
+    }
+  })
+  ```
+  2. use in `.vue` SFC
+  ```js
+  // img1.vue
+  <template>
+    <img :src="$store.state.assets['../assets/images/' + options.src]" />
+  </template>
+  <script>
+  export default {
+    name: "img1",
+    props: {
+      options: Object
+    },
+    watch: {
+      'options.src': {
+        handler (val) {
+          this.$store.dispatch('getAssets', `../assets/images/${val}`)
+        },
+        immediate: true,
+        deep: true
+      }
+    }
+  }
+  </script>
+  ```
 * ❌ O02: for `Element-UI`, see also [here](https://github.com/vitejs/vite/issues/3370)
   ```
    [vite] Uncaught TypeError: Cannot read property '$isServer' of undefined
@@ -280,3 +334,6 @@ Legend of annotations:
   ```javascript
   () => import('./components/views/test.vue')
   ```
+* ⚠️ O09: if you encountered build error `[rollup-plugin-dynamic-import-variables] Unexpected token`, you need to remove empty attr `srcset` or `srcset=""` in `<img>` label.
+* ⚠️ O10: Vite can't resolve some static asset, e.g. `.PNG`, you can put it in `assetsInclude` option like `assetsInclude: ['**.PNG']`
+* ⚠️ O11: support `.md` markdown file as vue component, you need to add [`vite-plugin-md`](https://github.com/antfu/vite-plugin-md) plugin.
