@@ -35,7 +35,7 @@ export function removeSync (filePath: string): void {
 }
 
 export function pathFormat (filePath: string): string {
-  return filePath.replace(/\\/g, '/')
+  return filePath.replace(/\\(\\)?/g, '/')
 }
 
 export function relativePathFormat (rootDir: string, filePath: string): string {

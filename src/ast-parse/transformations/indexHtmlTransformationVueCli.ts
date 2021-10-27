@@ -6,6 +6,7 @@ import * as parser from 'vue-eslint-parser'
 import { Node } from 'vue-eslint-parser/ast/nodes'
 import { stringSplice } from '../../utils/common'
 import { recordConver } from '../../utils/report'
+import { pathFormat } from '../../utils/file'
 import path from 'path'
 import fs from 'fs'
 
@@ -30,7 +31,7 @@ export const astTransform:ASTTransformation = async (fileInfo: FileInfo, transfo
   } else {
     indexPath = null
   }
-  if (!indexPath || !fileInfo.path.endsWith(indexPath)) {
+  if (!indexPath || !pathFormat(fileInfo.path).endsWith(pathFormat(indexPath))) {
     return null
   }
 
