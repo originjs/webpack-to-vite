@@ -219,7 +219,22 @@ Options:
 * ⚠️ O01: 使用 CommonJS 规范语法，例如 `require('./')`
   * 添加 vite 插件 `@originjs/vite-plugin-commonjs` ，参阅[这里](https://github.com/originjs/vite-plugins/tree/main/packages/vite-plugin-commonjs)
   * 请注意该插件只支持部分 CommonJS 规范语法，这意味着一些语法是不支持的，您需要手动转换为 ES Modules 规范语法
-  * 使用 Vite 的 API `import.meta.glob` 来转换动态 require(例如：`require('@assets/images/' + options.src)`)，你可以参考以下步骤
+  * 转换动态 require(例如：`require('@assets/images/' + options.src)`)，你可以参考以下步骤
+  1. 使用 Web API `new URL`
+  ```vue
+  <template>
+  <img alt="" :src="imgSrc" />
+  </template>
+  <script>
+  export default {
+  name: 'img',
+  data: () => ({
+    imgSrc: new URL('./assets/logo.png', import.meta.url).href
+  })
+  }
+  </script>
+  ```
+  ...或使用 Vite 的 API `import.meta.glob`
   1. 创建一个模型保存已导入的模块,使用异步方法动态地导入模块并更新到模型中
   ```js
   // src/store/index.js

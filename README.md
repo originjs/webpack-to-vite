@@ -209,7 +209,22 @@ Legend of annotations:
 * ⚠️ O01: for CommonJS syntax, e.g. `require('./')`
   * you can use vite plugin `@originjs/vite-plugin-commonjs`, see also [here](https://github.com/originjs/vite-plugins/tree/main/packages/vite-plugin-commonjs).
     Please note that the plugin only supports part of CommonJS syntax. That means some syntax is not supported. You need to covert them to ES Modules syntax manually
-  * use Vite's API `import.meta.glob` to convert dynamic require(e.g. `require('@assets/images/' + options.src)`), you can refer to the following steps
+  * convert dynamic require(e.g. `require('@assets/images/' + options.src)`), you can refer to the following steps
+  1. use Web API `new URL`
+  ```vue
+  <template>
+  <img alt="" :src="imgSrc" />
+  </template>
+  <script>
+  export default {
+  name: 'img',
+  data: () => ({
+    imgSrc: new URL('./assets/logo.png', import.meta.url).href
+  })
+  }
+  </script>
+  ```
+  ...or use Vite's API `import.meta.glob`
   1. create a Model to save the imported modules, use async methods to dynamically import the modules and update them to the Model
   ```js
   // src/store/index.js
