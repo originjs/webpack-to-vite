@@ -23,6 +23,7 @@ export function run (): void {
   const program = new Command()
   const version = require('../../../package.json').version
   program
+    .name('webpack-to-vite')
     .arguments('[root]')
     .version(version, '-v, --version', 'display version number')
     .option('-d --rootDir <path>', 'the directory of project to be converted')
