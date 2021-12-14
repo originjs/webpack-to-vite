@@ -44,7 +44,7 @@ describe('parseWebpackConfig', () => {
   })
 
   test('parse webpack/custom.conf.js', async () => {
-    const configPath: string = path.resolve('tests/out-parse/custom.conf.js');
+    const configPath: string = path.resolve('tests/out-parse/custom/custom.conf.js');
     const webpackConfig: WebpackConfig = await parseWebpackConfig(configPath)
     expect(webpackConfig).toEqual({});
   })
