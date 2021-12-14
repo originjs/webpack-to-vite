@@ -82,15 +82,29 @@ export class VueCliTransformer implements Transformer {
       // alias
       const chainableConfig = new Config()
       if (vueConfig.chainWebpack) {
-        vueConfig.chainWebpack(chainableConfig)
+        try {
+          vueConfig.chainWebpack(chainableConfig)
+        } catch (e) {
+          console.error('\nTransforming chainWebpack config failed. Please manually convert it.')
+          console.error(e)
+          console.log('skip transforming the chainWebpack...')
+        }
       }
       const aliasOfChainWebpack = chainableConfig.resolve.alias.entries()
       const aliasOfConfigureWebpackObjectMode =
             vueConfig?.configureWebpack?.resolve?.alias || {}
       const aliasOfConfigureFunctionMode = (() => {
         if (typeof vueConfig.configureWebpack === 'function') {
-          let originConfig = chainableConfig.toConfig()
-          const res = vueConfig.configureWebpack(originConfig)
+          let originConfig
+          let res
+          try {
+            originConfig = chainableConfig.toConfig()
+            res = vueConfig.configureWebpack(originConfig)
+          } catch (e) {
+            console.error('\nTransforming configureWebpack config failed. Please manually convert it.')
+            console.error(e)
+            console.log('skip transforming the configureWebpack...')
+          }
           originConfig = merge(originConfig, res)
           if (res) {
             return res.resolve.alias || {}
