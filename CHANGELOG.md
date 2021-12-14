@@ -1,3 +1,12 @@
+## [1.0.5](https://github.com/originjs/webpack-to-vite/compare/v1.0.4...v1.0.5) (2021-12-14)
+
+
+### Bug Fixes
+
+* further resolve webpackConfig ([fb30f98](https://github.com/originjs/webpack-to-vite/commit/fb30f9854d92e5c536dbe0d50b6b0608e95f7ac8))
+
+
+
 ## [1.0.4](https://github.com/originjs/webpack-to-vite/compare/v1.0.3...v1.0.4) (2021-12-14)
 
 
