@@ -1,3 +1,12 @@
+## [1.0.3](https://github.com/originjs/webpack-to-vite/compare/v1.0.2...v1.0.3) (2021-12-14)
+
+
+### Bug Fixes
+
+* friendly error message ([aafe76e](https://github.com/originjs/webpack-to-vite/commit/aafe76e246339f08b5f06393a8f5b2655a103f57))
+
+
+
 ## [1.0.2](https://github.com/originjs/webpack-to-vite/compare/v1.0.1...v1.0.2) (2021-12-13)
 
 
