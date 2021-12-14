@@ -14,6 +14,7 @@ export async function parseWebpackConfig (
       await import(configPath).then((config) => {
         webpackConfig = config
       })
+      return webpackConfig
     } catch (e) {
       if (e.message.includes(configPath)) {
         console.error(`\nFailed to parse webpack config from default file path: ${configPath}.`)
@@ -21,7 +22,6 @@ export async function parseWebpackConfig (
         throw e
       }
     }
-    return webpackConfig
   }
   // if webpack.config.js not exists in ${__dirname}/webpack.config.js, scan folder ${__dirname}/build/
   const dir = path.dirname(configPath)
