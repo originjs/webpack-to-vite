@@ -16,7 +16,7 @@
     "postbuild": "cpy \"template/*\" ../dist/src --cwd=src/ --no-overwrite --parents",
     "test": "jest",
     "test-c": "jest --coverage",
-    "lint": "eslint --ext .js,.ts src/"
+    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s"
   },
   "repository": {
     "type": "git",
@@ -59,7 +59,8 @@
     "vite-plugin-vue2": "^1.6.2",
     "vue-loader": "^15.9.7",
     "webpack": "^5.59.1",
-    "yorkie": "^2.0.0"
+    "yorkie": "^2.0.0",
+    "conventional-changelog-cli": "^2.1.1"
   },
   "dependencies": {
     "@originjs/vue-sfc-ast-parser": "^1.0.1",
