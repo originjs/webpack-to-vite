@@ -86,7 +86,20 @@ export async function astParseRoot (rootDir: string, config: Config): Promise<As
       }
 
       // execute the transformation
-      tempTransformationResult = await transformation.astTransform(fileInfo, transformationParams)
+      try {
+        tempTransformationResult = await transformation.astTransform(fileInfo, transformationParams)
+      } catch (e) {
+        if (extension === '.js') {
+          console.warn(
+            '\n\nFailed to parse source for import analysis because the content contains invalid JS syntax. ' +
+              'If you are using JSX, make sure to name the file with the .jsx or .tsx extension.'
+          )
+        }
+        console.error(`AST parsing and transformation file failed, filePath: ${filePath}\n`, e)
+        console.log('skip parsing the error file...')
+        continue
+      }
+
       if (tempTransformationResult == null) {
         continue
       }
@@ -114,7 +127,21 @@ export async function astParseRoot (rootDir: string, config: Config): Promise<As
       }
 
       // parse the file
-      const parsingResult: ParsingResultOccurrence[] | null = parser.astParse(fileInfo)
+      let parsingResult: ParsingResultOccurrence[] | null
+      try {
+        parsingResult = parser.astParse(fileInfo)
+      } catch (e) {
+        if (extension === '.js') {
+          console.warn(
+            '\nFailed to parse source for import analysis because the content contains invalid JS syntax. ' +
+              'If you are using JSX, make sure to name the file with the .jsx or .tsx extension.'
+          )
+        }
+        console.error(`AST parsing file failed, filePath: ${filePath}\n`, e)
+        console.log('skip parsing the error file...')
+        continue
+      }
+
       if (!parsingResult) {
         continue
       }
