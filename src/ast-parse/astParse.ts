@@ -91,7 +91,7 @@ export async function astParseRoot (rootDir: string, config: Config): Promise<As
       } catch (e) {
         if (extension === '.js') {
           console.warn(
-            '\n\nFailed to parse source for import analysis because the content contains invalid JS syntax. ' +
+            '\n\nFailed to parse .js file because the content contains invalid JS syntax. ' +
               'If you are using JSX, make sure to name the file with the .jsx or .tsx extension.'
           )
         }
@@ -133,7 +133,7 @@ export async function astParseRoot (rootDir: string, config: Config): Promise<As
       } catch (e) {
         if (extension === '.js') {
           console.warn(
-            '\nFailed to parse source for import analysis because the content contains invalid JS syntax. ' +
+            '\nFailed to parse .js file because the content contains invalid JS syntax. ' +
               'If you are using JSX, make sure to name the file with the .jsx or .tsx extension.'
           )
         }
