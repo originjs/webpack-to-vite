@@ -28,10 +28,24 @@ function recordConver (args: ConverObj) {
   })
 }
 
+function _sortByNum (reportList: ConverObj[] = []) {
+  reportList.sort((current, next) => {
+    // same char, then sort by after-number
+    if (current.num[0] === next.num[0]) {
+      return +current.num.substring(1) - +next.num.substring(1)
+    }
+    // sort by first char
+    return current.num.charCodeAt(0) - next.num.charCodeAt(0)
+  })
+}
+
 function printReport (dir: string, beginTime: number) {
   cliInstance.update(cliInstance.total, { doSomething: 'All done!' });
   cliInstance.stop()
   console.log('conversion items successful converted:')
+
+  _sortByNum(reportList)
+
   reportList.forEach(item => {
     tabDt.push([item.num, item.feat, item.times?.toString()])
   })
@@ -58,4 +72,4 @@ function printReport (dir: string, beginTime: number) {
   logger.log(tableStr)
   console.log(chalk.green(`The report output path is ${dir}conversion.log`));
 }
-export { recordConver, printReport }
+export { recordConver, printReport, _sortByNum }
