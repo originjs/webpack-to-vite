@@ -33,8 +33,8 @@ test('sort report by item.num', () => {
   }
   // test 1, normal
   const reportList: ConverObj[] = []
-  const test1_nums =  ["V06","B01","B04","V01"];
-  const test1_sort = ["B01","B04","V01","V06"];
+  const nums1 =  ["V06","B01","B04","V01"];
+  const result1 = ["B01","B04","V01","V06"];
   test1_nums.forEach((num) =>{
     reportList.push({
       num,
