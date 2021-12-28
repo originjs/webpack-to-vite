@@ -44,7 +44,7 @@ function printReport (dir: string, beginTime: number) {
   cliInstance.stop()
   console.log('conversion items successful converted:')
 
-  _sortByNum(reportList)
+  sortByNum(reportList)
 
   reportList.forEach(item => {
     tabDt.push([item.num, item.feat, item.times?.toString()])
