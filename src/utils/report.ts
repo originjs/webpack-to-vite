@@ -32,7 +32,7 @@ function _sortByNum (reportList: ConverObj[] = []) {
   reportList.sort((current, next) => {
     // same char, then sort by after-number
     if (current.num[0] === next.num[0]) {
-      return +current.num.substring(1) - +next.num.substring(1)
+      return Number(current.num.substring(1)) - Number(next.num.substring(1))
     }
     // sort by first char
     return current.num.charCodeAt(0) - next.num.charCodeAt(0)
