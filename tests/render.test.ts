@@ -2,7 +2,7 @@ import path from "path";
 import {TemplateData} from "../src/config/config";
 import {render} from "../src/generate/render";
 import {readSync} from "../src/utils/file";
-import { _sortByNum } from "../src/utils/report"
+import { sortByNum } from "../src/utils/report"
 import fs from "fs";
 
 test('render vite.config.js from template',  () => {
@@ -39,7 +39,7 @@ test('sort report by item.num', () => {
     num,
     feat: ''
   }))
-  _sortByNum(reportList)
+  sortByNum(reportList)
   expect(reportList.map(report => report.num)).toEqual(test1_sort)
 
   // test 2 empty
@@ -52,6 +52,6 @@ test('sort report by item.num', () => {
       feat: ''
     })
   })
-  _sortByNum(reportList2)
+  sortByNum(reportList2)
   expect(reportList2.map(report => report.num)).toEqual(test2_sort)
 })
