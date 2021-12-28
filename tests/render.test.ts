@@ -35,12 +35,10 @@ test('sort report by item.num', () => {
   const reportList: ConverObj[] = []
   const nums1 =  ["V06","B01","B04","V01"];
   const result1 = ["B01","B04","V01","V06"];
-  test1_nums.forEach((num) =>{
-    reportList.push({
-      num,
-      feat: ''
-    })
-  })
+  reportList = test1_nums.map(num => ({
+    num,
+    feat: ''
+  }))
   _sortByNum(reportList)
   expect(reportList.map(report => report.num)).toEqual(test1_sort)
 
