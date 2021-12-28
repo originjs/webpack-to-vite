@@ -28,7 +28,7 @@ function recordConver (args: ConverObj) {
   })
 }
 
-function _sortByNum (reportList: ConverObj[] = []) {
+function sortByNum (reportList: ConverObj[] = []) {
   reportList.sort((current, next) => {
     // same char, then sort by after-number
     if (current.num[0] === next.num[0]) {
