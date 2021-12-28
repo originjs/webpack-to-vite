@@ -72,4 +72,4 @@ function printReport (dir: string, beginTime: number) {
   logger.log(tableStr)
   console.log(chalk.green(`The report output path is ${dir}conversion.log`));
 }
-export { recordConver, printReport, _sortByNum }
+export { recordConver, printReport, sortByNum }
