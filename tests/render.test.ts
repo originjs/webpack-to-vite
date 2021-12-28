@@ -32,26 +32,24 @@ test('sort report by item.num', () => {
     times?: number;// 'Conversion times'
   }
   // test 1, normal
-  const reportList: ConverObj[] = []
+  let reportList: ConverObj[] = []
   const nums1 =  ["V06","B01","B04","V01"];
   const result1 = ["B01","B04","V01","V06"];
-  reportList = test1_nums.map(num => ({
+  reportList = nums1.map(num => ({
     num,
     feat: ''
   }))
   sortByNum(reportList)
-  expect(reportList.map(report => report.num)).toEqual(test1_sort)
+  expect(reportList.map(report => report.num)).toEqual(result1)
 
   // test 2 empty
-  const reportList2: ConverObj[] = []
-  const test2_nums =  [];
-  const test2_sort = [];
-  test2_nums.forEach((num) =>{
-    reportList2.push({
-      num,
-      feat: ''
-    })
-  })
+  let reportList2: ConverObj[] = []
+  const nums2 =  [];
+  const result2 = [];
+  reportList2 = nums2.map(num => ({
+    num,
+    feat: ''
+  }))
   sortByNum(reportList2)
-  expect(reportList2.map(report => report.num)).toEqual(test2_sort)
+  expect(reportList2.map(report => report.num)).toEqual(result2)
 })
