@@ -1,14 +1,15 @@
-import type { ASTTransformation } from './index';
-import { TransformationType } from './index';
-import { FileInfo, TransformationResult } from '../astParse';
-import getParser from 'jscodeshift/src/getParser';
-import jscodeshift from 'jscodeshift';
-import { JSCodeshift } from 'jscodeshift/src/core';
+import type { ASTTransformation, TransformationType } from './index'
+import { TRANSFORMATION_TYPES } from '../../constants/constants'
+import type { FileInfo, TransformationResult } from '../astParse'
+import getParser from 'jscodeshift/src/getParser'
+import jscodeshift from 'jscodeshift'
+import type { JSCodeshift } from 'jscodeshift/src/core'
 
-export const astTransform:ASTTransformation = async (fileInfo: FileInfo) => {
-  const parser = getParser('string');
-  const jscodeshiftParser : JSCodeshift = jscodeshift.withParser(parser);
-  const scriptAST = jscodeshiftParser(fileInfo.source).find(jscodeshiftParser.ArrowFunctionExpression,
+export const astTransform: ASTTransformation = async (fileInfo: FileInfo) => {
+  const parser = getParser('string')
+  const jscodeshiftParser: JSCodeshift = jscodeshift.withParser(parser)
+  const scriptAST = jscodeshiftParser(fileInfo.source).find(
+    jscodeshiftParser.ArrowFunctionExpression,
     {
       params: [{ type: 'Identifier' }],
       body: {
@@ -26,31 +27,31 @@ export const astTransform:ASTTransformation = async (fileInfo: FileInfo) => {
         ]
       }
     }
-  );
-  scriptAST.find(jscodeshiftParser.Identifier).forEach(path => {
+  )
+  scriptAST.find(jscodeshiftParser.Identifier).forEach((path) => {
     if (path.node.name === 'require') {
       jscodeshiftParser(path).replaceWith(
         jscodeshiftParser.identifier('import')
-      );
+      )
     } else {
-      jscodeshiftParser(path).remove();
+      jscodeshiftParser(path).remove()
     }
-  });
-  scriptAST.find(jscodeshiftParser.ArrayExpression).forEach(path => {
+  })
+  scriptAST.find(jscodeshiftParser.ArrayExpression).forEach((path) => {
     jscodeshiftParser(path).replaceWith(
       // @ts-ignore
       jscodeshiftParser.literal(path.node.elements[0].value)
-    );
-  });
-  const transformedJs = scriptAST.toSource();
+    )
+  })
+  const transformedJs = scriptAST.toSource()
 
   const result: TransformationResult = {
     fileInfo: fileInfo,
     content: transformedJs,
-    type: TransformationType.lazyLoadingRoutesTransformation
+    type: TRANSFORMATION_TYPES.lazyLoadingRoutesTransformation
   }
 
-  return result;
+  return result
 }
 
 export const needReparse: boolean = false
@@ -59,4 +60,5 @@ export const needWriteToOriginFile: boolean = true
 
 export const extensions: string[] = ['.js']
 
-export const transformationType: TransformationType = TransformationType.lazyLoadingRoutesTransformation
+export const transformationType: TransformationType =
+  TRANSFORMATION_TYPES.lazyLoadingRoutesTransformation

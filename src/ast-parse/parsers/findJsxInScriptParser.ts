@@ -1,5 +1,10 @@
-import { ASTParse, ParserType } from './index';
-import { FileInfo, ParsingResultOccurrence, VueSFCContext } from '../astParse';
+import type { ASTParse, ParserType } from './index'
+import { PARSER_TYPES } from '../../constants/constants'
+import type {
+  FileInfo,
+  ParsingResultOccurrence,
+  VueSFCContext
+} from '../astParse'
 import { parseVueSfc } from '../../utils/astUtils'
 
 export const astParse: ASTParse = (fileInfo: FileInfo) => {
@@ -25,4 +30,4 @@ export const astParse: ASTParse = (fileInfo: FileInfo) => {
 
 export const extensions: string[] = ['.vue']
 
-export const parserType: ParserType = ParserType.FindJsxInScript
+export const parserType: ParserType = PARSER_TYPES.FindJsxInScript

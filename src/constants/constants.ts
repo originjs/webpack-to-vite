@@ -10,3 +10,17 @@ export const SASS_VERSION = '^1.45.0'
 export const VITE_PLUGIN_COMMONJS_VERSION = '^1.0.1'
 export const VITE_PLUGIN_REQUIRE_CONTEXT_VERSION = '1.0.9'
 export const POSTCSS_VERSION = '^8.4.5'
+
+export const TRANSFORMATION_TYPES = {
+  addJsxTransformation: 'addJsxTransformation',
+  removeHtmlLangInTemplateTransformation:
+    'removeHtmlLangInTemplateTransformation',
+  indexHtmlTransformationVueCli: 'indexHtmlTransformationVueCli',
+  indexHtmlTransformationWebpack: 'indexHtmlTransformationWebpack',
+  lazyLoadingRoutesTransformation: 'lazyLoadingRoutesTransformation'
+}
+
+export const PARSER_TYPES = {
+  FindJsxInScript: 'FindJsxInScript',
+  FindRequireContextParser: 'FindRequireContextParser'
+}

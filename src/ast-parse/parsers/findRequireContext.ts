@@ -1,8 +1,13 @@
-import { ASTParse, ParserType } from './index';
-import { FileInfo, ParsingResultOccurrence, VueSFCContext } from '../astParse';
-import { Node } from 'vue-eslint-parser/ast/nodes'
+import type { ASTParse, ParserType } from './index'
+import { PARSER_TYPES } from '../../constants/constants'
+import type {
+  FileInfo,
+  ParsingResultOccurrence,
+  VueSFCContext
+} from '../astParse'
+import type { Node } from 'vue-eslint-parser/ast/nodes'
 import * as parser from 'vue-eslint-parser'
-import { parseVueSfc, parseScriptSfc } from '../../utils/astUtils';
+import { parseVueSfc, parseScriptSfc } from '../../utils/astUtils'
 
 export const astParse: ASTParse = (fileInfo: FileInfo) => {
   let nodePaths: Node[]
@@ -28,12 +33,15 @@ export const astParse: ASTParse = (fileInfo: FileInfo) => {
 
   const results: ParsingResultOccurrence[] = []
 
-  nodePaths.forEach(root => {
+  nodePaths.forEach((root) => {
     parser.AST.traverseNodes(root, {
       enterNode (node: Node) {
         if (node.type === 'MemberExpression') {
-          const includeRequire: boolean = node.object.type === 'Identifier' && node.object.name === 'require'
-          const includeRequireContext: boolean = node.property.type === 'Identifier' && node.property.name === 'context'
+          const includeRequire: boolean =
+            node.object.type === 'Identifier' && node.object.name === 'require'
+          const includeRequireContext: boolean =
+            node.property.type === 'Identifier' &&
+            node.property.name === 'context'
           if (includeRequire && includeRequireContext) {
             const result: ParsingResultOccurrence = {
               fileInfo: fileInfo,
@@ -47,11 +55,11 @@ export const astParse: ASTParse = (fileInfo: FileInfo) => {
       },
       leaveNode () {}
     })
-  });
+  })
 
   return results
 }
 
 export const extensions: string[] = ['.js', '.ts', '.vue']
 
-export const parserType: ParserType = ParserType.FindRequireContextParser
+export const parserType: ParserType = PARSER_TYPES.FindRequireContextParser
