@@ -1,23 +1,21 @@
-import { FileInfo, ParsingResultOccurrence } from '../astParse'
+import type { FileInfo, ParsingResultOccurrence } from '../astParse'
+import * as FindJsxInScript from './findJsxInScriptParser'
+import * as FindRequireContextParser from './findRequireContext'
+import type { PARSER_TYPES } from '../../constants/constants'
 
 export type ASTParse<Params = void> = {
-    (fileInfo: FileInfo, params: Params): ParsingResultOccurrence[] | null
+  (fileInfo: FileInfo, params: Params): ParsingResultOccurrence[] | null
 }
 
-export enum ParserType {
-    // eslint-disable-next-line no-unused-vars
-    FindJsxInScript = 'FindJsxInScript',
-    // eslint-disable-next-line no-unused-vars
-    FindRequireContextParser = 'FindRequireContextParser'
-}
+export type ParserType = typeof PARSER_TYPES[keyof typeof PARSER_TYPES]
 
 export const parsersMap: {
-    [name: string]: {
-        astParse: ASTParse,
-        extensions: string[],
-        parserType: ParserType
-    }
+  [name: string]: {
+    astParse: ASTParse
+    extensions: string[]
+    parserType: ParserType
+  }
 } = {
-  FindJsxInScript: require('./findJsxInScriptParser'),
-  FindRequireContextParser: require('./findRequireContext')
+  FindJsxInScript,
+  FindRequireContextParser
 }

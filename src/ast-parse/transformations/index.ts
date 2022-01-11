@@ -1,34 +1,35 @@
-import { FileInfo, TransformationResult, TransformationParams } from '../astParse'
+import type {
+  FileInfo,
+  TransformationResult,
+  TransformationParams
+} from '../astParse'
+import type { TRANSFORMATION_TYPES } from '../../constants/constants'
+
+import * as addJsxTransformation from './addJsxTransformation'
+import * as removeHtmlLangInTemplateTransformation from './removeHtmlLangInTemplateTransformation'
+import * as indexHtmlTransformationVueCli from './indexHtmlTransformationVueCli'
+import * as indexHtmlTransformationWebpack from './indexHtmlTransformationWebpack'
+import * as lazyLoadingRoutesTransformation from './lazyLoadingRoutesTransformation'
 
 export type ASTTransformation<Params = TransformationParams> = {
-   (fileInfo: FileInfo, params: Params): Promise<TransformationResult> | null
+  (fileInfo: FileInfo, params: Params): Promise<TransformationResult> | null
 }
 
-export enum TransformationType {
-  // eslint-disable-next-line no-unused-vars
-  addJsxTransformation = 'addJsxTransformation',
-  // eslint-disable-next-line no-unused-vars
-  removeHtmlLangInTemplateTransformation = 'removeHtmlLangInTemplateTransformation',
-  // eslint-disable-next-line no-unused-vars
-  indexHtmlTransformationVueCli = 'indexHtmlTransformationVueCli',
-  // eslint-disable-next-line no-unused-vars
-  indexHtmlTransformationWebpack = 'indexHtmlTransformationWebpack',
-  // eslint-disable-next-line no-unused-vars
-  lazyLoadingRoutesTransformation = 'lazyLoadingRoutesTransformation'
-}
+export type TransformationType =
+  typeof TRANSFORMATION_TYPES[keyof typeof TRANSFORMATION_TYPES]
 
 export const transformationMap: {
   [name: string]: {
-    astTransform: ASTTransformation,
-    needReparse: boolean,
-    needWriteToOriginFile: boolean,
-    extensions: string[],
+    astTransform: ASTTransformation
+    needReparse: boolean
+    needWriteToOriginFile: boolean
+    extensions: string[]
     transformationType: TransformationType
   }
 } = {
-  addJsxTransformation: require('./addJsxTransformation'),
-  removeHtmlLangInTemplateTransformation: require('./removeHtmlLangInTemplateTransformation'),
-  indexHtmlTransformationVueCli: require('./indexHtmlTransformationVueCli'),
-  indexHtmlTransformationWebpack: require('./indexHtmlTransformationWebpack'),
-  lazyLoadingRoutesTransformation: require('./lazyLoadingRoutesTransformation')
+  addJsxTransformation,
+  removeHtmlLangInTemplateTransformation,
+  indexHtmlTransformationVueCli,
+  indexHtmlTransformationWebpack,
+  lazyLoadingRoutesTransformation
 }

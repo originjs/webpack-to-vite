@@ -1,31 +1,33 @@
-import { transformationMap, TransformationType } from './transformations'
-import { parsersMap, ParserType } from './parsers'
-import { SFCDescriptor } from '@originjs/vue-sfc-ast-parser'
+import type { TransformationType } from './transformations'
+import { transformationMap } from './transformations'
+import type { ParserType } from './parsers'
+import { parsersMap } from './parsers'
+import type { SFCDescriptor } from '@originjs/vue-sfc-ast-parser'
 import * as globby from 'globby'
-import { JSCodeshift } from 'jscodeshift/src/core'
-import { ESLintProgram } from 'vue-eslint-parser/ast'
-import { Config } from '../config/config'
+import type { JSCodeshift } from 'jscodeshift/src/core'
+import type { ESLintProgram } from 'vue-eslint-parser/ast'
+import type { Config } from '../config/config'
 import { cliInstance } from '../cli/cli'
-import { pathFormat, readSync, writeSync } from '../utils/file';
+import { pathFormat, readSync, writeSync } from '../utils/file'
 
 export type FileInfo = {
-  path: string,
+  path: string
   source: string
 }
 
 export type VueSFCContext = {
   path: string
   source: string
-  templateAST: ESLintProgram,
-  scriptAST: any,
-  jscodeshiftParser: JSCodeshift,
+  templateAST: ESLintProgram
+  scriptAST: any
+  jscodeshiftParser: JSCodeshift
   descriptor: SFCDescriptor
 }
 
 export type ParsingResultOccurrence = {
-  fileInfo: FileInfo,
-  offsetBegin: number,
-  offsetEnd: number,
+  fileInfo: FileInfo
+  offsetBegin: number
+  offsetEnd: number
   type: ParserType
 }
 
@@ -34,8 +36,8 @@ export type TransformationParams = {
 }
 
 export type TransformationResult = {
-  fileInfo: FileInfo,
-  content: string,
+  fileInfo: FileInfo
+  content: string
   type: TransformationType
 }
 
@@ -48,13 +50,20 @@ export type ParsingResult = {
 }
 
 export type AstParsingResult = {
-  parsingResult: ParsingResult,
+  parsingResult: ParsingResult
   transformationResult: AstTransformationResult
 }
 
-export async function astParseRoot (rootDir: string, config: Config): Promise<AstParsingResult> {
+export async function astParseRoot (
+  rootDir: string,
+  config: Config
+): Promise<AstParsingResult> {
   const replacedRootDir: string = pathFormat(rootDir)
-  const resolvedPaths : string[] = globby.sync([replacedRootDir, `!${replacedRootDir}/**/node_modules`, `!${replacedRootDir}/**/dist`])
+  const resolvedPaths: string[] = globby.sync([
+    replacedRootDir,
+    `!${replacedRootDir}/**/node_modules`,
+    `!${replacedRootDir}/**/dist`
+  ])
   const parsingResults: ParsingResult = {}
   const transformationResults: AstTransformationResult = {}
 
@@ -87,7 +96,10 @@ export async function astParseRoot (rootDir: string, config: Config): Promise<As
 
       // execute the transformation
       try {
-        tempTransformationResult = await transformation.astTransform(fileInfo, transformationParams)
+        tempTransformationResult = await transformation.astTransform(
+          fileInfo,
+          transformationParams
+        )
       } catch (e) {
         if (extension === '.js') {
           console.warn(
@@ -95,7 +107,10 @@ export async function astParseRoot (rootDir: string, config: Config): Promise<As
               'If you are using JSX, make sure to name the file with the .jsx or .tsx extension.'
           )
         }
-        console.error(`AST parsing and transformation file failed, filePath: ${filePath}\n`, e)
+        console.error(
+          `AST parsing and transformation file failed, filePath: ${filePath}\n`,
+          e
+        )
         console.log('skip parsing the error file...')
         continue
       }
@@ -106,7 +121,9 @@ export async function astParseRoot (rootDir: string, config: Config): Promise<As
       if (!transformationResults[transformation.transformationType]) {
         transformationResults[transformation.transformationType] = []
       }
-      transformationResults[transformation.transformationType].push(tempTransformationResult)
+      transformationResults[transformation.transformationType].push(
+        tempTransformationResult
+      )
       transformationResultContent = tempTransformationResult.content
 
       if (transformation.needReparse) {
@@ -149,7 +166,10 @@ export async function astParseRoot (rootDir: string, config: Config): Promise<As
       if (!parsingResults[parser.parserType]) {
         parsingResults[parser.parserType] = []
       }
-      parsingResults[parser.parserType].push.apply(parsingResults[parser.parserType], parsingResult)
+      parsingResults[parser.parserType].push.apply(
+        parsingResults[parser.parserType],
+        parsingResult
+      )
     }
   }
 

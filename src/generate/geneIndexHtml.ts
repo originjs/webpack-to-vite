@@ -2,25 +2,38 @@ import fs from 'fs'
 import path from 'path'
 import { readSync, writeSync, relativePathFormat } from '../utils/file'
 import { isObject, stringFormat } from '../utils/common'
-import { Config } from '../config/config'
-import { AstParsingResult } from '../ast-parse/astParse'
-import { TransformationType } from '../ast-parse/transformations'
+import type { Config } from '../config/config'
+import type { AstParsingResult } from '../ast-parse/astParse'
+import { TRANSFORMATION_TYPES } from '../constants/constants'
 import { recordConver } from '../utils/report'
 import { parseVueCliConfig } from '../config/parse'
 
-export async function geneIndexHtml (rootDir: string, config: Config, astParsingResult?: AstParsingResult): Promise<void> {
+export async function geneIndexHtml (
+  rootDir: string,
+  config: Config,
+  astParsingResult?: AstParsingResult
+): Promise<void> {
   const outputIndexPath: string = path.resolve(rootDir, 'index.html')
   const projectType: string = config.projectType
 
-  let entries : string[] = []
+  let entries: string[] = []
   // `config.entry` can be type of string | array | object | function
-  if (config.entry && (config.entry.length || Object.keys(config.entry).length || typeof config.entry === 'function')) {
+  if (
+    config.entry &&
+    (config.entry.length ||
+      Object.keys(config.entry).length ||
+      typeof config.entry === 'function')
+  ) {
     entries = getEntries(rootDir, config.entry)
   } else {
     entries = await getDefaultEntries(rootDir, projectType)
   }
 
-  const injectedContent = generateWithVueCliPublicIndex(astParsingResult, entries, projectType)
+  const injectedContent = generateWithVueCliPublicIndex(
+    astParsingResult,
+    entries,
+    projectType
+  )
   writeSync(outputIndexPath, injectedContent)
   recordConver({ num: 'B02', feat: 'add index.html' })
 }
@@ -36,15 +49,25 @@ export function generateEntriesHtml (entries: string[]): string {
   return entriesHtml
 }
 
-export function generateWithVueCliPublicIndex (astParsingResult: AstParsingResult, entries: string[], projectType: string): string {
+export function generateWithVueCliPublicIndex (
+  astParsingResult: AstParsingResult,
+  entries: string[],
+  projectType: string
+): string {
   let indexHtmlTransformationResult
 
   if (!astParsingResult) {
     indexHtmlTransformationResult = null
   } else if (projectType === 'webpack') {
-    indexHtmlTransformationResult = astParsingResult.transformationResult[TransformationType.indexHtmlTransformationWebpack]
+    indexHtmlTransformationResult =
+      astParsingResult.transformationResult[
+        TRANSFORMATION_TYPES.indexHtmlTransformationWebpack
+      ]
   } else {
-    indexHtmlTransformationResult = astParsingResult.transformationResult[TransformationType.indexHtmlTransformationVueCli]
+    indexHtmlTransformationResult =
+      astParsingResult.transformationResult[
+        TRANSFORMATION_TYPES.indexHtmlTransformationVueCli
+      ]
   }
 
   let indexHtmlContent: string
@@ -56,7 +79,10 @@ export function generateWithVueCliPublicIndex (astParsingResult: AstParsingResul
   return stringFormat(indexHtmlContent, generateEntriesHtml(entries))
 }
 
-export async function getDefaultEntries (rootDir: string, projectType: string): Promise<string[]> {
+export async function getDefaultEntries (
+  rootDir: string,
+  projectType: string
+): Promise<string[]> {
   const entries: string[] = []
   // TODO: vue-cli pages config
   if (projectType !== 'webpack') {
@@ -64,28 +90,33 @@ export async function getDefaultEntries (rootDir: string, projectType: string): 
     const vueConfig = await parseVueCliConfig(vueConfigFile)
     const entryConfig = vueConfig.pages
     if (entryConfig) {
-      Object.keys(entryConfig).forEach(key => {
-        const entryPath: string = Object.prototype.toString.call(entryConfig[key]) === '[object String]'
-          ? relativePathFormat(rootDir, entryConfig[key])
-          : relativePathFormat(rootDir, entryConfig[key].entry)
+      Object.keys(entryConfig).forEach((key) => {
+        const entryPath: string =
+          Object.prototype.toString.call(entryConfig[key]) === '[object String]'
+            ? relativePathFormat(rootDir, entryConfig[key])
+            : relativePathFormat(rootDir, entryConfig[key].entry)
         entries.push(entryPath)
       })
     }
   }
   let mainFile = path.resolve(rootDir, 'src/main.ts')
   if (fs.existsSync(mainFile)) {
-    if (!entries.some(entryPath => entryPath === 'src/main.ts')) entries.push('/src/main.ts')
+    if (!entries.some((entryPath) => entryPath === 'src/main.ts')) {
+      entries.push('/src/main.ts')
+    }
     return entries
   }
   mainFile = path.resolve(rootDir, 'src/main.js')
   if (fs.existsSync(mainFile)) {
-    if (!entries.some(entryPath => entryPath === 'src/main.js')) entries.push('/src/main.js')
+    if (!entries.some((entryPath) => entryPath === 'src/main.js')) {
+      entries.push('/src/main.js')
+    }
     return entries
   }
   return entries
 }
 
-export function getEntries (rootDir: string, entry: any) : string[] {
+export function getEntries (rootDir: string, entry: any): string[] {
   let entries: string[] = []
   if (entry === undefined) {
     return entries
@@ -108,6 +139,6 @@ export function getEntries (rootDir: string, entry: any) : string[] {
   }
 
   // vite support hmr by default, so do not need to import webpack-hot-middleware
-  entries = entries.filter(item => !item.includes('dev-client'))
+  entries = entries.filter((item) => !item.includes('dev-client'))
   return entries
 }

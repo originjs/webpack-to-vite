@@ -1,9 +1,17 @@
-import type { ASTTransformation } from './index'
-import { TransformationType } from './index'
-import { FileInfo, TransformationResult, TransformationParams } from '../astParse'
-import { ESLintProgram, VAttribute, VDirective } from 'vue-eslint-parser/ast'
+import type { ASTTransformation, TransformationType } from './index'
+import { TRANSFORMATION_TYPES } from '../../constants/constants'
+import type {
+  FileInfo,
+  TransformationResult,
+  TransformationParams
+} from '../astParse'
+import type {
+  ESLintProgram,
+  VAttribute,
+  VDirective
+} from 'vue-eslint-parser/ast'
 import * as parser from 'vue-eslint-parser'
-import { Node } from 'vue-eslint-parser/ast/nodes'
+import type { Node } from 'vue-eslint-parser/ast/nodes'
 import { stringSplice } from '../../utils/common'
 import { pathFormat } from '../../utils/file'
 import path from 'path'
@@ -12,7 +20,10 @@ import fs from 'fs'
 const templateStart: string = '<template>'
 const templateEnd: string = '</template>'
 
-export const astTransform:ASTTransformation = async (fileInfo: FileInfo, transformationParams?: TransformationParams) => {
+export const astTransform: ASTTransformation = async (
+  fileInfo: FileInfo,
+  transformationParams?: TransformationParams
+) => {
   if (!transformationParams) {
     return null
   }
@@ -29,13 +40,18 @@ export const astTransform:ASTTransformation = async (fileInfo: FileInfo, transfo
     indexPath = null
   }
 
-  if (!indexPath || !pathFormat(fileInfo.path).endsWith(pathFormat(indexPath))) {
+  if (
+    !indexPath ||
+    !pathFormat(fileInfo.path).endsWith(pathFormat(indexPath))
+  ) {
     return null
   }
 
   // add template tags for vue-eslint-parser
   let htmlContent = `${templateStart}${fileInfo.source}${templateEnd}`
-  const htmlAST : ESLintProgram = parser.parse(htmlContent, { sourceType: 'module' })
+  const htmlAST: ESLintProgram = parser.parse(htmlContent, {
+    sourceType: 'module'
+  })
   const root: Node = htmlAST.templateBody
 
   const behindIndentLength: number = 1
@@ -50,8 +66,18 @@ export const astTransform:ASTTransformation = async (fileInfo: FileInfo, transfo
         bodyNode = node
       } else if (node.type === 'VElement' && node.name === 'script') {
         const nodeAttrs: (VAttribute | VDirective)[] = node.startTag.attributes
-        const entryNodeIsFound: boolean = nodeAttrs.some(attr => attr.key.name === 'type' && attr.value.type === 'VLiteral' && attr.value.value === 'module')
-        const entryFileIsFound: boolean = nodeAttrs.some(attr => attr.key.name === 'src' && attr.value.type === 'VLiteral' && fs.existsSync(path.resolve(rootDir, attr.value.value)))
+        const entryNodeIsFound: boolean = nodeAttrs.some(
+          (attr) =>
+            attr.key.name === 'type' &&
+            attr.value.type === 'VLiteral' &&
+            attr.value.value === 'module'
+        )
+        const entryFileIsFound: boolean = nodeAttrs.some(
+          (attr) =>
+            attr.key.name === 'src' &&
+            attr.value.type === 'VLiteral' &&
+            fs.existsSync(path.resolve(rootDir, attr.value.value))
+        )
         // remove original entry scripts with spaces
         if (entryNodeIsFound && entryFileIsFound) {
           frontIndentLength = node.loc.start.column
@@ -65,25 +91,40 @@ export const astTransform:ASTTransformation = async (fileInfo: FileInfo, transfo
     leaveNode () {}
   })
 
-  let transformedHtml: string = htmlContent.slice(0, bodyNode.endTag.range[0] - offset) + '{0}' + htmlContent.slice(bodyNode.endTag.range[0] - offset)
+  let transformedHtml: string =
+    htmlContent.slice(0, bodyNode.endTag.range[0] - offset) +
+    '{0}' +
+    htmlContent.slice(bodyNode.endTag.range[0] - offset)
   // remove template tags
-  transformedHtml = transformedHtml.slice(0, transformedHtml.length - templateEnd.length)
+  transformedHtml = transformedHtml.slice(
+    0,
+    transformedHtml.length - templateEnd.length
+  )
   transformedHtml = transformedHtml.slice(templateStart.length)
 
   // TODO: default values exposed by plugins and client-side env variables
   // replace variable name with `process.env['variableName']`
   const globalVariableReg: RegExp = /VUE_APP_\w+/g
-  const globalVariableNameSet: Set<string> = new Set(transformedHtml.match(globalVariableReg) || [])
-  const globalVariableNames: string[] = ['BASE_URL', 'NODE_ENV', ...Array.from(globalVariableNameSet)]
-  globalVariableNames.forEach(variableName => {
+  const globalVariableNameSet: Set<string> = new Set(
+    transformedHtml.match(globalVariableReg) || []
+  )
+  const globalVariableNames: string[] = [
+    'BASE_URL',
+    'NODE_ENV',
+    ...Array.from(globalVariableNameSet)
+  ]
+  globalVariableNames.forEach((variableName) => {
     const replacementReg: RegExp = new RegExp(variableName, 'g')
-    transformedHtml = transformedHtml.replace(replacementReg, `process.env['${variableName}']`)
+    transformedHtml = transformedHtml.replace(
+      replacementReg,
+      `process.env['${variableName}']`
+    )
   })
 
   const result: TransformationResult = {
     fileInfo: fileInfo,
     content: transformedHtml,
-    type: TransformationType.removeHtmlLangInTemplateTransformation
+    type: TRANSFORMATION_TYPES.removeHtmlLangInTemplateTransformation
   }
 
   return result
@@ -95,4 +136,5 @@ export const needWriteToOriginFile: boolean = false
 
 export const extensions: string[] = ['.html']
 
-export const transformationType: TransformationType = TransformationType.indexHtmlTransformationWebpack
+export const transformationType: TransformationType =
+  TRANSFORMATION_TYPES.indexHtmlTransformationWebpack
