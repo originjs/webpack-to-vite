@@ -1,3 +1,23 @@
+## [1.0.6](https://github.com/originjs/webpack-to-vite/compare/v1.0.1...v1.0.6) (2022-01-11)
+
+
+### Bug Fixes
+
+* bump user dependencies version ([4cc9fef](https://github.com/originjs/webpack-to-vite/commit/4cc9fef5060756f37ea53eb16577ce8fb44780b2))
+* friendly error message ([812113e](https://github.com/originjs/webpack-to-vite/commit/812113e18d741904dab93933f9d120caf51d5732))
+* friendly error message ([6bd0158](https://github.com/originjs/webpack-to-vite/commit/6bd0158a0fb98feb7726268d1b606b36022a3fa5))
+* further resolve webpackConfig ([451ee13](https://github.com/originjs/webpack-to-vite/commit/451ee134f8b31009994010172e9ef2372708f8bc))
+* match 'index.html' file path ([#75](https://github.com/originjs/webpack-to-vite/issues/75)) ([1a46a3d](https://github.com/originjs/webpack-to-vite/commit/1a46a3d4dfc9dda2909e0d248d156ad919458b56))
+* update error message ([3b71ea1](https://github.com/originjs/webpack-to-vite/commit/3b71ea1a9f298d45427501ea2c318ff79a6af91b))
+
+
+### Features
+
+* bump vite & typescript version and migrate to vitest ([#78](https://github.com/originjs/webpack-to-vite/issues/78)) ([5afee3c](https://github.com/originjs/webpack-to-vite/commit/5afee3c26ea8df1d43f18ad7a68a2946779f6272))
+* print report sort by item.num ([#77](https://github.com/originjs/webpack-to-vite/issues/77)) ([e51260d](https://github.com/originjs/webpack-to-vite/commit/e51260d835778cbb1a77e62dfdd7e7ddc096f7cf))
+
+
+
 ## [1.0.5](https://github.com/originjs/webpack-to-vite/compare/v1.0.4...v1.0.5) (2021-12-14)
 
 
