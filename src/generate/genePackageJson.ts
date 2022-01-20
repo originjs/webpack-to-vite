@@ -6,7 +6,7 @@ import chalk from 'chalk'
 import * as constants from '../constants/constants'
 import { recordConver } from '../utils/report'
 import { minVersion, gt } from 'semver'
-import { AstParsingResult } from '../ast-parse/astParse'
+import type { AstParsingResult } from '../ast-parse/astParse'
 
 // TODO: compatible with vue2 and vue3
 export function genePackageJson (packageJsonPath: string, astParsingResult?: AstParsingResult): void {
@@ -24,7 +24,9 @@ export function genePackageJson (packageJsonPath: string, astParsingResult?: Ast
 
   const vueVersion = getVueVersion(rootDir)
   if (vueVersion === 3) {
-    packageJson.devDependencies['@vue/compiler-sfc'] = constants.VUE_COMPILER_SFC_VERSION
+    if (!packageJson.devDependencies['@vue/compiler-sfc']) {
+      packageJson.devDependencies['@vue/compiler-sfc'] = constants.VUE_COMPILER_SFC_VERSION
+    }
     packageJson.devDependencies['@vitejs/plugin-vue'] = constants.VITE_PLUGIN_VUE_VERSION
     packageJson.devDependencies['@vitejs/plugin-vue-jsx'] = constants.VITE_PLUGIN_VUE_JSX_VERSION
   } else if (vueVersion === 2) {
