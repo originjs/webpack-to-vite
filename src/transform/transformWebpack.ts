@@ -1,16 +1,20 @@
 import path from 'path'
+import type { ServerOptions } from 'vite'
+import type HtmlWebpackPlugin from 'html-webpack-plugin'
 import { parseWebpackConfig } from '../config/parse'
-import { RawValue, ViteConfig } from '../config/vite'
-import { TransformContext } from './context'
-import { initViteConfig, Transformer, transformImporters } from './transformer'
+import type { ViteConfig } from '../config/vite';
+import { RawValue } from '../config/vite'
+import type { TransformContext } from './context'
+import type { Transformer } from './transformer';
+import { initViteConfig, transformImporters } from './transformer'
 import { DEFAULT_VUE_VERSION } from '../constants/constants'
-import { Entry } from '../config/webpack'
+import type { Entry } from '../config/webpack'
 import { isObject } from '../utils/common'
 import { recordConver } from '../utils/report'
-import { AstParsingResult } from '../ast-parse/astParse'
+import type { AstParsingResult } from '../ast-parse/astParse'
 import { getVueVersion } from '../utils/version'
-import { ServerOptions } from 'vite'
 import { relativePathFormat } from '../utils/file'
+import { serializeObject } from '../generate/render'
 
 // convert webpack.config.js => vite.config.js
 export class WebpackTransformer implements Transformer {
@@ -25,6 +29,7 @@ export class WebpackTransformer implements Transformer {
       const webpackConfig = await parseWebpackConfig(path.resolve(rootDir, 'webpack.config.js'))
       transformImporters(this.context, astParsingResult)
       const config = this.context.config
+      const htmlPlugin: HtmlWebpackPlugin = webpackConfig.plugins.find((p: any) => p.constructor.name === 'HtmlWebpackPlugin')
 
       // convert base config
       // webpack may have multiple entry files, e.g.
@@ -34,6 +39,9 @@ export class WebpackTransformer implements Transformer {
       //      wap: './pc/index.js',
       //      pc: './wap/index.js'
       // }
+      if (htmlPlugin && htmlPlugin.options?.publicPath) {
+        config.base = htmlPlugin.options.publicPath
+      }
       config.mode = webpackConfig.mode
       config.build = {}
 
@@ -118,6 +126,44 @@ export class WebpackTransformer implements Transformer {
         })
       }
       recordConver({ num: 'W05', feat: 'define options' })
+      // html-webpack-plugin
+      if (htmlPlugin && htmlPlugin.options && (!htmlPlugin.options.filename || htmlPlugin.options.filename === 'index.html')) {
+        const injectHtmlPluginOption = {
+          data: {}
+        }
+        Object.keys(htmlPlugin.options).forEach(key => {
+          if ((key === 'title' || key === 'favicon') && htmlPlugin.options[key]) {
+            injectHtmlPluginOption.data[key] = htmlPlugin.options[key]
+          }
+        })
+        this.context.config.plugins = this.context.config.plugins || []
+        const injectHtmlPluginIndex = this.context.config.plugins.findIndex(p => p.value === 'injectHtml()')
+        if (injectHtmlPluginIndex >= 0) {
+          this.context.config.plugins[injectHtmlPluginIndex] = new RawValue('injectHtml(' + serializeObject(injectHtmlPluginOption, '  ') + ')')
+        } else {
+          this.context.config.plugins.push(new RawValue('injectHtml(' + serializeObject(injectHtmlPluginOption, '  ') + ')'))
+        }
+        if (this.context.importers.findIndex(importer => importer.key === 'vite-plugin-html') < 0) {
+          this.context.importers.push({
+            key: 'vite-plugin-html',
+            value: 'import { injectHtml } from \'vite-plugin-html\';'
+          })
+        }
+        if (htmlPlugin.options?.minify) {
+          const vitePluginHtmlImporterIndex = this.context.importers.findIndex(importer => importer.key === 'vite-plugin-html')
+          if (vitePluginHtmlImporterIndex >= 0) {
+            const minifyHtmlImporter = 'import { injectHtml, minifyHtml } from \'vite-plugin-html\';'
+            this.context.importers[vitePluginHtmlImporterIndex].value = minifyHtmlImporter
+          } else {
+            this.context.importers.push({
+              key: 'vite-plugin-html',
+              value: 'import { minifyHtml } from \'vite-plugin-html\';'
+            })
+          }
+          this.context.config.plugins = this.context.config.plugins || []
+          this.context.config.plugins.push(new RawValue('minifyHtml(' + serializeObject(htmlPlugin.options.minify, '  ') + ')'))
+        }
+      }
       return config
     }
 
