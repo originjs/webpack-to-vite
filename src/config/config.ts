@@ -1,3 +1,5 @@
+import type { importer } from '../transform/context';
+
 export interface Config {
     rootDir?: string;
     projectType?: string;
@@ -15,6 +17,6 @@ export interface DevServer {
 }
 
 export interface TemplateData {
-    IMPORT_LIST: string[];
+    IMPORT_LIST: importer[];
     USER_CONFIG: string;
 }

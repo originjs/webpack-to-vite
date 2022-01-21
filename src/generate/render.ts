@@ -2,7 +2,7 @@ import fs from 'fs'
 import ejs from 'ejs'
 import path from 'path'
 import { writeSync } from '../utils/file'
-import { TemplateData } from '../config/config'
+import type { TemplateData } from '../config/config'
 import { RawValue } from '../config/vite'
 import { recordConver } from '../utils/report'
 import { isObject } from '../utils/common'
@@ -21,10 +21,10 @@ function isEmptyObject (obj) {
   return isEmpty
 }
 
-export function serializeObject (val: unknown): string {
+export function serializeObject (val: unknown, pad?: string): string {
   const seen = []
 
-  function serializeInternal (val, pad) {
+  function serializeInternal (val, pad = '') {
     const newLine = '\n'
     const indent = '  '
     pad = pad || ''
@@ -123,7 +123,7 @@ export function serializeObject (val: unknown): string {
     return `'${val}'`
   }
 
-  return serializeInternal(val, '')
+  return serializeInternal(val, pad)
 }
 
 export function render (outDir: string, templatePath: string, data: TemplateData): void {

@@ -45,7 +45,6 @@ export function generateEntriesHtml (entries: string[]): string {
       entriesHtml += `  <script type="module" src="${entry}"></script>\n`
     }
   }
-
   return entriesHtml
 }
 
@@ -76,6 +75,7 @@ export function generateWithVueCliPublicIndex (
   } else {
     indexHtmlContent = readSync(path.join(__dirname, '../template/index.html'))
   }
+
   return stringFormat(indexHtmlContent, generateEntriesHtml(entries))
 }
 
