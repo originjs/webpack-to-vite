@@ -1,8 +1,8 @@
-import { vueSfcAstParser } from '@originjs/vue-sfc-ast-parser';
-import { FileInfo, VueSFCContext } from '../ast-parse/astParse';
 import getParser from 'jscodeshift/src/getParser'
 import jscodeshift from 'jscodeshift'
-import { readSync } from './file';
+import { vueSfcAstParser } from '@originjs/vue-sfc-ast-parser'
+import type { FileInfo, VueSFCContext } from '../ast-parse/astParse'
+import { readSync } from './file'
 
 export function parseVueSfc (fileInfo: FileInfo) : VueSFCContext {
   if (!fileInfo.source || fileInfo.source.length === 0) {

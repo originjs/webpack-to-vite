@@ -1,10 +1,5 @@
-import type { ASTTransformation, TransformationType } from './index'
-import { TRANSFORMATION_TYPES } from '../../constants/constants'
-import type {
-  FileInfo,
-  TransformationResult,
-  TransformationParams
-} from '../astParse'
+import path from 'path'
+import fs from 'fs'
 import type {
   ESLintProgram,
   VAttribute,
@@ -12,11 +7,16 @@ import type {
 } from 'vue-eslint-parser/ast'
 import * as parser from 'vue-eslint-parser'
 import type { Node } from 'vue-eslint-parser/ast/nodes'
+import type { ASTTransformation, TransformationType } from './index'
+import { TRANSFORMATION_TYPES } from '../../constants/constants'
+import type {
+  FileInfo,
+  TransformationResult,
+  TransformationParams
+} from '../astParse'
 import { stringSplice } from '../../utils/common'
 import { recordConver } from '../../utils/report'
 import { pathFormat } from '../../utils/file'
-import path from 'path'
-import fs from 'fs'
 
 const templateStart: string = '<template>'
 const templateEnd: string = '</template>'
@@ -55,18 +55,12 @@ export const astTransform: ASTTransformation = async (
     sourceType: 'module'
   })
   const root: Node = htmlAST.templateBody
-
   const behindIndentLength: number = 1
   let frontIndentLength: number = 0
-  let offset: number = 0
-
-  let bodyNode
 
   parser.AST.traverseNodes(root, {
     enterNode (node: Node) {
-      if (node.type === 'VElement' && node.name === 'body') {
-        bodyNode = node
-      } else if (node.type === 'VElement' && node.name === 'script') {
+      if (node.type === 'VElement' && node.name === 'script') {
         const nodeAttrs: (VAttribute | VDirective)[] = node.startTag.attributes
         const entryNodeIsFound: boolean = nodeAttrs.some(
           (attr) =>
@@ -85,18 +79,30 @@ export const astTransform: ASTTransformation = async (
           frontIndentLength = node.loc.start.column
           const nodeStart: number = node.range[0] - frontIndentLength
           const nodeEnd: number = node.range[1] + behindIndentLength
-          htmlContent = stringSplice(htmlContent, nodeStart, nodeEnd, offset)
-          offset += nodeEnd - nodeStart
+          htmlContent = stringSplice(htmlContent, nodeStart, nodeEnd)
         }
       }
     },
     leaveNode () {}
   })
 
+  const newRoot: Node = parser.parse(htmlContent, {
+    sourceType: 'module'
+  }).templateBody
+  let bodyNode
+  parser.AST.traverseNodes(newRoot, {
+    enterNode (node: Node) {
+      if (node.type === 'VElement' && node.name === 'body') {
+        bodyNode = node
+      }
+    },
+    leaveNode () {}
+  })
+
   let transformedHtml: string =
-    htmlContent.slice(0, bodyNode.endTag.range[0] - offset) +
+    htmlContent.slice(0, bodyNode.endTag.range[0]) +
     '{0}' +
-    htmlContent.slice(bodyNode.endTag.range[0] - offset)
+    htmlContent.slice(bodyNode.endTag.range[0])
   // remove template tags
   transformedHtml = transformedHtml.slice(
     0,

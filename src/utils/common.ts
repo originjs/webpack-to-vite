@@ -8,6 +8,6 @@ export function stringFormat (formatString: string, ...args: string[]) {
   })
 }
 
-export function stringSplice (source: string, start: number, end: number, offset: number = 0) {
-  return source.substring(0, start - offset) + source.substring(end - offset)
+export function stringSplice (source: string, start: number, end: number) {
+  return source.substring(0, start) + source.substring(end)
 }

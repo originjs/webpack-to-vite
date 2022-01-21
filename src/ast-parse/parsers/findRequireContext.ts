@@ -33,12 +33,13 @@ export const astParse: ASTParse = (fileInfo: FileInfo) => {
 
   const results: ParsingResultOccurrence[] = []
 
-  nodePaths.forEach((root) => {
+  nodePaths.forEach(root => {
     parser.AST.traverseNodes(root, {
       enterNode (node: Node) {
         if (node.type === 'MemberExpression') {
           const includeRequire: boolean =
-            node.object.type === 'Identifier' && node.object.name === 'require'
+            node.object.type === 'Identifier' &&
+            node.object.name === 'require'
           const includeRequireContext: boolean =
             node.property.type === 'Identifier' &&
             node.property.name === 'context'
