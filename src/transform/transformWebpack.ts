@@ -15,6 +15,7 @@ import type { AstParsingResult } from '../ast-parse/astParse'
 import { getVueVersion } from '../utils/version'
 import { relativePathFormat } from '../utils/file'
 import { serializeObject } from '../generate/render'
+import type { InjectOptions } from '../config/config'
 
 // convert webpack.config.js => vite.config.js
 export class WebpackTransformer implements Transformer {
@@ -128,20 +129,33 @@ export class WebpackTransformer implements Transformer {
       recordConver({ num: 'W05', feat: 'define options' })
       // html-webpack-plugin
       if (htmlPlugin && htmlPlugin.options && (!htmlPlugin.options.filename || htmlPlugin.options.filename === 'index.html')) {
-        const injectHtmlPluginOption = {
-          data: {}
-        }
+        const injectHtmlPluginOption: InjectOptions = {}
+        injectHtmlPluginOption.data = {}
         Object.keys(htmlPlugin.options).forEach(key => {
           if ((key === 'title' || key === 'favicon') && htmlPlugin.options[key]) {
             injectHtmlPluginOption.data[key] = htmlPlugin.options[key]
           }
         })
+        if (htmlPlugin.options?.meta) {
+          injectHtmlPluginOption.tags = []
+          Object.keys(htmlPlugin.options.meta).forEach(key => {
+            if (htmlPlugin.options.meta[key]) {
+              injectHtmlPluginOption.tags.push({
+                tag: 'meta',
+                attrs: {
+                  name: key,
+                  content: htmlPlugin.options.meta[key]
+                }
+              })
+            }
+          })
+        }
         this.context.config.plugins = this.context.config.plugins || []
         const injectHtmlPluginIndex = this.context.config.plugins.findIndex(p => p.value === 'injectHtml()')
         if (injectHtmlPluginIndex >= 0) {
           this.context.config.plugins[injectHtmlPluginIndex] = new RawValue('injectHtml(' + serializeObject(injectHtmlPluginOption, '  ') + ')')
         } else {
-          this.context.config.plugins.push(new RawValue('injectHtml(' + serializeObject(injectHtmlPluginOption, '  ') + ')'))
+          this.context.config.plugins.push(new RawValue('injectHtml(' + serializeObject(injectHtmlPluginOption, '    ') + ')'))
         }
         if (this.context.importers.findIndex(importer => importer.key === 'vite-plugin-html') < 0) {
           this.context.importers.push({
@@ -161,7 +175,7 @@ export class WebpackTransformer implements Transformer {
             })
           }
           this.context.config.plugins = this.context.config.plugins || []
-          this.context.config.plugins.push(new RawValue('minifyHtml(' + serializeObject(htmlPlugin.options.minify, '  ') + ')'))
+          this.context.config.plugins.push(new RawValue('minifyHtml(' + serializeObject(htmlPlugin.options.minify, '    ') + ')'))
         }
       }
       return config

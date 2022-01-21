@@ -68,7 +68,7 @@ export const astTransform: ASTTransformation = async (
   parser.AST.traverseNodes(root, {
     enterNode (node: Node) {
       if (node.type === 'VElement' && node.name === 'title' && htmlPlugin && htmlPlugin.options?.title) {
-        htmlContent = htmlContent.slice(0, node.startTag.range[1]) + htmlPlugin.options.title + htmlContent.slice(node.endTag.range[0])
+        htmlContent = htmlContent.slice(0, node.startTag.range[1]) + '<%- title %>' + htmlContent.slice(node.endTag.range[0])
       } else if (node.type === 'VElement' && node.name === 'script') {
         const nodeAttrs: (VAttribute | VDirective)[] = node.startTag.attributes
         const entryNodeIsFound: boolean = nodeAttrs.some(
@@ -98,13 +98,9 @@ export const astTransform: ASTTransformation = async (
   const newRoot: Node = parser.parse(htmlContent, {
     sourceType: 'module'
   }).templateBody
-  let headNode
   let bodyNode
   parser.AST.traverseNodes(newRoot, {
     enterNode (node: Node) {
-      if (node.type === 'VElement' && node.name === 'head') {
-        headNode = node
-      }
       if (node.type === 'VElement' && node.name === 'body') {
         bodyNode = node
       }
@@ -116,16 +112,6 @@ export const astTransform: ASTTransformation = async (
     htmlContent.slice(0, bodyNode.endTag.range[0]) +
     '{0}' +
     htmlContent.slice(bodyNode.endTag.range[0])
-  if (htmlPlugin && htmlPlugin.options?.meta) {
-    const headOver = transformedHtml.slice(headNode.endTag.range[0])
-    transformedHtml = transformedHtml.slice(0, headNode.endTag.range[0])
-    Object.keys(htmlPlugin.options.meta).forEach(key => {
-      if (htmlPlugin.options.meta[key]) {
-        transformedHtml += `    <meta name="${key}" content="${htmlPlugin.options.meta[key]}">\n`
-      }
-    })
-    transformedHtml += headOver
-  }
   // remove template tags
   transformedHtml = transformedHtml.slice(
     0,
