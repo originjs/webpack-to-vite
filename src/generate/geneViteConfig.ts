@@ -1,8 +1,8 @@
 import path from 'path'
-import { Config, TemplateData } from '../config/config'
+import type { Config, TemplateData } from '../config/config'
 import { getTransformer } from '../transform/transformer'
 import { render, serializeObject } from './render'
-import { AstParsingResult } from '../ast-parse/astParse'
+import type { AstParsingResult } from '../ast-parse/astParse'
 
 export async function geneViteConfig (rootDir: string, outDir: string, config: Config, astParsingResult?: AstParsingResult): Promise<void> {
   const template = path.resolve(__dirname, '../template/vite.config.ejs')
@@ -12,10 +12,6 @@ export async function geneViteConfig (rootDir: string, outDir: string, config: C
   const data: TemplateData = {
     IMPORT_LIST: transformer.context.importers,
     USER_CONFIG: configStr
-  }
-  // fill entry
-  if (config.entry === undefined) {
-    config.entry = transformer.context.config.build?.rollupOptions?.input
   }
 
   render(outDir, template, data)

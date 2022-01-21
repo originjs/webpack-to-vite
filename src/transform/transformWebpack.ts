@@ -1,15 +1,17 @@
 import path from 'path'
 import { parseWebpackConfig } from '../config/parse'
-import { RawValue, ViteConfig } from '../config/vite'
-import { TransformContext } from './context'
-import { initViteConfig, Transformer, transformImporters } from './transformer'
+import type { ViteConfig } from '../config/vite';
+import { RawValue } from '../config/vite'
+import type { TransformContext } from './context'
+import type { Transformer } from './transformer';
+import { initViteConfig, transformImporters } from './transformer'
 import { DEFAULT_VUE_VERSION } from '../constants/constants'
-import { Entry } from '../config/webpack'
+import type { Entry, WebpackConfig } from '../config/webpack'
 import { isObject } from '../utils/common'
 import { recordConver } from '../utils/report'
-import { AstParsingResult } from '../ast-parse/astParse'
+import type { AstParsingResult } from '../ast-parse/astParse'
 import { getVueVersion } from '../utils/version'
-import { ServerOptions } from 'vite'
+import type { ServerOptions } from 'vite'
 import { relativePathFormat } from '../utils/file'
 
 // convert webpack.config.js => vite.config.js
@@ -40,14 +42,7 @@ export class WebpackTransformer implements Transformer {
       // convert entry
       if (webpackConfig.entry !== '' && webpackConfig.entry !== null) {
         config.build.rollupOptions = {}
-        let input
-        if (isObject(webpackConfig.entry)) {
-          input = suitableFormat(webpackConfig.entry)
-        } else if (typeof webpackConfig.entry === 'function') {
-          input = webpackConfig.entry()
-        } else {
-          input = webpackConfig.entry
-        }
+        let input = getWebpackEntries(webpackConfig)
         if (input && webpackConfig.context) {
           if (isObject(input)) {
             Object.keys(input).forEach(key => {
@@ -177,4 +172,16 @@ function suitableFormat (entry: Entry) : Entry {
     })
   });
   return res
+}
+
+export function getWebpackEntries (webpackConfig: WebpackConfig) {
+  let entry
+  if (isObject(webpackConfig.entry)) {
+    entry = suitableFormat(webpackConfig.entry)
+  } else if (typeof webpackConfig.entry === 'function') {
+    entry = webpackConfig.entry()
+  } else {
+    entry = webpackConfig.entry
+  }
+  return entry
 }
