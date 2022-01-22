@@ -3,7 +3,6 @@ import {RawValue, ViteConfig} from "../src/config/vite";
 import {copyDirSync} from "../src/utils/file";
 import {WebpackTransformer} from "../src/transform/transformWebpack";
 import * as fs from "fs";
-import { expect } from "chai";
 
 describe('WebpackTransformer', () => {
     beforeEach(() => {
