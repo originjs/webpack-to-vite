@@ -1,4 +1,4 @@
-import fs, { existsSync } from 'fs'
+import fs from 'fs'
 import path from 'path'
 import { readSync, writeSync, relativePathFormat } from '../utils/file'
 import { isObject, stringFormat } from '../utils/common'
@@ -89,13 +89,13 @@ export async function getDefaultEntries (
   let entries: Map<string, string[]> = new Map()
 
   // config entries
-  if (projectType === 'webpack' && existsSync(path.resolve(rootDir, 'webpack.config.js'))) {
+  if (projectType === 'webpack' && fs.existsSync(path.resolve(rootDir, 'webpack.config.js'))) {
     const webpackConfig = await parseWebpackConfig(path.resolve(rootDir, 'webpack.config.js'))
     const webpackEntries = webpackConfig.entry
     if (webpackEntries) {
       entries = getEntries(rootDir, webpackEntries, webpackConfig.context)
     }
-  } else if (existsSync(path.resolve(rootDir, 'vue.config.js'))) {
+  } else if (fs.existsSync(path.resolve(rootDir, 'vue.config.js'))) {
     const vueConfig = await parseVueCliConfig(path.resolve(rootDir, 'vue.config.js'))
     const vueEntries = vueConfig.pages
     if (vueEntries) {
