@@ -1,16 +1,19 @@
 import path from 'path'
 import { parseWebpackConfig } from '../config/parse'
-import { RawValue, ViteConfig } from '../config/vite'
-import { TransformContext } from './context'
-import { initViteConfig, Transformer, transformImporters } from './transformer'
+import type { ViteConfig } from '../config/vite';
+import { RawValue } from '../config/vite'
+import type { TransformContext } from './context'
+import type { Transformer } from './transformer';
+import { initViteConfig, transformImporters } from './transformer'
 import { DEFAULT_VUE_VERSION } from '../constants/constants'
-import { Entry } from '../config/webpack'
+import type { Entry } from '../config/webpack'
 import { isObject } from '../utils/common'
 import { recordConver } from '../utils/report'
-import { AstParsingResult } from '../ast-parse/astParse'
+import type { AstParsingResult } from '../ast-parse/astParse'
 import { getVueVersion } from '../utils/version'
-import { ServerOptions } from 'vite'
+import type { ServerOptions } from 'vite'
 import { relativePathFormat } from '../utils/file'
+import type { OutputOptions } from 'rollup'
 
 // convert webpack.config.js => vite.config.js
 export class WebpackTransformer implements Transformer {
@@ -71,6 +74,24 @@ export class WebpackTransformer implements Transformer {
       if (webpackConfig.output?.path) {
         const relativePath = relativePathFormat(rootDir, webpackConfig.output.path)
         config.build.outDir = new RawValue(`path.resolve(__dirname, '${relativePath}')`)
+      }
+      if (webpackConfig.output?.filename) {
+        const output: OutputOptions = {
+          entryFileNames: webpackConfig.output.filename
+        }
+        if (!config.build.rollupOptions.output) {
+          config.build.rollupOptions.output = {}
+        }
+        Object.assign(config.build.rollupOptions.output, output)
+      }
+      if (webpackConfig.output?.chunkFilename) {
+        const output: OutputOptions = {
+          chunkFileNames: webpackConfig.output.chunkFilename
+        }
+        if (!config.build.rollupOptions.output) {
+          config.build.rollupOptions.output = {}
+        }
+        Object.assign(config.build.rollupOptions.output, output)
       }
       recordConver({ num: 'W02', feat: 'outDir options' })
       // convert alias
