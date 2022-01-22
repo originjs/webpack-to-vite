@@ -3,6 +3,7 @@ import {RawValue, ViteConfig} from "../src/config/vite";
 import {copyDirSync} from "../src/utils/file";
 import {WebpackTransformer} from "../src/transform/transformWebpack";
 import * as fs from "fs";
+import { expect } from "chai";
 
 describe('WebpackTransformer', () => {
     beforeEach(() => {
@@ -47,5 +48,22 @@ describe('WebpackTransformer', () => {
                 NODE_ENV: '"development"'
             }
         })
+    })
+
+    test('transform webpack.config.js', async () => {
+        const srcPath: string = path.resolve('tests/testdata/transform-webpack/webpack.config.js')
+        const destPath: string = path.resolve('tests/out-transform-webpack/webpack.config.js')
+        fs.copyFileSync(srcPath, destPath)
+
+        const transformer: WebpackTransformer = new WebpackTransformer()
+        const viteConfig: ViteConfig = await transformer.transform(path.resolve('tests/out-transform-webpack'))
+        expect(viteConfig.build.rollupOptions.input).toEqual('./main.js')
+        expect(viteConfig.build.rollupOptions.output.entryFileNames).toEqual('bundle.js')
+        expect(viteConfig.resolve.alias).toMatchObject([
+            {
+                find: '@',
+                replacement: new RawValue(`path.resolve(__dirname,'src')`)
+            }
+        ])
     })
 })
