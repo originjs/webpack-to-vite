@@ -117,6 +117,7 @@ export async function getDefaultEntries (
 
 export function getEntries (rootDir: string, rawEntry: any, context?: string): Map<string, string[]> {
   let entries: Map<string, string[]> = new Map()
+  entries.set('app', [])
   if (rawEntry === undefined) {
     return entries
   }
@@ -127,12 +128,14 @@ export function getEntries (rootDir: string, rawEntry: any, context?: string): M
         : rawEntry[name]
       entries.set(name, getEntries(rootDir, entry, context).get('app'))
     })
-  } else if (Array.isArray(rawEntry)) {
-    entries.set('app', rawEntry.map(entry => context ? relativePathFormat(rootDir, path.join(context, entry)) : relativePathFormat(rootDir, entry)))
   } else if (typeof rawEntry === 'function') {
     const entriesGettedByFunction = rawEntry()
     entries = getEntries(rootDir, entriesGettedByFunction, context)
+  } else if (Array.isArray(rawEntry)) {
+    // set to 'app' by default
+    entries.set('app', rawEntry.map(entry => context ? relativePathFormat(rootDir, path.join(context, entry)) : relativePathFormat(rootDir, entry)))
   } else if (typeof rawEntry === 'string') {
+    // set to 'app' by default
     const entryPath = context
       ? relativePathFormat(rootDir, path.join(context, rawEntry))
       : relativePathFormat(rootDir, rawEntry)
