@@ -6,7 +6,7 @@ import type { TransformContext } from './context'
 import type { Transformer } from './transformer';
 import { initViteConfig, transformImporters } from './transformer'
 import { DEFAULT_VUE_VERSION } from '../constants/constants'
-import type { Entry, WebpackConfig } from '../config/webpack'
+import type { Entry } from '../config/webpack'
 import { isObject } from '../utils/common'
 import { recordConver } from '../utils/report'
 import type { AstParsingResult } from '../ast-parse/astParse'
@@ -42,7 +42,14 @@ export class WebpackTransformer implements Transformer {
       // convert entry
       if (webpackConfig.entry !== '' && webpackConfig.entry !== null) {
         config.build.rollupOptions = {}
-        let input = getWebpackEntries(webpackConfig)
+        let input
+        if (isObject(webpackConfig.entry)) {
+          input = suitableFormat(webpackConfig.entry)
+        } else if (typeof webpackConfig.entry === 'function') {
+          input = webpackConfig.entry()
+        } else {
+          input = webpackConfig.entry
+        }
         if (input && webpackConfig.context) {
           if (isObject(input)) {
             Object.keys(input).forEach(key => {
@@ -162,26 +169,15 @@ export class WebpackTransformer implements Transformer {
 function suitableFormat (entry: Entry) : Entry {
   const res : Entry = {}
   Object.keys(entry).forEach(function (name) {
-    if (!Array.isArray(entry[name])) {
-      res[name] = entry[name]
+    const entryPath = isObject(entry[name]) ? entry[name].import : entry[name]
+    if (!Array.isArray(entryPath)) {
+      res[name] = entryPath
       return
     }
-    entry[name].forEach((item, index) => {
-      const key = name.concat(index)
+    entryPath.forEach((item, index) => {
+      const key = name.concat(index.toString())
       res[key] = item
     })
-  });
+  })
   return res
-}
-
-export function getWebpackEntries (webpackConfig: WebpackConfig) {
-  let entry
-  if (isObject(webpackConfig.entry)) {
-    entry = suitableFormat(webpackConfig.entry)
-  } else if (typeof webpackConfig.entry === 'function') {
-    entry = webpackConfig.entry()
-  } else {
-    entry = webpackConfig.entry
-  }
-  return entry
 }
