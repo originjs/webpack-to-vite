@@ -93,7 +93,7 @@ export class WebpackTransformer implements Transformer {
         }
         Object.assign(config.build.rollupOptions.output, output)
       }
-      recordConver({ num: 'W02', feat: 'outDir options' })
+      recordConver({ num: 'W02', feat: 'output options' })
       // convert alias
       const defaultAlias = []
       const alias = {

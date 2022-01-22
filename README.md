@@ -187,8 +187,10 @@ Legend of annotations:
   * if `entry` is `string` type: `entry` -> `build.rollupOptions.input`
   * if `entry` is `object` type: the properties of `entry` will be converted set to `build.rollupOptions.input`
   * if `entry` is `function` type: execute result of `entry` will be set to `build.rollupOptions.input`
-* ✅ W02: `outDir` options
+* ✅ W02: `output` options
   * `output.path` -> `build.outDir`
+  * `output.filename` -> `build.rollupOptions.output.entryFileNames`
+  * `output.chunkFilename` -> `build.rollupOptions.output.chunkFileNames`
 * ✅ W03: `resolve.alias` options
   * add alias options by default
   ```javascript
