@@ -22,5 +22,6 @@ export const TRANSFORMATION_TYPES = {
 
 export const PARSER_TYPES = {
   FindJsxInScript: 'FindJsxInScript',
-  FindRequireContextParser: 'FindRequireContextParser'
+  FindRequireContextParser: 'FindRequireContextParser',
+  FindWebpackConfigureAttrs: 'FindWebpackConfigureAttrs'
 }

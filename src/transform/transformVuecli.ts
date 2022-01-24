@@ -33,18 +33,31 @@ export class VueCliTransformer implements Transformer {
       const config = this.context.config
       const vueConfig = await parseVueCliConfig(path.resolve(rootDir, 'vue.config.js'))
       let webpackConfig: Configuration = {}
-      if (vueConfig.configureWebpack) {
-        webpackConfig = typeof vueConfig.configureWebpack === 'function'
-          ? vueConfig.configureWebpack(webpackConfig)
-          : vueConfig.configureWebpack
+      if (vueConfig.configureWebpack && typeof vueConfig.configureWebpack !== 'function') {
+        webpackConfig = vueConfig.configureWebpack
+      } else if (vueConfig.configureWebpack) {
+        try {
+          if (astParsingResult && astParsingResult.parsingResult.FindWebpackConfigureAttrs) {
+            astParsingResult.parsingResult.FindWebpackConfigureAttrs.forEach(attrs => {
+              let property = webpackConfig
+              attrs.reverse().forEach(key => {
+                property[key] = {}
+                property = webpackConfig[key]
+              })
+            })
+          }
+          vueConfig.configureWebpack(webpackConfig)
+        } catch (e) {
+          console.log(e.message)
+        }
       }
-      const htmlPlugin: WebpackPluginInstance = webpackConfig.plugins.find((p: any) =>
+      const htmlPlugin: WebpackPluginInstance = webpackConfig.plugins?.find((p: any) =>
         p.constructor.name === 'HtmlWebpackPlugin' &&
         (!p.filename || p.filename === 'index.html'))
 
       // Base public path
       config.base =
-            process.env.PUBLIC_URL || vueConfig.publicPath || vueConfig.baseUrl || htmlPlugin.options?.publicPath
+            process.env.PUBLIC_URL || vueConfig.publicPath || vueConfig.baseUrl || htmlPlugin?.options?.publicPath
       recordConver({ num: 'V01', feat: 'base public path' })
 
       // css options

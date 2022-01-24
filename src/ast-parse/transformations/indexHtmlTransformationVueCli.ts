@@ -45,7 +45,9 @@ export const astTransform: ASTTransformation = async (
       : vueConfig.configureWebpack
   }
   // TODO: vueConfig.chainWebpack
-  const htmlPlugin: WebpackPluginInstance = webpackConfig.plugins.find((p: any) => p.constructor.name === 'HtmlWebpackPlugin')
+  const htmlPlugin: WebpackPluginInstance = webpackConfig.plugins.find((p: any) =>
+    p.constructor.name === 'HtmlWebpackPlugin' &&
+    (!p.filename || p.filename === 'index.html'))
 
   let indexPath: string
   if (htmlPlugin && htmlPlugin.options?.template) {

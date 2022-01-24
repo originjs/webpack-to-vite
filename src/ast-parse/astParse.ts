@@ -31,6 +31,8 @@ export type ParsingResultOccurrence = {
   type: ParserType
 }
 
+export type ParsingResultIdentifer = string[]
+
 export type TransformationParams = {
   config: Config
 }
@@ -46,7 +48,7 @@ export type AstTransformationResult = {
 }
 
 export type ParsingResult = {
-  [name: string]: ParsingResultOccurrence[]
+  [name: string]: ParsingResultOccurrence[] | ParsingResultIdentifer[]
 }
 
 export type AstParsingResult = {
@@ -144,7 +146,7 @@ export async function astParseRoot (
       }
 
       // parse the file
-      let parsingResult: ParsingResultOccurrence[] | null
+      let parsingResult: ParsingResultOccurrence[] | ParsingResultIdentifer[] | null
       try {
         parsingResult = parser.astParse(fileInfo)
       } catch (e) {
