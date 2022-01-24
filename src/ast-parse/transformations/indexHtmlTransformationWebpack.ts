@@ -40,7 +40,9 @@ export const astTransform: ASTTransformation = async (
 
   let indexPath: string
   if (htmlPlugin && htmlPlugin.options?.template) {
-    indexPath = path.resolve(rootDir, 'src', htmlPlugin.options.template)
+    indexPath = webpackConfig.context
+      ? path.resolve(rootDir, webpackConfig.context, htmlPlugin.options.template)
+      : path.resolve(rootDir, htmlPlugin.options.template)
   } else if (fs.existsSync(path.resolve(rootDir, 'index.html'))) {
     indexPath = path.resolve(rootDir, 'index.html')
   } else {
@@ -72,9 +74,7 @@ export const astTransform: ASTTransformation = async (
 
   parser.AST.traverseNodes(root, {
     enterNode (node: Node) {
-      if (node.type === 'VElement' && node.name === 'title' && htmlPlugin && htmlPlugin.options?.title) {
-        htmlContent = htmlContent.slice(0, node.startTag.range[1]) + '<%= title %>' + htmlContent.slice(node.endTag.range[0])
-      } else if (node.type === 'VElement' && node.name === 'script') {
+      if (node.type === 'VElement' && node.name === 'script') {
         const nodeAttrs: (VAttribute | VDirective)[] = node.startTag.attributes
         const entryNodeIsFound: boolean = nodeAttrs.some(
           (attr) =>
