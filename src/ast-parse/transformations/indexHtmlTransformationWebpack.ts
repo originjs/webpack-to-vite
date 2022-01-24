@@ -36,7 +36,9 @@ export const astTransform: ASTTransformation = async (
 
   const rootDir: string = transformationParams.config.rootDir
   const webpackConfig = await parseWebpackConfig(path.resolve(rootDir, 'webpack.config.js'))
-  const htmlPlugin: WebpackPluginInstance = webpackConfig.plugins.find((p: any) => p.constructor.name === 'HtmlWebpackPlugin')
+  const htmlPlugin: WebpackPluginInstance = webpackConfig.plugins.find((p: any) =>
+    p.constructor.name === 'HtmlWebpackPlugin' &&
+    (!p.filename || p.filename === 'index.html'))
 
   let indexPath: string
   if (htmlPlugin && htmlPlugin.options?.template) {

@@ -38,11 +38,13 @@ export class VueCliTransformer implements Transformer {
           ? vueConfig.configureWebpack(webpackConfig)
           : vueConfig.configureWebpack
       }
-      const htmlPlugin: WebpackPluginInstance = webpackConfig.plugins.find((p: any) => p.constructor.name === 'HtmlWebpackPlugin')
+      const htmlPlugin: WebpackPluginInstance = webpackConfig.plugins.find((p: any) =>
+        p.constructor.name === 'HtmlWebpackPlugin' &&
+        (!p.filename || p.filename === 'index.html'))
 
       // Base public path
       config.base =
-            process.env.PUBLIC_URL || vueConfig.publicPath || vueConfig.baseUrl
+            process.env.PUBLIC_URL || vueConfig.publicPath || vueConfig.baseUrl || htmlPlugin.options?.publicPath
       recordConver({ num: 'V01', feat: 'base public path' })
 
       // css options
@@ -143,10 +145,12 @@ export class VueCliTransformer implements Transformer {
       recordConver({ num: 'V05', feat: 'resolve.alias options' })
 
       // html-webpack-plugin
-      if (htmlPlugin && htmlPlugin.options && (!htmlPlugin.options.filename || htmlPlugin.options.filename === 'index.html')) {
+      if (htmlPlugin && htmlPlugin.options) {
         // injectData
         const injectHtmlPluginOption: InjectOptions = {}
-        let data = {}
+        let data = {
+          title: 'Vite App'
+        }
         Object.keys(htmlPlugin.options).forEach(key => {
           if ((key === 'title' || key === 'favicon') && htmlPlugin.options[key]) {
             data[key] = htmlPlugin.options[key]
@@ -155,9 +159,7 @@ export class VueCliTransformer implements Transformer {
         if (htmlPlugin.options?.templateParameters) {
           data = Object.assign({}, data, htmlPlugin.options.templateParameters)
         }
-        if (Object.keys(data).length) {
-          injectHtmlPluginOption.data = data
-        }
+        injectHtmlPluginOption.data = data
         if (htmlPlugin.options?.meta) {
           injectHtmlPluginOption.tags = []
           Object.keys(htmlPlugin.options.meta).forEach(key => {

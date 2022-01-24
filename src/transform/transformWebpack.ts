@@ -30,7 +30,9 @@ export class WebpackTransformer implements Transformer {
       const webpackConfig = await parseWebpackConfig(path.resolve(rootDir, 'webpack.config.js'))
       transformImporters(this.context, astParsingResult)
       const config = this.context.config
-      const htmlPlugin: WebpackPluginInstance = webpackConfig.plugins.find((p: any) => p.constructor.name === 'HtmlWebpackPlugin')
+      const htmlPlugin: WebpackPluginInstance = webpackConfig.plugins.find((p: any) =>
+        p.constructor.name === 'HtmlWebpackPlugin' &&
+        (!p.filename || p.filename === 'index.html'))
 
       // convert base config
       // webpack may have multiple entry files, e.g.
@@ -129,10 +131,12 @@ export class WebpackTransformer implements Transformer {
       recordConver({ num: 'W05', feat: 'define options' })
 
       // html-webpack-plugin
-      if (htmlPlugin && htmlPlugin.options && (!htmlPlugin.options.filename || htmlPlugin.options.filename === 'index.html')) {
+      if (htmlPlugin && htmlPlugin.options) {
         // injectData
         const injectHtmlPluginOption: InjectOptions = {}
-        let data = {}
+        let data = {
+          title: 'Vite App'
+        }
         Object.keys(htmlPlugin.options).forEach(key => {
           if ((key === 'title' || key === 'favicon') && htmlPlugin.options[key]) {
             data[key] = htmlPlugin.options[key]
@@ -141,9 +145,7 @@ export class WebpackTransformer implements Transformer {
         if (htmlPlugin.options?.templateParameters) {
           data = Object.assign({}, data, htmlPlugin.options.templateParameters)
         }
-        if (Object.keys(data).length) {
-          injectHtmlPluginOption.data = data
-        }
+        injectHtmlPluginOption.data = data
         if (htmlPlugin.options?.meta) {
           injectHtmlPluginOption.tags = []
           Object.keys(htmlPlugin.options.meta).forEach(key => {
