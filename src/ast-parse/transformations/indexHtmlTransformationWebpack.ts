@@ -1,6 +1,6 @@
 import path from 'path'
 import fs from 'fs'
-import type HtmlWebpackPlugin from 'html-webpack-plugin'
+import type { WebpackPluginInstance } from 'webpack'
 import type {
   ESLintProgram,
   VAttribute,
@@ -36,7 +36,7 @@ export const astTransform: ASTTransformation = async (
 
   const rootDir: string = transformationParams.config.rootDir
   const webpackConfig = await parseWebpackConfig(path.resolve(rootDir, 'webpack.config.js'))
-  const htmlPlugin: HtmlWebpackPlugin = webpackConfig.plugins.find((p: any) => p.constructor.name === 'HtmlWebpackPlugin')
+  const htmlPlugin: WebpackPluginInstance = webpackConfig.plugins.find((p: any) => p.constructor.name === 'HtmlWebpackPlugin')
 
   let indexPath: string
   if (htmlPlugin && htmlPlugin.options?.template) {
@@ -54,10 +54,15 @@ export const astTransform: ASTTransformation = async (
     return null
   }
 
+  let htmlContent
   // add template tags for vue-eslint-parser
-  let htmlContent = !(htmlPlugin && htmlPlugin.options?.templateContent)
-    ? `${templateStart}${fileInfo.source}${templateEnd}`
-    : `${templateStart}${htmlPlugin.options.templateContent}${templateEnd}`
+  if (htmlPlugin && htmlPlugin.options?.templateContent) {
+    htmlContent = typeof htmlPlugin.options.templateContent === 'function'
+      ? `${templateStart}${htmlPlugin.options.templateContent()}${templateEnd}`
+      : `${templateStart}${htmlPlugin.options.templateContent}${templateEnd}`
+  } else {
+    htmlContent = `${templateStart}${fileInfo.source}${templateEnd}`
+  }
   const htmlAST: ESLintProgram = parser.parse(htmlContent, {
     sourceType: 'module'
   })
@@ -68,7 +73,7 @@ export const astTransform: ASTTransformation = async (
   parser.AST.traverseNodes(root, {
     enterNode (node: Node) {
       if (node.type === 'VElement' && node.name === 'title' && htmlPlugin && htmlPlugin.options?.title) {
-        htmlContent = htmlContent.slice(0, node.startTag.range[1]) + '<%- title %>' + htmlContent.slice(node.endTag.range[0])
+        htmlContent = htmlContent.slice(0, node.startTag.range[1]) + '<%= title %>' + htmlContent.slice(node.endTag.range[0])
       } else if (node.type === 'VElement' && node.name === 'script') {
         const nodeAttrs: (VAttribute | VDirective)[] = node.startTag.attributes
         const entryNodeIsFound: boolean = nodeAttrs.some(
@@ -139,7 +144,7 @@ export const astTransform: ASTTransformation = async (
   })
 
   // use vite-plugin-html to replace html-webpack-plugin
-  transformedHtml = transformedHtml.replace(/<%= htmlWebpackPlugin.(options|files)./g, '<%- ')
+  transformedHtml = transformedHtml.replace(/htmlWebpackPlugin.(options|files)./g, '')
 
   const result: TransformationResult = {
     fileInfo: fileInfo,
@@ -154,7 +159,8 @@ export const needReparse: boolean = false
 
 export const needWriteToOriginFile: boolean = false
 
-export const extensions: string[] = ['.html']
+// TODO: .aspx
+export const extensions: string[] = ['.html', '.ejs']
 
 export const transformationType: TransformationType =
   TRANSFORMATION_TYPES.indexHtmlTransformationWebpack

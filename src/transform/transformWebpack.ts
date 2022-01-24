@@ -1,6 +1,6 @@
 import path from 'path'
 import type { ServerOptions } from 'vite'
-import type HtmlWebpackPlugin from 'html-webpack-plugin'
+import type { WebpackPluginInstance } from 'webpack'
 import { parseWebpackConfig } from '../config/parse'
 import type { ViteConfig } from '../config/vite';
 import { RawValue } from '../config/vite'
@@ -30,7 +30,7 @@ export class WebpackTransformer implements Transformer {
       const webpackConfig = await parseWebpackConfig(path.resolve(rootDir, 'webpack.config.js'))
       transformImporters(this.context, astParsingResult)
       const config = this.context.config
-      const htmlPlugin: HtmlWebpackPlugin = webpackConfig.plugins.find((p: any) => p.constructor.name === 'HtmlWebpackPlugin')
+      const htmlPlugin: WebpackPluginInstance = webpackConfig.plugins.find((p: any) => p.constructor.name === 'HtmlWebpackPlugin')
 
       // convert base config
       // webpack may have multiple entry files, e.g.
@@ -127,15 +127,23 @@ export class WebpackTransformer implements Transformer {
         })
       }
       recordConver({ num: 'W05', feat: 'define options' })
+
       // html-webpack-plugin
       if (htmlPlugin && htmlPlugin.options && (!htmlPlugin.options.filename || htmlPlugin.options.filename === 'index.html')) {
+        // injectData
         const injectHtmlPluginOption: InjectOptions = {}
-        injectHtmlPluginOption.data = {}
+        let data = {}
         Object.keys(htmlPlugin.options).forEach(key => {
           if ((key === 'title' || key === 'favicon') && htmlPlugin.options[key]) {
-            injectHtmlPluginOption.data[key] = htmlPlugin.options[key]
+            data[key] = htmlPlugin.options[key]
           }
         })
+        if (htmlPlugin.options?.templateParameters) {
+          data = Object.assign({}, data, htmlPlugin.options.templateParameters)
+        }
+        if (Object.keys(data).length) {
+          injectHtmlPluginOption.data = data
+        }
         if (htmlPlugin.options?.meta) {
           injectHtmlPluginOption.tags = []
           Object.keys(htmlPlugin.options.meta).forEach(key => {
@@ -144,7 +152,8 @@ export class WebpackTransformer implements Transformer {
                 tag: 'meta',
                 attrs: {
                   name: key,
-                  content: htmlPlugin.options.meta[key]
+                  content: htmlPlugin.options.meta[key],
+                  injectTo: 'head'
                 }
               })
             }
@@ -163,6 +172,7 @@ export class WebpackTransformer implements Transformer {
             value: 'import { injectHtml } from \'vite-plugin-html\';'
           })
         }
+        // minify
         if (htmlPlugin.options?.minify) {
           const vitePluginHtmlImporterIndex = this.context.importers.findIndex(importer => importer.key === 'vite-plugin-html')
           if (vitePluginHtmlImporterIndex >= 0) {
