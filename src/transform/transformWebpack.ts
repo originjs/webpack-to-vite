@@ -30,9 +30,13 @@ export class WebpackTransformer implements Transformer {
       const webpackConfig = await parseWebpackConfig(path.resolve(rootDir, 'webpack.config.js'))
       transformImporters(this.context, astParsingResult)
       const config = this.context.config
-      const htmlPlugin: WebpackPluginInstance = webpackConfig.plugins.find((p: any) =>
-        p.constructor.name === 'HtmlWebpackPlugin' &&
+      let htmlPlugin: WebpackPluginInstance
+      if (webpackConfig.plugins) {
+        htmlPlugin = webpackConfig.plugins.find((p: any) =>
+          p.constructor.name === 'HtmlWebpackPlugin' &&
         (!p.filename || p.filename === 'index.html'))
+        htmlPlugin.options = htmlPlugin.options || htmlPlugin.userOptions
+      }
 
       // convert base config
       // webpack may have multiple entry files, e.g.
@@ -164,7 +168,7 @@ export class WebpackTransformer implements Transformer {
         this.context.config.plugins = this.context.config.plugins || []
         const injectHtmlPluginIndex = this.context.config.plugins.findIndex(p => p.value === 'injectHtml()')
         if (injectHtmlPluginIndex >= 0) {
-          this.context.config.plugins[injectHtmlPluginIndex] = new RawValue('injectHtml(' + serializeObject(injectHtmlPluginOption, '  ') + ')')
+          this.context.config.plugins[injectHtmlPluginIndex] = new RawValue('injectHtml(' + serializeObject(injectHtmlPluginOption, '    ') + ')')
         } else {
           this.context.config.plugins.push(new RawValue('injectHtml(' + serializeObject(injectHtmlPluginOption, '    ') + ')'))
         }
