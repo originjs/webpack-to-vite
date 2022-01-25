@@ -40,7 +40,9 @@ export async function geneIndexHtml (
 
 export function generateHtmlWithEntries (entries: Map<string, string[]>): string {
   let htmlWithEntries: string = ''
-  entries.forEach((value, key) => {
+  Array.from(entries).every(record => {
+    const key = record[0]
+    const value = record[1]
     if (key === 'app') {
       value.forEach(entryPath => {
         htmlWithEntries += `  <script type="module" src="${entryPath}"></script>\n`
