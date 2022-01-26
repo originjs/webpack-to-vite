@@ -188,14 +188,15 @@ export class WebpackTransformer implements Transformer {
 function suitableFormat (entry: Entry) : Entry {
   const res : Entry = {}
   Object.keys(entry).forEach(function (name) {
-    if (!Array.isArray(entry[name])) {
-      res[name] = entry[name]
+    const entryPath = isObject(entry[name]) ? entry[name].import : entry[name]
+    if (!Array.isArray(entryPath)) {
+      res[name] = entryPath
       return
     }
-    entry[name].forEach((item, index) => {
-      const key = name.concat(index)
+    entryPath.forEach((item, index) => {
+      const key = name.concat(index.toString())
       res[key] = item
     })
-  });
+  })
   return res
 }

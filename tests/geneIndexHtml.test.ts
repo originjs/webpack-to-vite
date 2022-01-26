@@ -1,12 +1,12 @@
 import path from 'path'
 import {
   geneIndexHtml,
-  generateEntriesHtml,
+  generateHtmlWithEntries,
   generateWithVueCliPublicIndex,
   getDefaultEntries,
   getEntries
 } from '../src/generate/geneIndexHtml'
-import { copyFileSync, mkdirSync, rmdirSync } from 'fs'
+import { mkdirSync, rmdirSync } from 'fs'
 import { removeSync, writeSync, readSync } from '../src/utils/file'
 import { AstParsingResult } from '../src/ast-parse/astParse'
 import { TRANSFORMATION_TYPES } from '../src/constants/constants'
@@ -133,7 +133,7 @@ describe('generateWithVueCliPublicIndex', () => {
 describe('getEntries', () => {
   test('getEntries from string', () => {
     const result = getEntries(path.resolve('tests/out-index-html'), './main.js')
-    expect(result).toEqual(['main.js'])
+    expect(result.get('app')).toEqual(['main.js'])
   })
 
   test('getEntries from array', () => {
@@ -141,7 +141,7 @@ describe('getEntries', () => {
       './app1.js',
       './app2.js'
     ])
-    expect(result).toEqual(['app1.js', 'app2.js'])
+    expect(result.get('app')).toEqual(['app1.js', 'app2.js'])
   })
 
   test('getEntries from object', () => {
@@ -149,17 +149,12 @@ describe('getEntries', () => {
       app1: './app1.js',
       subPage1: ['./pages/sub1.js', './pages/sub2.js'],
       subPage2: {
-        a3: './pages/sub3.js',
-        a4: './pages/sub4.js'
+        import: './pages/sub3.js'
       }
     })
-    expect(result).toEqual([
-      'app1.js',
-      'pages/sub1.js',
-      'pages/sub2.js',
-      'pages/sub3.js',
-      'pages/sub4.js'
-    ])
+    expect(result.get('app1')).toEqual(['app1.js'])
+    expect(result.get('subPage1')).toEqual(['pages/sub1.js', 'pages/sub2.js'])
+    expect(result.get('subPage2')).toEqual(['pages/sub3.js'])
   })
 
   test('getEntries from function', () => {
@@ -167,28 +162,35 @@ describe('getEntries', () => {
       path.resolve('tests/out-index-html'),
       () => './main.js'
     )
-    expect(result).toEqual(['./main.js'])
+    expect(result.get('app')).toEqual(['main.js'])
   })
 
   test('getEntries contain webpack-hot-middleware', () => {
     const result = getEntries(path.resolve('tests/out-index-html'), {
       app: ['./build/dev-client', './app.js']
     })
-    expect(result).toEqual(['app.js'])
+    expect(result.get('app')).toEqual(['app.js'])
   })
 })
 
 describe('getDefaultEntries', () => {
-  test('getDefaultEntries from vue.config.js', async () => {
-    const srcPath = path.resolve('tests/testdata/index-html/vue.config.js')
-    const destPath = path.resolve('tests/out-index-html/vue.config.js')
-    copyFileSync(srcPath, destPath)
+  test('getDefaultEntries from webpack.config.js', async () => {
     const result = await getDefaultEntries(
-      path.resolve('tests/out-index-html'),
+      path.resolve('tests/testdata/index-html'),
+      'webpack'
+    )
+    expect(result.get('app1')).toEqual(['pages/app1.js'])
+    expect(result.get('app2')).toEqual(['pages/app2.js', 'pages/app3.js'])
+    expect(result.get('app3')).toEqual(['pages/app4.js', 'pages/app5.js'])
+  })
+
+  test('getDefaultEntries from vue.config.js', async () => {
+    const result = await getDefaultEntries(
+      path.resolve('tests/testdata/index-html'),
       'vue-cli'
     )
-    expect(result).toEqual(['pages/app1.js', 'pages/app2.js'])
-    removeSync(destPath)
+    expect(result.get('app1')).toEqual(['pages/app1.js'])
+    expect(result.get('app2')).toEqual(['pages/app2.js'])
   })
 
   test('getDefaultEntries from src/main.ts', async () => {
@@ -198,7 +200,7 @@ describe('getDefaultEntries', () => {
       path.resolve('tests/out-index-html'),
       'vue-cli'
     )
-    expect(result).toEqual(['/src/main.ts'])
+    expect(result.get('app')).toEqual(['/src/main.ts'])
     removeSync(filePath)
   })
 
@@ -209,14 +211,15 @@ describe('getDefaultEntries', () => {
       path.resolve('tests/out-index-html'),
       'vue-cli'
     )
-    expect(result).toEqual(['/src/main.js'])
+    expect(result.get('app')).toEqual(['/src/main.js'])
     removeSync(filePath)
   })
 })
 
-test('generateEntriesHtml', () => {
-  const entries: string[] = ['pages/app1.js', 'pages/app2.js']
-  const result: string = generateEntriesHtml(entries)
+test('generateHtmlWithEntries', () => {
+  const entries: Map<string, string[]> = new Map()
+  entries.set('app', ['pages/app1.js', 'pages/app2.js'])
+  const result: string = generateHtmlWithEntries(entries)
   expect(result).toBe(
     '  <script type="module" src="pages/app1.js"></script>\n' +
       '  <script type="module" src="pages/app2.js"></script>\n'

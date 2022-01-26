@@ -6,7 +6,7 @@ import type { Config } from '../config/config'
 import type { AstParsingResult } from '../ast-parse/astParse'
 import { TRANSFORMATION_TYPES } from '../constants/constants'
 import { recordConver } from '../utils/report'
-import { parseVueCliConfig } from '../config/parse'
+import { parseVueCliConfig, parseWebpackConfig } from '../config/parse'
 
 export async function geneIndexHtml (
   rootDir: string,
@@ -16,7 +16,7 @@ export async function geneIndexHtml (
   const outputIndexPath: string = path.resolve(rootDir, 'index.html')
   const projectType: string = config.projectType
 
-  let entries: string[] = []
+  let entries: Map<string, string[]> = new Map()
   // `config.entry` can be type of string | array | object | function
   if (
     config.entry &&
@@ -38,20 +38,25 @@ export async function geneIndexHtml (
   recordConver({ num: 'B02', feat: 'add index.html' })
 }
 
-export function generateEntriesHtml (entries: string[]): string {
-  let entriesHtml: string = ''
-  for (const entry of entries) {
-    if (entry !== undefined) {
-      entriesHtml += `  <script type="module" src="${entry}"></script>\n`
+export function generateHtmlWithEntries (entries: Map<string, string[]>): string {
+  let htmlWithEntries: string = ''
+  Array.from(entries).every(record => {
+    const key = record[0]
+    const value = record[1]
+    if (key === 'app') {
+      value.forEach(entryPath => {
+        htmlWithEntries += `  <script type="module" src="${entryPath}"></script>\n`
+      })
+      return false
     }
-  }
-
-  return entriesHtml
+    return true
+  })
+  return htmlWithEntries
 }
 
 export function generateWithVueCliPublicIndex (
   astParsingResult: AstParsingResult,
-  entries: string[],
+  entries: Map<string, string[]>,
   projectType: string
 ): string {
   let indexHtmlTransformationResult
@@ -76,69 +81,72 @@ export function generateWithVueCliPublicIndex (
   } else {
     indexHtmlContent = readSync(path.join(__dirname, '../template/index.html'))
   }
-  return stringFormat(indexHtmlContent, generateEntriesHtml(entries))
+  return stringFormat(indexHtmlContent, generateHtmlWithEntries(entries))
 }
 
 export async function getDefaultEntries (
   rootDir: string,
   projectType: string
-): Promise<string[]> {
-  const entries: string[] = []
-  // TODO: vue-cli pages config
-  if (projectType !== 'webpack') {
-    const vueConfigFile = path.resolve(rootDir, 'vue.config.js')
-    const vueConfig = await parseVueCliConfig(vueConfigFile)
-    const entryConfig = vueConfig.pages
-    if (entryConfig) {
-      Object.keys(entryConfig).forEach((key) => {
-        const entryPath: string =
-          Object.prototype.toString.call(entryConfig[key]) === '[object String]'
-            ? relativePathFormat(rootDir, entryConfig[key])
-            : relativePathFormat(rootDir, entryConfig[key].entry)
-        entries.push(entryPath)
-      })
+): Promise<Map<string, string[]>> {
+  let entries: Map<string, string[]> = new Map()
+
+  // config entries
+  if (projectType === 'webpack' && fs.existsSync(path.resolve(rootDir, 'webpack.config.js'))) {
+    const webpackConfig = await parseWebpackConfig(path.resolve(rootDir, 'webpack.config.js'))
+    const webpackEntries = webpackConfig.entry
+    if (webpackEntries) {
+      entries = getEntries(rootDir, webpackEntries, webpackConfig.context)
+    }
+  } else if (fs.existsSync(path.resolve(rootDir, 'vue.config.js'))) {
+    const vueConfig = await parseVueCliConfig(path.resolve(rootDir, 'vue.config.js'))
+    const vueEntries = vueConfig.pages
+    if (vueEntries) {
+      entries = getEntries(rootDir, vueEntries)
     }
   }
-  let mainFile = path.resolve(rootDir, 'src/main.ts')
-  if (fs.existsSync(mainFile)) {
-    if (!entries.some((entryPath) => entryPath === 'src/main.ts')) {
-      entries.push('/src/main.ts')
+
+  // default
+  if (!entries.size) {
+    if (fs.existsSync(path.resolve(rootDir, 'src/main.ts'))) {
+      entries.set('app', ['/src/main.ts'])
+    } else if (fs.existsSync(path.resolve(rootDir, 'src/main.js'))) {
+      entries.set('app', ['/src/main.js'])
     }
-    return entries
   }
-  mainFile = path.resolve(rootDir, 'src/main.js')
-  if (fs.existsSync(mainFile)) {
-    if (!entries.some((entryPath) => entryPath === 'src/main.js')) {
-      entries.push('/src/main.js')
-    }
-    return entries
-  }
+
   return entries
 }
 
-export function getEntries (rootDir: string, entry: any): string[] {
-  let entries: string[] = []
-  if (entry === undefined) {
+export function getEntries (rootDir: string, rawEntry: any, context?: string): Map<string, string[]> {
+  let entries: Map<string, string[]> = new Map()
+  entries.set('app', [])
+  if (rawEntry === undefined) {
     return entries
   }
-  if (isObject(entry) || Array.isArray(entry)) {
-    Object.keys(entry).forEach(function (name) {
-      if (typeof entry[name] === 'string') {
-        entries.push(relativePathFormat(rootDir, entry[name]))
-      } else {
-        const deepEntries = getEntries(rootDir, entry[name])
-        entries = entries.concat(deepEntries)
-      }
+  if (isObject(rawEntry)) {
+    Object.keys(rawEntry).forEach(name => {
+      const entry = isObject(rawEntry[name])
+        ? rawEntry[name].import || rawEntry[name].entry
+        : rawEntry[name]
+      entries.set(name, getEntries(rootDir, entry, context).get('app'))
     })
-  }
-  if (typeof entry === 'function') {
-    entries.push(entry())
-  }
-  if (typeof entry === 'string') {
-    entries.push(relativePathFormat(rootDir, entry))
+  } else if (typeof rawEntry === 'function') {
+    const entriesGettedByFunction = rawEntry()
+    entries = getEntries(rootDir, entriesGettedByFunction, context)
+  } else if (Array.isArray(rawEntry)) {
+    // set to 'app' by default
+    entries.set('app', rawEntry.map(entry => context ? relativePathFormat(rootDir, path.join(context, entry)) : relativePathFormat(rootDir, entry)))
+  } else if (typeof rawEntry === 'string') {
+    // set to 'app' by default
+    const entryPath = context
+      ? relativePathFormat(rootDir, path.join(context, rawEntry))
+      : relativePathFormat(rootDir, rawEntry)
+    entries.set('app', [entryPath])
   }
 
   // vite support hmr by default, so do not need to import webpack-hot-middleware
-  entries = entries.filter((item) => !item.includes('dev-client'))
+  entries.forEach((value, key) => {
+    entries.set(key, value.filter((item) => !item.includes('dev-client')))
+  })
   return entries
 }
