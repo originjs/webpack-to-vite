@@ -48,4 +48,21 @@ describe('WebpackTransformer', () => {
             }
         })
     })
+
+    test('transform webpack.config.js', async () => {
+        const srcPath: string = path.resolve('tests/testdata/transform-webpack/webpack.config.js')
+        const destPath: string = path.resolve('tests/out-transform-webpack/webpack.config.js')
+        fs.copyFileSync(srcPath, destPath)
+
+        const transformer: WebpackTransformer = new WebpackTransformer()
+        const viteConfig: ViteConfig = await transformer.transform(path.resolve('tests/out-transform-webpack'))
+        expect(viteConfig.build.rollupOptions.input).toEqual('./main.js')
+        expect(viteConfig.build.rollupOptions.output.entryFileNames).toEqual('bundle.js')
+        expect(viteConfig.resolve.alias).toMatchObject([
+            {
+                find: '@',
+                replacement: new RawValue(`path.resolve(__dirname,'src')`)
+            }
+        ])
+    })
 })

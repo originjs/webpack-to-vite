@@ -196,8 +196,10 @@ Options:
   * 如果 `entry` 类型是 `string` ，`entry` -> `build.rollupOptions.input`
   * 如果 `entry` 类型是 `object` ，则将 object 中的每条属性配置到 `build.rollupOptions.input` 中
   * 如果 `entry` 类型是 `function` ，则将 function 的运行结果配置到 `build.rollupOptions.input` 中
-* ✅ W02: outDir 配置
+* ✅ W02: output 配置
   * `output.path` -> `build.outDir`
+  * `output.filename` -> `build.rollupOptions.output.entryFileNames`
+  * `output.chunkFilename` -> `build.rollupOptions.output.chunkFileNames`
 * ✅ W03: `resolve.alias` 配置
   * 添加默认 alias 配置
 
