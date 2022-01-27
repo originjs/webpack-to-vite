@@ -151,7 +151,7 @@ export const astTransform: ASTTransformation = async (
   const result: TransformationResult = {
     fileInfo: fileInfo,
     content: transformedHtml,
-    type: TRANSFORMATION_TYPES.removeHtmlLangInTemplateTransformation
+    type: TRANSFORMATION_TYPES.indexHtmlTransformationWebpack
   }
 
   return result

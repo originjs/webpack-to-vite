@@ -1,7 +1,8 @@
-import { parseVueCliConfig } from '../config/parse'
+import { applyAstParsingResultToConfig, parseVueCliConfig } from '../config/parse'
 import Config from 'webpack-chain'
 import merge from 'webpack-merge'
-import type { Configuration, WebpackPluginInstance } from 'webpack'
+import type { Configuration } from 'webpack'
+import { existsSync } from 'fs'
 import type { Transformer } from './transformer';
 import { initViteConfig, transformImporters } from './transformer'
 import type { ViteConfig } from '../config/vite';
@@ -9,7 +10,7 @@ import { RawValue } from '../config/vite'
 import path from 'path'
 import type { TransformContext } from './context'
 import { getVueVersion } from '../utils/version'
-import { DEFAULT_VUE_VERSION } from '../constants/constants'
+import { DEFAULT_VUE_VERSION, VUE_CONFIG_HTML_PLUGIN } from '../constants/constants'
 import { recordConver } from '../utils/report'
 import type { ServerOptions } from 'vite';
 import type { AstParsingResult } from '../ast-parse/astParse'
@@ -31,29 +32,56 @@ export class VueCliTransformer implements Transformer {
       this.context.vueVersion = getVueVersion(rootDir)
       transformImporters(this.context, astParsingResult)
       const config = this.context.config
-      const vueConfig = await parseVueCliConfig(path.resolve(rootDir, 'vue.config.js'))
+      const vueConfigPath = existsSync(path.resolve(rootDir, 'vue.temp.config.ts')) ? path.resolve(rootDir, 'vue.temp.config.ts') : path.resolve(rootDir, 'vue.temp.config.js')
+      const vueConfig = await parseVueCliConfig(vueConfigPath)
+
       let webpackConfig: Configuration = {}
+      // vueConfig.configureWebpack
       if (vueConfig.configureWebpack && typeof vueConfig.configureWebpack !== 'function') {
         webpackConfig = vueConfig.configureWebpack
-      } else if (vueConfig.configureWebpack) {
+      } else if (vueConfig.configureWebpack && astParsingResult) {
         try {
-          if (astParsingResult && astParsingResult.parsingResult.FindWebpackConfigureAttrs) {
-            astParsingResult.parsingResult.FindWebpackConfigureAttrs.forEach(attrs => {
-              let property = webpackConfig
-              attrs.reverse().forEach(key => {
-                property[key] = {}
-                property = webpackConfig[key]
-              })
-            })
-          }
+          webpackConfig = applyAstParsingResultToConfig(webpackConfig, 'FindWebpackConfigAttrs', astParsingResult.parsingResult)
           vueConfig.configureWebpack(webpackConfig)
         } catch (e) {
-          console.log(e.message)
+          console.error('\nTransforming configureWebpack config failed. Please manually convert it.')
+          console.error(e)
+          console.log('skip transforming the configureWebpack...')
         }
       }
-      const htmlPlugin: WebpackPluginInstance = webpackConfig.plugins?.find((p: any) =>
-        p.constructor.name === 'HtmlWebpackPlugin' &&
+
+      // vueConfig.chainWebpack
+      const chainableConfig = new Config()
+      if (vueConfig.chainWebpack) {
+        try {
+          vueConfig.chainWebpack(chainableConfig)
+        } catch (e) {
+          console.error('\nTransforming chainWebpack config failed. Please manually convert it.')
+          console.error(e)
+          console.log('skip transforming the chainWebpack...')
+        }
+      }
+
+      let htmlPlugin: any
+      if (webpackConfig.plugins) {
+        htmlPlugin = webpackConfig.plugins.find((p: any) =>
+          p.constructor.name === 'HtmlWebpackPlugin' &&
         (!p.filename || p.filename === 'index.html'))
+        if (htmlPlugin) {
+          htmlPlugin.options = htmlPlugin.options || htmlPlugin.userOptions
+        }
+      }
+
+      // vueConfig.chainWebpack => plugin('html')
+      if (vueConfig[VUE_CONFIG_HTML_PLUGIN]) {
+        const htmlPluginArgs = [{}]
+        vueConfig[VUE_CONFIG_HTML_PLUGIN](htmlPluginArgs)
+        const htmlPluginFromChainWebpack = {
+          options: htmlPluginArgs[0]
+        }
+        htmlPlugin = {}
+        Object.assign(htmlPlugin, htmlPluginFromChainWebpack)
+      }
 
       // Base public path
       config.base =
@@ -105,35 +133,17 @@ export class VueCliTransformer implements Transformer {
             vueConfig.productionSourceMap ||
             css.sourceMap
       recordConver({ num: 'V03', feat: 'build options' })
+
       // alias
-      const chainableConfig = new Config()
-      if (vueConfig.chainWebpack) {
-        try {
-          vueConfig.chainWebpack(chainableConfig)
-        } catch (e) {
-          console.error('\nTransforming chainWebpack config failed. Please manually convert it.')
-          console.error(e)
-          console.log('skip transforming the chainWebpack...')
-        }
-      }
       const aliasOfChainWebpack = chainableConfig.resolve.alias.entries()
       const aliasOfConfigureWebpackObjectMode =
             vueConfig?.configureWebpack?.resolve?.alias || {}
       const aliasOfConfigureFunctionMode = (() => {
         if (typeof vueConfig.configureWebpack === 'function') {
-          let originConfig
-          let res
-          try {
-            originConfig = chainableConfig.toConfig()
-            res = vueConfig.configureWebpack(originConfig)
-          } catch (e) {
-            console.error('\nTransforming configureWebpack config failed. Please manually convert it.')
-            console.error(e)
-            console.log('skip transforming the configureWebpack...')
-          }
-          originConfig = merge(originConfig, res)
-          if (res) {
-            return res.resolve.alias || {}
+          let originConfig = chainableConfig.toConfig()
+          originConfig = merge(originConfig, webpackConfig)
+          if (webpackConfig) {
+            return webpackConfig.resolve?.alias || {}
           }
           return (originConfig.resolve && originConfig.resolve.alias) || {}
         }
@@ -161,7 +171,7 @@ export class VueCliTransformer implements Transformer {
       if (htmlPlugin && htmlPlugin.options) {
         // injectData
         const injectHtmlPluginOption: InjectOptions = {}
-        let data = {
+        const data = {
           title: 'Vite App'
         }
         Object.keys(htmlPlugin.options).forEach(key => {
@@ -170,7 +180,7 @@ export class VueCliTransformer implements Transformer {
           }
         })
         if (htmlPlugin.options?.templateParameters) {
-          data = Object.assign({}, data, htmlPlugin.options.templateParameters)
+          Object.assign(data, htmlPlugin.options.templateParameters)
         }
         injectHtmlPluginOption.data = data
         if (htmlPlugin.options?.meta) {
@@ -191,7 +201,7 @@ export class VueCliTransformer implements Transformer {
         this.context.config.plugins = this.context.config.plugins || []
         const injectHtmlPluginIndex = this.context.config.plugins.findIndex(p => p.value === 'injectHtml()')
         if (injectHtmlPluginIndex >= 0) {
-          this.context.config.plugins[injectHtmlPluginIndex] = new RawValue('injectHtml(' + serializeObject(injectHtmlPluginOption, '  ') + ')')
+          this.context.config.plugins[injectHtmlPluginIndex] = new RawValue('injectHtml(' + serializeObject(injectHtmlPluginOption, '    ') + ')')
         } else {
           this.context.config.plugins.push(new RawValue('injectHtml(' + serializeObject(injectHtmlPluginOption, '    ') + ')'))
         }

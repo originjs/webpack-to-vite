@@ -1,5 +1,5 @@
 import path from 'path'
-import fs from 'fs'
+import { existsSync } from 'fs'
 import type {
   ESLintProgram,
   VAttribute,
@@ -7,25 +7,27 @@ import type {
 } from 'vue-eslint-parser/ast'
 import * as parser from 'vue-eslint-parser'
 import type { Node } from 'vue-eslint-parser/ast/nodes'
-import type { Configuration, WebpackPluginInstance } from 'webpack'
+import type { Configuration } from 'webpack'
 import type { ASTTransformation, TransformationType } from './index'
-import { TRANSFORMATION_TYPES } from '../../constants/constants'
+import { TRANSFORMATION_TYPES, VUE_CONFIG_HTML_PLUGIN } from '../../constants/constants'
 import type {
   FileInfo,
   TransformationResult,
-  TransformationParams
+  TransformationParams,
+  ParsingResult
 } from '../astParse'
 import { stringSplice } from '../../utils/common'
 import { recordConver } from '../../utils/report'
 import { pathFormat } from '../../utils/file'
-import { parseVueCliConfig } from '../../config/parse'
+import { parseVueCliConfig, applyAstParsingResultToConfig } from '../../config/parse'
 
 const templateStart: string = '<template>'
 const templateEnd: string = '</template>'
 
 export const astTransform: ASTTransformation = async (
   fileInfo: FileInfo,
-  transformationParams?: TransformationParams
+  transformationParams?: TransformationParams,
+  parsingResult?: ParsingResult
 ) => {
   if (!transformationParams) {
     return null
@@ -36,27 +38,50 @@ export const astTransform: ASTTransformation = async (
   }
 
   const rootDir: string = transformationParams.config.rootDir
-  let webpackConfig: Configuration = {}
-  const vueConfig = await parseVueCliConfig(path.resolve(rootDir, 'vue.config.js'))
+  const vueConfigPath = existsSync(path.resolve(rootDir, 'vue.temp.config.ts')) ? path.resolve(rootDir, 'vue.temp.config.ts') : path.resolve(rootDir, 'vue.temp.config.js')
+  const vueConfig = await parseVueCliConfig(vueConfigPath)
   // vueConfig.configureWebpack
-  if (vueConfig.configureWebpack) {
-    webpackConfig = typeof vueConfig.configureWebpack === 'function'
-      ? vueConfig.configureWebpack(webpackConfig)
-      : vueConfig.configureWebpack
+  let webpackConfig: Configuration = {}
+  if (vueConfig.configureWebpack && typeof vueConfig.configureWebpack !== 'function') {
+    webpackConfig = vueConfig.configureWebpack
+  } else if (vueConfig.configureWebpack) {
+    try {
+      webpackConfig = applyAstParsingResultToConfig(webpackConfig, 'FindWebpackConfigAttrs', parsingResult)
+      vueConfig.configureWebpack(webpackConfig)
+    } catch (e) {
+      console.log(e.message)
+    }
   }
-  // TODO: vueConfig.chainWebpack
-  const htmlPlugin: WebpackPluginInstance = webpackConfig.plugins.find((p: any) =>
-    p.constructor.name === 'HtmlWebpackPlugin' &&
-    (!p.filename || p.filename === 'index.html'))
+
+  let htmlPlugin: any
+  if (webpackConfig.plugins) {
+    htmlPlugin = webpackConfig.plugins.find((p: any) =>
+      p.constructor.name === 'HtmlWebpackPlugin' &&
+        (!p.filename || p.filename === 'index.html'))
+    if (htmlPlugin) {
+      htmlPlugin.options = htmlPlugin.options || htmlPlugin.userOptions
+    }
+  }
+
+  // vueConfig.chainWebpack => plugin('html')
+  if (vueConfig[VUE_CONFIG_HTML_PLUGIN]) {
+    const htmlPluginArgs = [{}]
+    vueConfig[VUE_CONFIG_HTML_PLUGIN](htmlPluginArgs)
+    const htmlPluginFromChainWebpack = {
+      options: htmlPluginArgs[0]
+    }
+    htmlPlugin = {}
+    Object.assign(htmlPlugin, htmlPluginFromChainWebpack)
+  }
 
   let indexPath: string
   if (htmlPlugin && htmlPlugin.options?.template) {
     indexPath = webpackConfig.context
       ? path.resolve(rootDir, webpackConfig.context, htmlPlugin.options.template)
       : path.resolve(rootDir, htmlPlugin.options.template)
-  } else if (fs.existsSync(path.resolve(rootDir, 'public/index.html'))) {
+  } else if (existsSync(path.resolve(rootDir, 'public/index.html'))) {
     indexPath = path.resolve(rootDir, 'public/index.html')
-  } else if (fs.existsSync(path.resolve(rootDir, 'index.html'))) {
+  } else if (existsSync(path.resolve(rootDir, 'index.html'))) {
     indexPath = path.resolve(rootDir, 'index.html')
   } else {
     indexPath = null
@@ -98,7 +123,7 @@ export const astTransform: ASTTransformation = async (
           (attr) =>
             attr.key.name === 'src' &&
             attr.value.type === 'VLiteral' &&
-            fs.existsSync(path.resolve(rootDir, attr.value.value))
+            existsSync(path.resolve(rootDir, attr.value.value))
         )
         // remove original entry scripts with spaces
         if (entryNodeIsFound && entryFileIsFound) {
@@ -163,7 +188,7 @@ export const astTransform: ASTTransformation = async (
   const result: TransformationResult = {
     fileInfo: fileInfo,
     content: transformedHtml,
-    type: TRANSFORMATION_TYPES.removeHtmlLangInTemplateTransformation
+    type: TRANSFORMATION_TYPES.indexHtmlTransformationVueCli
   }
 
   return result
