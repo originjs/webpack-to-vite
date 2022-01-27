@@ -29,9 +29,13 @@ export type ParsingResultOccurrence = {
   offsetBegin: number
   offsetEnd: number
   type: ParserType
+  params?: any
 }
 
-export type ParsingResultIdentifer = string[]
+export type ParsingResultProperty = {
+  name: string
+  type: string
+}
 
 export type TransformationParams = {
   config: Config
@@ -48,7 +52,7 @@ export type AstTransformationResult = {
 }
 
 export type ParsingResult = {
-  [name: string]: ParsingResultOccurrence[] | ParsingResultIdentifer[]
+  [name: string]: ParsingResultOccurrence[] | ParsingResultProperty[][]
 }
 
 export type AstParsingResult = {
@@ -73,22 +77,72 @@ export async function astParseRoot (
     config: config
   }
   cliInstance.setTotal(cliInstance.total + resolvedPaths.length)
-  for (const filePath of resolvedPaths) {
-    cliInstance.increment({ doSomething: `AST Parsing: ${filePath}` })
 
-    const extension = (/\.([^.]*)$/.exec(filePath) || [])[0]
+  for (const key in parsersMap) {
+    for (const filePath of resolvedPaths) {
+      cliInstance.increment({ doSomething: `AST Parsing: ${filePath}` })
 
-    const source: string = readSync(filePath).replace(/\r\n/g, '\n')
-    const fileInfo: FileInfo = {
-      path: filePath,
-      source: source
+      const extension = (/\.([^.]*)$/.exec(filePath) || [])[0]
+
+      const source: string = readSync(filePath).replace(/\r\n/g, '\n')
+      const fileInfo: FileInfo = {
+        path: filePath,
+        source: source
+      }
+      const parser = parsersMap[key]
+
+      // filter by file extension
+      const extensions: string[] = parser.extensions
+      if (!extensions.includes(extension)) {
+        continue
+      }
+
+      // parse the file
+      let parsingResult: ParsingResultOccurrence[] | ParsingResultProperty[][] | null
+      try {
+        parsingResult = parser.astParse(fileInfo)
+      } catch (e) {
+        if (extension === '.js') {
+          console.warn(
+            '\nFailed to parse .js file because the content contains invalid JS syntax. ' +
+              'If you are using JSX, make sure to name the file with the .jsx or .tsx extension.'
+          )
+        }
+        console.error(`AST parsing file failed, filePath: ${filePath}\n`, e)
+        console.log('skip parsing the error file...')
+        continue
+      }
+
+      if (!parsingResult) {
+        continue
+      }
+
+      if (!parsingResults[parser.parserType]) {
+        parsingResults[parser.parserType] = []
+      }
+      parsingResults[parser.parserType].push.apply(
+        parsingResults[parser.parserType],
+        parsingResult
+      )
     }
-    let transformationResultContent: string = source
-    let tempTransformationResult: TransformationResult | null
+  }
 
-    // iter all transformations
-    for (const key in transformationMap) {
+  // iter all transformations
+  for (const key in transformationMap) {
+    for (const filePath of resolvedPaths) {
+      cliInstance.increment({ doSomething: `AST Parsing: ${filePath}` })
+
+      const extension = (/\.([^.]*)$/.exec(filePath) || [])[0]
+
+      const source: string = readSync(filePath).replace(/\r\n/g, '\n')
+      const fileInfo: FileInfo = {
+        path: filePath,
+        source: source
+      }
       const transformation = transformationMap[key]
+
+      let transformationResultContent: string = source
+      let tempTransformationResult: TransformationResult | null
 
       // filter by file extension
       const extensions: string[] = transformation.extensions
@@ -100,7 +154,8 @@ export async function astParseRoot (
       try {
         tempTransformationResult = await transformation.astTransform(
           fileInfo,
-          transformationParams
+          transformationParams,
+          parsingResults
         )
       } catch (e) {
         if (extension === '.js') {
@@ -134,44 +189,6 @@ export async function astParseRoot (
       if (transformation.needWriteToOriginFile) {
         writeSync(filePath, transformationResultContent)
       }
-    }
-
-    for (const key in parsersMap) {
-      const parser = parsersMap[key]
-
-      // filter by file extension
-      const extensions: string[] = parser.extensions
-      if (!extensions.includes(extension)) {
-        continue
-      }
-
-      // parse the file
-      let parsingResult: ParsingResultOccurrence[] | ParsingResultIdentifer[] | null
-      try {
-        parsingResult = parser.astParse(fileInfo)
-      } catch (e) {
-        if (extension === '.js') {
-          console.warn(
-            '\nFailed to parse .js file because the content contains invalid JS syntax. ' +
-              'If you are using JSX, make sure to name the file with the .jsx or .tsx extension.'
-          )
-        }
-        console.error(`AST parsing file failed, filePath: ${filePath}\n`, e)
-        console.log('skip parsing the error file...')
-        continue
-      }
-
-      if (!parsingResult) {
-        continue
-      }
-
-      if (!parsingResults[parser.parserType]) {
-        parsingResults[parser.parserType] = []
-      }
-      parsingResults[parser.parserType].push.apply(
-        parsingResults[parser.parserType],
-        parsingResult
-      )
     }
   }
 
