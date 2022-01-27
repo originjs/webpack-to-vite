@@ -1,6 +1,5 @@
 import path from 'path'
 import fs from 'fs'
-import type { WebpackPluginInstance } from 'webpack'
 import type {
   ESLintProgram,
   VAttribute,
@@ -36,10 +35,15 @@ export const astTransform: ASTTransformation = async (
 
   const rootDir: string = transformationParams.config.rootDir
   const webpackConfig = await parseWebpackConfig(path.resolve(rootDir, 'webpack.config.js'))
-  const htmlPlugin: WebpackPluginInstance = webpackConfig.plugins.find((p: any) =>
-    p.constructor.name === 'HtmlWebpackPlugin' &&
+  let htmlPlugin: any
+  if (webpackConfig.plugins) {
+    htmlPlugin = webpackConfig.plugins.find((p: any) =>
+      p.constructor.name === 'HtmlWebpackPlugin' &&
     (!p.filename || p.filename === 'index.html'))
-
+    if (htmlPlugin) {
+      htmlPlugin.options = htmlPlugin.options || htmlPlugin.userOptions
+    }
+  }
   let indexPath: string
   if (htmlPlugin && htmlPlugin.options?.template) {
     indexPath = webpackConfig.context
