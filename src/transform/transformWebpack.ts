@@ -1,6 +1,7 @@
 import path from 'path'
 import type { ServerOptions } from 'vite'
 import type { WebpackPluginInstance } from 'webpack'
+import type { OutputOptions } from 'rollup'
 import { parseWebpackConfig } from '../config/parse'
 import type { ViteConfig } from '../config/vite';
 import { RawValue } from '../config/vite'
@@ -13,9 +14,9 @@ import { isObject } from '../utils/common'
 import { recordConver } from '../utils/report'
 import type { AstParsingResult } from '../ast-parse/astParse'
 import { getVueVersion } from '../utils/version'
-import { relativePathFormat } from '../utils/file'
 import { serializeObject } from '../generate/render'
 import type { InjectOptions } from '../config/config'
+import { relativePathFormat } from '../utils/file'
 
 // convert webpack.config.js => vite.config.js
 export class WebpackTransformer implements Transformer {
@@ -88,7 +89,25 @@ export class WebpackTransformer implements Transformer {
         const relativePath = relativePathFormat(rootDir, webpackConfig.output.path)
         config.build.outDir = new RawValue(`path.resolve(__dirname, '${relativePath}')`)
       }
-      recordConver({ num: 'W02', feat: 'outDir options' })
+      if (webpackConfig.output?.filename) {
+        const output: OutputOptions = {
+          entryFileNames: webpackConfig.output.filename
+        }
+        if (!config.build.rollupOptions.output) {
+          config.build.rollupOptions.output = {}
+        }
+        Object.assign(config.build.rollupOptions.output, output)
+      }
+      if (webpackConfig.output?.chunkFilename) {
+        const output: OutputOptions = {
+          chunkFileNames: webpackConfig.output.chunkFilename
+        }
+        if (!config.build.rollupOptions.output) {
+          config.build.rollupOptions.output = {}
+        }
+        Object.assign(config.build.rollupOptions.output, output)
+      }
+      recordConver({ num: 'W02', feat: 'output options' })
       // convert alias
       const defaultAlias = []
       const alias = {
@@ -244,14 +263,15 @@ export class WebpackTransformer implements Transformer {
 function suitableFormat (entry: Entry) : Entry {
   const res : Entry = {}
   Object.keys(entry).forEach(function (name) {
-    if (!Array.isArray(entry[name])) {
-      res[name] = entry[name]
+    const entryPath = isObject(entry[name]) ? entry[name].import : entry[name]
+    if (!Array.isArray(entryPath)) {
+      res[name] = entryPath
       return
     }
-    entry[name].forEach((item, index) => {
-      const key = name.concat(index)
+    entryPath.forEach((item, index) => {
+      const key = name.concat(index.toString())
       res[key] = item
     })
-  });
+  })
   return res
 }

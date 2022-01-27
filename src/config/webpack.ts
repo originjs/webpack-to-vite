@@ -1,9 +1,10 @@
-import { Config, DevServer } from './config'
+import type { Config, DevServer } from './config'
 
 export interface Output {
     path?: string;
     filename?: string;
     publicPath?: string;
+    chunkFilename?: string
 }
 
 export interface Rule {

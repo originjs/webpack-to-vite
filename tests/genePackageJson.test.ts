@@ -76,7 +76,7 @@ describe('genePackageJson', () => {
     const packageJsonContent = JSON.parse(readSync(packageJsonPath))
     expect(packageJsonContent.devDependencies).toBe(
       expect.objectContaining({
-        '@vue/compiler-sfc': expect.any(String),
+        '@vue/compiler-sfc': "^3.0.0",
         '@vitejs/plugin-vue': expect.any(String),
         '@vitejs/plugin-vue-jsx': expect.any(String)
       })

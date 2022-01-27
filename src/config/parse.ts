@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import chalk from 'chalk';
 import type { WebpackConfig } from './webpack';
 import type { VueCliConfig } from './vuecli';
 import type { ParsingResult } from '../ast-parse/astParse';
@@ -18,7 +19,10 @@ export async function parseWebpackConfig (
       return webpackConfig
     } catch (e) {
       if (e.message.includes(configPath)) {
-        console.error(`\nFailed to parse webpack config from default file path: ${configPath}.`)
+        console.error(chalk.red(`\nFailed to parse webpack config from default file path: ${configPath}.`))
+        if (e.code === 'MODULE_NOT_FOUND') {
+          console.log('Module not found. Make sure the webpack project dependencies have been installed before conversion.')
+        }
       } else {
         throw e
       }
@@ -40,11 +44,14 @@ export async function parseWebpackConfig (
     })
   } catch (e) {
     if (e.message.includes(devConfigPath)) {
-      console.error(`\nFailed to parse webpack config from default file path: ${devConfigPath}.`)
+      console.error(chalk.red(`\nFailed to parse webpack config from default file path: ${devConfigPath}.`))
       console.warn('Note: webpack conversion is based on `webpack.config.js` or' +
         ' `webpack.base.js/webpack.dev.js/webpack.prod.js` or' +
         ' `webpack.build.js/webpack.production.js`, map configuration to `vite.config.js`. ' +
         '\nIf you are not using configuration files above, you need to convert configurations manually.')
+      if (e.code === 'MODULE_NOT_FOUND') {
+        console.log('Module not found. Make sure the webpack project dependencies have been installed before conversion.')
+      }
       console.log(`Using default webpack config: ${JSON.stringify(webpackConfig)}.`)
     } else {
       throw e
@@ -66,7 +73,10 @@ export async function parseVueCliConfig (
     }
   } catch (e) {
     if (e.message.includes(configPath)) {
-      console.error(`\nFailed to parse vue config from default file path: ${configPath}.`)
+      console.error(chalk.red(`\nFailed to parse vue config from default file path: ${configPath}.`))
+      if (e.code === 'MODULE_NOT_FOUND') {
+        console.log('Module not found. Make sure the vue project dependencies have been installed before conversion.')
+      }
       console.log(`Using default vue config: ${JSON.stringify(vueCliConfig)}.`)
     } else {
       throw e
