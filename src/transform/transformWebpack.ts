@@ -35,9 +35,10 @@ export class WebpackTransformer implements Transformer {
         htmlPlugin = webpackConfig.plugins.find((p: any) =>
           p.constructor.name === 'HtmlWebpackPlugin' &&
         (!p.filename || p.filename === 'index.html'))
-        htmlPlugin.options = htmlPlugin.options || htmlPlugin.userOptions
+        if (htmlPlugin) {
+          htmlPlugin.options = htmlPlugin.options || htmlPlugin.userOptions
+        }
       }
-
       // convert base config
       // webpack may have multiple entry files, e.g.
       // 1. one entry, with one entry file : e.g. entry: './app/index.js'
@@ -138,7 +139,7 @@ export class WebpackTransformer implements Transformer {
       if (htmlPlugin && htmlPlugin.options) {
         // injectData
         const injectHtmlPluginOption: InjectOptions = {}
-        let data = {
+        const data = {
           title: 'Vite App'
         }
         Object.keys(htmlPlugin.options).forEach(key => {
@@ -147,7 +148,7 @@ export class WebpackTransformer implements Transformer {
           }
         })
         if (htmlPlugin.options?.templateParameters) {
-          data = Object.assign({}, data, htmlPlugin.options.templateParameters)
+          Object.assign(data, htmlPlugin.options.templateParameters)
         }
         injectHtmlPluginOption.data = data
         if (htmlPlugin.options?.meta) {
