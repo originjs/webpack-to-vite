@@ -1,4 +1,4 @@
-import {stringFormat, stringSplice} from "../src/utils/common";
+import {getStringLinePosition, stringFormat, stringSplice} from "../src/utils/common";
 import {isObject} from "../src/utils/common";
 
 test('isObject', () => {
@@ -19,6 +19,12 @@ test('stringFormat', () => {
 
 test('stringSplice', () => {
     const testStr ='0123456789'
-    const result = stringSplice(testStr, 5, 6, 2)
-    expect(result).toBe('012456789')
+    const result = stringSplice(testStr, 5, 6)
+    expect(result).toBe('012346789')
+})
+
+test('getStringLinePosition', () => {
+    const testStr = ' line1\n line2\n line3\n line4\n'
+    const result = getStringLinePosition(testStr, 2)
+    expect(result).toBe(13)
 })

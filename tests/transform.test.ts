@@ -45,9 +45,18 @@ test('transformImports', () => {
   expect(context).toEqual(
     expect.objectContaining({
       importers: [
-        "import envCompatible from 'vite-plugin-env-compatible';",
-        "import { injectHtml } from 'vite-plugin-html';",
-        "import { viteCommonjs } from '@originjs/vite-plugin-commonjs';"
+        {
+          key: "vite-plugin-env-compatible",
+          value: "import envCompatible from 'vite-plugin-env-compatible';"
+        },
+        {
+          key: "vite-plugin-html",
+          value: "import { injectHtml } from 'vite-plugin-html';",
+        },
+        {
+          key: "@originjs/vite-plugin-commonjs",
+          value: "import { viteCommonjs } from '@originjs/vite-plugin-commonjs';"
+        }
       ],
       config: {
         plugins: [
@@ -70,7 +79,10 @@ test('transformImports', () => {
   expect(contextVue2).toEqual(
     expect.objectContaining({
       importers: expect.arrayContaining([
-        "import { createVuePlugin } from 'vite-plugin-vue2';"
+       {
+         key: "vite-plugin-vue2",
+        value: "import { createVuePlugin } from 'vite-plugin-vue2';"
+       }
       ]),
       config: {
         plugins: expect.arrayContaining([
@@ -91,8 +103,14 @@ test('transformImports', () => {
   expect(contextVue3).toEqual(
     expect.objectContaining({
       importers: expect.arrayContaining([
-        "import vue from '@vitejs/plugin-vue';",
-        "import vueJsx from '@vitejs/plugin-vue-jsx';"
+        {
+          key: "@vitejs/plugin-vue",
+          value: "import vue from '@vitejs/plugin-vue';",
+        },
+        {
+          key: "@vitejs/plugin-vue-jsx",
+          value: "import vueJsx from '@vitejs/plugin-vue-jsx';"
+        }
       ]),
       config: {
         plugins: expect.arrayContaining([

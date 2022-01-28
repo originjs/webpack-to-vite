@@ -10,7 +10,10 @@ test('render vite.config.js from template',  () => {
   const templatePath: string = path.resolve('src/template/vite.config.ejs')
   const data: TemplateData = {
     IMPORT_LIST: [
-        'import { viteCommonjs } from \'@originjs/vite-plugin-commonjs\''
+        {
+          key: '@originjs/vite-plugin-commonjs',
+          value: 'import { viteCommonjs } from \'@originjs/vite-plugin-commonjs\''
+        }
     ],
     USER_CONFIG: '{\n' +
         '    plugins: [\n' +
