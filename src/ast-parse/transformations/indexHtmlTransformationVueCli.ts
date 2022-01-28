@@ -31,7 +31,7 @@ export const astTransform: ASTTransformation = async (
   transformationParams?: TransformationParams,
   parsingResult?: ParsingResult
 ) => {
-  if (!transformationParams) {
+  if (!transformationParams && !transformationParams.config.rootDir) {
     return null
   }
 
@@ -81,11 +81,12 @@ export const astTransform: ASTTransformation = async (
   if (vueConfig[VUE_CONFIG_HTML_PLUGIN]) {
     const htmlPluginArgs = [{}]
     vueConfig[VUE_CONFIG_HTML_PLUGIN](htmlPluginArgs)
-    const htmlPluginFromChainWebpack = {
-      options: htmlPluginArgs[0]
+    if (!htmlPlugin) {
+      htmlPlugin = {}
     }
-    htmlPlugin = {}
-    Object.assign(htmlPlugin, htmlPluginFromChainWebpack)
+    const { options = {} } = htmlPlugin
+    const mergedOptions = Object.assign({}, options, htmlPluginArgs[0])
+    htmlPlugin.options = mergedOptions
   }
 
   let indexPath: string
@@ -212,7 +213,7 @@ export const needReparse: boolean = false
 
 export const needWriteToOriginFile: boolean = false
 
-export const extensions: string[] = ['.html']
+export const extensions: string[] = ['.html', '.ejs']
 
 export const transformationType: TransformationType =
   TRANSFORMATION_TYPES.indexHtmlTransformationVueCli

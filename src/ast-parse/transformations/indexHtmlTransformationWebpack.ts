@@ -25,7 +25,7 @@ export const astTransform: ASTTransformation = async (
   fileInfo: FileInfo,
   transformationParams?: TransformationParams
 ) => {
-  if (!transformationParams) {
+  if (!transformationParams && !transformationParams.config.rootDir) {
     return null
   }
 

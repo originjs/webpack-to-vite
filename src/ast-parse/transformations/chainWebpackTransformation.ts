@@ -16,7 +16,7 @@ export const astTransform: ASTTransformation = async (
   transformationParams?: TransformationParams,
   parsingResult?: ParsingResult
 ) => {
-  if (!transformationParams) {
+  if (!transformationParams && !transformationParams.config.rootDir) {
     return null
   }
   if (transformationParams.config.projectType === 'webpack') {

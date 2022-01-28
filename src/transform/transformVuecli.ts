@@ -75,11 +75,12 @@ export class VueCliTransformer implements Transformer {
       if (vueConfig[VUE_CONFIG_HTML_PLUGIN]) {
         const htmlPluginArgs = [{}]
         vueConfig[VUE_CONFIG_HTML_PLUGIN](htmlPluginArgs)
-        const htmlPluginFromChainWebpack = {
-          options: htmlPluginArgs[0]
+        if (!htmlPlugin) {
+          htmlPlugin = {}
         }
-        htmlPlugin = {}
-        Object.assign(htmlPlugin, htmlPluginFromChainWebpack)
+        const { options = {} } = htmlPlugin
+        const mergedOptions = Object.assign({}, options, htmlPluginArgs[0])
+        htmlPlugin.options = mergedOptions
       }
 
       // Base public path
