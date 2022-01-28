@@ -214,6 +214,8 @@ export class WebpackTransformer implements Transformer {
           this.context.config.plugins.push(new RawValue('minifyHtml(' + serializeObject(htmlPlugin.options.minify, '    ') + ')'))
         }
       }
+      recordConver({ num: 'B11', feat: 'html-webpack-plugin is supported' })
+
       return config
     }
 

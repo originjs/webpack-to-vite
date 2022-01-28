@@ -1,13 +1,13 @@
+import type { ArrowFunctionExpression, FunctionExpression } from 'jscodeshift'
+import type { Node } from 'vue-eslint-parser/ast/nodes'
+import * as parser from 'vue-eslint-parser'
 import type { ASTParse, ParserType } from './index'
 import { PARSER_TYPES } from '../../constants/constants'
 import type {
   FileInfo,
   ParsingResultProperty
 } from '../astParse'
-import type { Node } from 'vue-eslint-parser/ast/nodes'
-import * as parser from 'vue-eslint-parser'
 import { parseIdentifierFromBodyNodes, parseScriptSfc } from '../../utils/astUtils'
-import type { ArrowFunctionExpression, FunctionExpression } from 'jscodeshift'
 
 export const astParse: ASTParse = (fileInfo: FileInfo) => {
   let nodePaths: Node[]
@@ -33,12 +33,14 @@ export const astParse: ASTParse = (fileInfo: FileInfo) => {
   nodePaths.forEach(root => {
     parser.AST.traverseNodes(root, {
       enterNode (node: any) {
-        // find configureWebpack
-        if (node.type === 'ObjectProperty' &&
+        const isConfigureWebpackNode: boolean = node.type === 'ObjectProperty' &&
           node.key.type === 'Identifier' &&
-          node.key.name === 'configureWebpack' &&
+          node.key.name === 'configureWebpack'
+        const isFunctionalNode: boolean = node.type === 'ObjectProperty' &&
           (node.value.type === 'ArrowFunctionExpression' ||
-          node.value.type === 'FunctionExpression')) {
+          node.value.type === 'FunctionExpression')
+        // find configureWebpack
+        if (isConfigureWebpackNode && isFunctionalNode) {
           configureWebpackNode = node.value
         }
       },
@@ -61,4 +63,4 @@ export const astParse: ASTParse = (fileInfo: FileInfo) => {
 
 export const extensions: string[] = ['.js', '.ts']
 
-export const parserType: ParserType = PARSER_TYPES.FindWebpackConfigAttrs
+export const parserType: ParserType = PARSER_TYPES.FindWebpackConfigProperties

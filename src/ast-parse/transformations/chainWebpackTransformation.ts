@@ -9,6 +9,7 @@ import type {
 } from '../astParse'
 import { getStringLinePosition } from '../../utils/common'
 import { writeSync } from '../../utils/file'
+import { recordConver } from '../../utils/report'
 
 export const astTransform: ASTTransformation = async (
   fileInfo: FileInfo,
@@ -21,7 +22,7 @@ export const astTransform: ASTTransformation = async (
   if (transformationParams.config.projectType === 'webpack') {
     return null
   }
-  if (!fileInfo.path.endsWith('vue.config.js') && !fileInfo.path.endsWith('vue.config.ts')) {
+  if (!/vue.config.(js|ts)$/.test(fileInfo.path)) {
     return null
   }
 
@@ -31,17 +32,17 @@ export const astTransform: ASTTransformation = async (
   // transform vueConfig.chainWebpack
   const vueConfigTempPath: string = path.resolve(rootDir, `vue.temp.config${extension}`)
   let vueConfigContent: string = ''
-  if (parsingResult && parsingResult.FindChainWebpackConfigAttrs && parsingResult.FindChainWebpackConfigAttrs.length) {
-    const chainWebpackResult: any = parsingResult.FindChainWebpackConfigAttrs[0]
+  if (parsingResult && parsingResult.FindChainWebpackConfigProperties && parsingResult.FindChainWebpackConfigProperties.length) {
+    const chainWebpackResult: any = parsingResult.FindChainWebpackConfigProperties[0]
     const chainWebpackSource: string = chainWebpackResult.fileInfo.source
     const chainWebpackEnd: number = getStringLinePosition(chainWebpackSource, chainWebpackResult.offsetEnd)
 
-    if (parsingResult.FindChainWebpackConfigAttrs.length > 1) {
-      const htmlPluginResult: any = parsingResult.FindChainWebpackConfigAttrs[1]
+    if (parsingResult.FindChainWebpackConfigProperties.length > 1) {
+      const htmlPluginResult: any = parsingResult.FindChainWebpackConfigProperties[1]
       const htmlPluginStart: number = getStringLinePosition(htmlPluginResult.fileInfo.source, htmlPluginResult.offsetBegin - 1)
       const htmlPluginEnd: number = getStringLinePosition(htmlPluginResult.fileInfo.source, htmlPluginResult.offsetEnd)
 
-      const htmlPluginOptionsResult: any = parsingResult.FindChainWebpackConfigAttrs[2]
+      const htmlPluginOptionsResult: any = parsingResult.FindChainWebpackConfigProperties[2]
       const htmlPluginOptionsStart: number = getStringLinePosition(htmlPluginOptionsResult.fileInfo.source, htmlPluginOptionsResult.offsetBegin)
       const htmlPluginOptionsEnd: number = getStringLinePosition(htmlPluginOptionsResult.fileInfo.source, htmlPluginOptionsResult.offsetEnd - 1)
       const htmlPluginOptionsParamName: string = htmlPluginOptionsResult.params.paramName
@@ -57,7 +58,7 @@ export const astTransform: ASTTransformation = async (
   }
   writeSync(vueConfigTempPath, vueConfigContent)
 
-  //   recordConver({ num: 'V06', feat: 'client-side env variables' })
+  recordConver({ num: 'V08', feat: 'transform functional webpack config' })
 
   const result: TransformationResult = {
     fileInfo: fileInfo,

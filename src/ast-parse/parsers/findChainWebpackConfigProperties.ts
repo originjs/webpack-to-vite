@@ -1,11 +1,11 @@
+import type { Node } from 'vue-eslint-parser/ast/nodes'
+import * as parser from 'vue-eslint-parser'
 import type { ASTParse, ParserType } from './index'
 import { PARSER_TYPES } from '../../constants/constants'
 import type {
   FileInfo,
   ParsingResultOccurrence
 } from '../astParse'
-import type { Node } from 'vue-eslint-parser/ast/nodes'
-import * as parser from 'vue-eslint-parser'
 import { parseScriptSfc } from '../../utils/astUtils'
 
 export const astParse: ASTParse = (fileInfo: FileInfo) => {
@@ -33,12 +33,14 @@ export const astParse: ASTParse = (fileInfo: FileInfo) => {
   nodePaths.forEach(root => {
     parser.AST.traverseNodes(root, {
       enterNode (node: any) {
-        // find chainWebpack
-        if (node.type === 'ObjectProperty' &&
+        // find chainWebpack node
+        const isChainWebpackNode: boolean = node.type === 'ObjectProperty' &&
           node.key.type === 'Identifier' &&
-          node.key.name === 'chainWebpack' &&
+          node.key.name === 'chainWebpack'
+        const isFunctionalNode: boolean = node.type === 'ObjectProperty' &&
           (node.value.type === 'ArrowFunctionExpression' ||
-          node.value.type === 'FunctionExpression')) {
+          node.value.type === 'FunctionExpression')
+        if (isChainWebpackNode && isFunctionalNode) {
           chainWebpackNode = node.value
           const chainWebpackResult: ParsingResultOccurrence = {
             fileInfo: fileInfo,
@@ -46,7 +48,9 @@ export const astParse: ASTParse = (fileInfo: FileInfo) => {
             offsetEnd: node.loc.end.line,
             type: parserType
           }
+          // results[0]: chainWebpackNode
           results.push(chainWebpackResult)
+          // get param name
           if (node.value.params && node.value.params.length &&
             node.value.params[0].type === 'Identifier') {
             paramName = node.value.params[0].name
@@ -61,27 +65,32 @@ export const astParse: ASTParse = (fileInfo: FileInfo) => {
     parser.AST.traverseNodes(chainWebpackNode, {
       enterNode (node: any) {
         // find `config.plugin('html').tap(callback)`
-        if (node.type === 'CallExpression' &&
-              node.callee.type === 'MemberExpression' &&
-              node.callee.object.type === 'CallExpression' &&
-              node.callee.object.arguments.length &&
-              node.callee.object.arguments[0].type === 'StringLiteral' &&
-              node.callee.object.arguments[0].value === 'html' &&
-              node.callee.object.callee.type === 'MemberExpression' &&
-              node.callee.object.callee.object.type === 'Identifier' &&
-              node.callee.object.callee.object.name === paramName &&
-              node.callee.object.callee.property.type === 'Identifier' &&
-              node.callee.object.callee.property.name === 'plugin' &&
-              node.callee.property.type === 'Identifier' &&
-              node.callee.object.arguments.length &&
-              node.callee.property.type === 'Identifier' &&
-              node.callee.property.name === 'tap' &&
-              node.arguments.length &&
-              (node.arguments[0].type === 'ArrowFunctionExpression' ||
-              node.arguments[0].type === 'FunctionExpression') &&
-              node.arguments[0].body.type === 'BlockStatement' &&
-              node.arguments[0].params.length &&
-              node.arguments[0].params[0].type === 'Identifier') {
+        if (!(node.type === 'CallExpression' &&
+        node.callee.type === 'MemberExpression' &&
+        node.callee.object.type === 'CallExpression')) {
+          return
+        }
+
+        const isConfigNode: boolean = node.callee.object.callee.type === 'MemberExpression' &&
+          node.callee.object.callee.object.type === 'Identifier' &&
+          node.callee.object.callee.object.name === paramName
+        const isPluginNode: boolean = node.callee.object.callee.type === 'MemberExpression' &&
+          node.callee.object.callee.property.type === 'Identifier' &&
+          node.callee.object.callee.property.name === 'plugin'
+        const isHtmlNode: boolean = node.callee.object.arguments.length &&
+          node.callee.object.arguments[0].type === 'StringLiteral' &&
+          node.callee.object.arguments[0].value === 'html'
+        const isTapNode: boolean = node.callee.property.type === 'Identifier' &&
+          node.callee.property.type === 'Identifier' &&
+          node.callee.property.name === 'tap'
+        const hasTapArgs: boolean = node.arguments.length &&
+          (node.arguments[0].type === 'ArrowFunctionExpression' ||
+          node.arguments[0].type === 'FunctionExpression') &&
+          node.arguments[0].body.type === 'BlockStatement' &&
+          node.arguments[0].params.length &&
+          node.arguments[0].params[0].type === 'Identifier'
+
+        if (isConfigNode && isPluginNode && isHtmlNode && isTapNode && hasTapArgs) {
           const htmlPluginResult: ParsingResultOccurrence = {
             fileInfo: fileInfo,
             offsetBegin: node.loc.start.line,
@@ -98,6 +107,8 @@ export const astParse: ASTParse = (fileInfo: FileInfo) => {
               paramName: node.arguments[0].params[0].name
             }
           }
+          // results[1]: config.plugin('html')
+          // results[2]: callback of plugin('html')
           results.push(htmlPluginResult, htmlPluginOptionsResult)
         }
       },
@@ -105,12 +116,9 @@ export const astParse: ASTParse = (fileInfo: FileInfo) => {
     })
   }
 
-  // results[0]: chainWebpackNode
-  // results[1]?: config.plugin('html')
-  // results[2]?: callback of plugin('html')
   return results
 }
 
 export const extensions: string[] = ['.js', '.ts']
 
-export const parserType: ParserType = PARSER_TYPES.FindChainWebpackConfigAttrs
+export const parserType: ParserType = PARSER_TYPES.FindChainWebpackConfigProperties

@@ -41,7 +41,7 @@ export class VueCliTransformer implements Transformer {
         webpackConfig = vueConfig.configureWebpack
       } else if (vueConfig.configureWebpack && astParsingResult) {
         try {
-          webpackConfig = applyAstParsingResultToConfig(webpackConfig, 'FindWebpackConfigAttrs', astParsingResult.parsingResult)
+          webpackConfig = applyAstParsingResultToConfig(webpackConfig, 'FindWebpackConfigProperties', astParsingResult.parsingResult)
           vueConfig.configureWebpack(webpackConfig)
         } catch (e) {
           console.error('\nTransforming configureWebpack config failed. Please manually convert it.')
@@ -71,7 +71,6 @@ export class VueCliTransformer implements Transformer {
           htmlPlugin.options = htmlPlugin.options || htmlPlugin.userOptions
         }
       }
-
       // vueConfig.chainWebpack => plugin('html')
       if (vueConfig[VUE_CONFIG_HTML_PLUGIN]) {
         const htmlPluginArgs = [{}]
@@ -227,6 +226,8 @@ export class VueCliTransformer implements Transformer {
           this.context.config.plugins.push(new RawValue('minifyHtml(' + serializeObject(htmlPlugin.options.minify, '    ') + ')'))
         }
       }
+      recordConver({ num: 'B11', feat: 'html-webpack-plugin is supported' })
+
       return config
     }
 

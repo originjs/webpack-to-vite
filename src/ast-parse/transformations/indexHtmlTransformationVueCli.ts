@@ -1,5 +1,7 @@
+import Config from 'webpack-chain'
 import path from 'path'
 import { existsSync } from 'fs'
+import merge from 'webpack-merge'
 import type {
   ESLintProgram,
   VAttribute,
@@ -40,18 +42,31 @@ export const astTransform: ASTTransformation = async (
   const rootDir: string = transformationParams.config.rootDir
   const vueConfigPath = existsSync(path.resolve(rootDir, 'vue.temp.config.ts')) ? path.resolve(rootDir, 'vue.temp.config.ts') : path.resolve(rootDir, 'vue.temp.config.js')
   const vueConfig = await parseVueCliConfig(vueConfigPath)
+
   // vueConfig.configureWebpack
   let webpackConfig: Configuration = {}
   if (vueConfig.configureWebpack && typeof vueConfig.configureWebpack !== 'function') {
     webpackConfig = vueConfig.configureWebpack
   } else if (vueConfig.configureWebpack) {
     try {
-      webpackConfig = applyAstParsingResultToConfig(webpackConfig, 'FindWebpackConfigAttrs', parsingResult)
+      webpackConfig = applyAstParsingResultToConfig(webpackConfig, 'FindWebpackConfigProperties', parsingResult)
       vueConfig.configureWebpack(webpackConfig)
     } catch (e) {
-      console.log(e.message)
+      console.log(e)
     }
   }
+
+  // vueConfig.chainWebpack
+  const chainableConfig = new Config()
+  if (vueConfig.chainWebpack) {
+    try {
+      vueConfig.chainWebpack(chainableConfig)
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  webpackConfig = merge(chainableConfig.toConfig(), webpackConfig)
 
   let htmlPlugin: any
   if (webpackConfig.plugins) {
@@ -62,7 +77,6 @@ export const astTransform: ASTTransformation = async (
       htmlPlugin.options = htmlPlugin.options || htmlPlugin.userOptions
     }
   }
-
   // vueConfig.chainWebpack => plugin('html')
   if (vueConfig[VUE_CONFIG_HTML_PLUGIN]) {
     const htmlPluginArgs = [{}]
@@ -180,10 +194,10 @@ export const astTransform: ASTTransformation = async (
     )
   })
 
+  recordConver({ num: 'V06', feat: 'client-side env variables' })
+
   // use vite-plugin-html to replace html-webpack-plugin
   transformedHtml = transformedHtml.replace(/htmlWebpackPlugin.(options|files)./g, '')
-
-  recordConver({ num: 'V06', feat: 'client-side env variables' })
 
   const result: TransformationResult = {
     fileInfo: fileInfo,
