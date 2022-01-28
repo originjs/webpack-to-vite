@@ -103,19 +103,19 @@ Options:
 * ⚠️ B10: CSS Modules
   * 在 vite 中，任何以 `.module.css` 为后缀名的 CSS 文件都被认为是一个 CSS modules 文件
   * 这意味着您需要将以 `.css` 为后缀的文件转换为以 `.module.css` 为后缀的文件来实现 CSS Modules
-* ⚠️ B11: 插件暴露的默认值
-  * 当 `index.html` 包含 `htmlWebpackPlugin.options.variableName` 时，会出现 `htmlWebpackPlugin is not defined` 错误，您需要在 `vite.config.js` 中添加插件选项：
-
-  ```
+* ✅ B11: `html-webpack-plugin` 支持
+  * 插件选项将被应用至 `vite-plugin-html` 插件
+  * 注入到 `index.html` 中的变量将被转换。例如，`<%= htmlWebpackPlugin.options.title %>` -> `<%= title %>`
+  * 从 `html-webpack-plugin` 中引用 `injectHtml` 和 `minifyHtml` 并且配置选项：
+  ```js
   plugins: [
-    injectHtml:({
-      injectData: {
-        htmlWebpackPlugin: {
-          options: {
-            variableName: value
-          }
-        }
+    injectHtml: ({
+      data: {
+        title: value
       }
+    }),
+    minifyHtml: ({
+      minifyCss: true
     })
   ]
   ```
@@ -187,6 +187,10 @@ Options:
     }
   }
   ```
+* ✅ V08: 转换函数形式的 webpack 配置
+  * `vue.config.js` 模块中的 `webpackConfigure` 和 `chainWebpack` 选项可以定义为对象或者函数
+  * 为了避免在调用这些函数时报错，我们按需初始化 `config` 选项，并且生成一个临时文件(`vue.temp.config.js`)来重新配置 `html-webpack-plugin`
+
 ### Webpack 转换项
 > Webpack 转换是将`webpack.config.js` 或 `webpack.base.js/webpack.dev.js/webpack.prod.js` 或 `webpack.build.js/webpack.production.js` 中的配置，转换后设置到 `vite.config.js` 中
 
