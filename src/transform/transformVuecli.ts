@@ -42,7 +42,7 @@ export class VueCliTransformer implements Transformer {
       } else if (vueConfig.configureWebpack && astParsingResult) {
         try {
           webpackConfig = applyAstParsingResultToConfig(webpackConfig, 'FindWebpackConfigProperties', astParsingResult.parsingResult)
-          vueConfig.configureWebpack(webpackConfig)
+          await vueConfig.configureWebpack(webpackConfig)
         } catch (e) {
           console.error('\nTransforming configureWebpack config failed. Please manually convert it.')
           console.error(e)
@@ -54,7 +54,7 @@ export class VueCliTransformer implements Transformer {
       const chainableConfig = new Config()
       if (vueConfig.chainWebpack) {
         try {
-          vueConfig.chainWebpack(chainableConfig)
+          await vueConfig.chainWebpack(chainableConfig)
         } catch (e) {
           console.error('\nTransforming chainWebpack config failed. Please manually convert it.')
           console.error(e)

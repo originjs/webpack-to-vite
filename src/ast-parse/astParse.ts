@@ -1,3 +1,9 @@
+import merge from 'webpack-merge'
+import ChainConfig from 'webpack-chain'
+import type { Configuration } from 'webpack'
+import path from 'path'
+import { existsSync } from 'fs'
+import { parseVueCliConfig, applyAstParsingResultToConfig } from '../config/parse'
 import type { TransformationType } from './transformations'
 import { transformationMap } from './transformations'
 import type { ParserType } from './parsers'
@@ -9,6 +15,7 @@ import type { ESLintProgram } from 'vue-eslint-parser/ast'
 import type { Config } from '../config/config'
 import { cliInstance } from '../cli/cli'
 import { pathFormat, readSync, writeSync } from '../utils/file'
+import { VUE_CONFIG_HTML_PLUGIN } from '../constants/constants'
 
 export type FileInfo = {
   path: string
@@ -39,6 +46,8 @@ export type ParsingResultProperty = {
 
 export type TransformationParams = {
   config: Config
+  context?: string
+  htmlPlugin?: any
 }
 
 export type TransformationResult = {
@@ -127,6 +136,57 @@ export async function astParseRoot (
     }
   }
 
+  const vueConfigPath = existsSync(path.resolve(replacedRootDir, 'vue.temp.config.ts'))
+    ? path.resolve(replacedRootDir, 'vue.temp.config.ts')
+    : path.resolve(replacedRootDir, 'vue.temp.config.js')
+  const vueConfig = await parseVueCliConfig(vueConfigPath)
+
+  // vueConfig.configureWebpack
+  let webpackConfig: Configuration = {}
+  if (vueConfig.configureWebpack && typeof vueConfig.configureWebpack !== 'function') {
+    webpackConfig = vueConfig.configureWebpack
+  } else if (vueConfig.configureWebpack) {
+    try {
+      webpackConfig = applyAstParsingResultToConfig(webpackConfig, 'FindWebpackConfigProperties', parsingResults)
+      await vueConfig.configureWebpack(webpackConfig)
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  // vueConfig.chainWebpack
+  const chainableConfig = new ChainConfig()
+  if (vueConfig.chainWebpack) {
+    try {
+      await vueConfig.chainWebpack(chainableConfig)
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  webpackConfig = merge(chainableConfig.toConfig(), webpackConfig)
+
+  let htmlPlugin: any
+  if (webpackConfig.plugins) {
+    htmlPlugin = webpackConfig.plugins.find((p: any) =>
+      p.constructor.name === 'HtmlWebpackPlugin' &&
+        (!p.filename || p.filename === 'index.html'))
+    if (htmlPlugin) {
+      htmlPlugin.options = htmlPlugin.options || htmlPlugin.userOptions
+    }
+  }
+  // vueConfig.chainWebpack => plugin('html')
+  if (vueConfig[VUE_CONFIG_HTML_PLUGIN]) {
+    const htmlPluginArgs = [{}]
+    vueConfig[VUE_CONFIG_HTML_PLUGIN](htmlPluginArgs)
+    if (!htmlPlugin) {
+      htmlPlugin = {}
+    }
+    const { options = {} } = htmlPlugin
+    const mergedOptions = Object.assign({}, options, htmlPluginArgs[0])
+    htmlPlugin.options = mergedOptions
+  }
+
   // iter all transformations
   for (const key in transformationMap) {
     for (const filePath of resolvedPaths) {
@@ -148,6 +208,11 @@ export async function astParseRoot (
       const extensions: string[] = transformation.extensions
       if (!extensions.includes(extension)) {
         continue
+      }
+
+      if (key === 'indexHtmlTransformationVueCli') {
+        transformationParams.htmlPlugin = htmlPlugin
+        transformationParams.context = webpackConfig.context
       }
 
       // execute the transformation

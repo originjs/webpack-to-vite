@@ -1,7 +1,5 @@
-import Config from 'webpack-chain'
 import path from 'path'
 import { existsSync } from 'fs'
-import merge from 'webpack-merge'
 import type {
   ESLintProgram,
   VAttribute,
@@ -9,27 +7,23 @@ import type {
 } from 'vue-eslint-parser/ast'
 import * as parser from 'vue-eslint-parser'
 import type { Node } from 'vue-eslint-parser/ast/nodes'
-import type { Configuration } from 'webpack'
 import type { ASTTransformation, TransformationType } from './index'
-import { TRANSFORMATION_TYPES, VUE_CONFIG_HTML_PLUGIN } from '../../constants/constants'
+import { TRANSFORMATION_TYPES } from '../../constants/constants'
 import type {
   FileInfo,
   TransformationResult,
-  TransformationParams,
-  ParsingResult
+  TransformationParams
 } from '../astParse'
 import { stringSplice } from '../../utils/common'
 import { recordConver } from '../../utils/report'
 import { pathFormat } from '../../utils/file'
-import { parseVueCliConfig, applyAstParsingResultToConfig } from '../../config/parse'
 
 const templateStart: string = '<template>'
 const templateEnd: string = '</template>'
 
 export const astTransform: ASTTransformation = async (
   fileInfo: FileInfo,
-  transformationParams?: TransformationParams,
-  parsingResult?: ParsingResult
+  transformationParams?: TransformationParams
 ) => {
   if (!transformationParams && !transformationParams.config.rootDir) {
     return null
@@ -40,59 +34,12 @@ export const astTransform: ASTTransformation = async (
   }
 
   const rootDir: string = transformationParams.config.rootDir
-  const vueConfigPath = existsSync(path.resolve(rootDir, 'vue.temp.config.ts')) ? path.resolve(rootDir, 'vue.temp.config.ts') : path.resolve(rootDir, 'vue.temp.config.js')
-  const vueConfig = await parseVueCliConfig(vueConfigPath)
 
-  // vueConfig.configureWebpack
-  let webpackConfig: Configuration = {}
-  if (vueConfig.configureWebpack && typeof vueConfig.configureWebpack !== 'function') {
-    webpackConfig = vueConfig.configureWebpack
-  } else if (vueConfig.configureWebpack) {
-    try {
-      webpackConfig = applyAstParsingResultToConfig(webpackConfig, 'FindWebpackConfigProperties', parsingResult)
-      vueConfig.configureWebpack(webpackConfig)
-    } catch (e) {
-      console.log(e)
-    }
-  }
-
-  // vueConfig.chainWebpack
-  const chainableConfig = new Config()
-  if (vueConfig.chainWebpack) {
-    try {
-      vueConfig.chainWebpack(chainableConfig)
-    } catch (e) {
-      console.error(e)
-    }
-  }
-
-  webpackConfig = merge(chainableConfig.toConfig(), webpackConfig)
-
-  let htmlPlugin: any
-  if (webpackConfig.plugins) {
-    htmlPlugin = webpackConfig.plugins.find((p: any) =>
-      p.constructor.name === 'HtmlWebpackPlugin' &&
-        (!p.filename || p.filename === 'index.html'))
-    if (htmlPlugin) {
-      htmlPlugin.options = htmlPlugin.options || htmlPlugin.userOptions
-    }
-  }
-  // vueConfig.chainWebpack => plugin('html')
-  if (vueConfig[VUE_CONFIG_HTML_PLUGIN]) {
-    const htmlPluginArgs = [{}]
-    vueConfig[VUE_CONFIG_HTML_PLUGIN](htmlPluginArgs)
-    if (!htmlPlugin) {
-      htmlPlugin = {}
-    }
-    const { options = {} } = htmlPlugin
-    const mergedOptions = Object.assign({}, options, htmlPluginArgs[0])
-    htmlPlugin.options = mergedOptions
-  }
-
+  const { htmlPlugin, context } = transformationParams
   let indexPath: string
   if (htmlPlugin && htmlPlugin.options?.template) {
-    indexPath = webpackConfig.context
-      ? path.resolve(rootDir, webpackConfig.context, htmlPlugin.options.template)
+    indexPath = context
+      ? path.resolve(rootDir, context, htmlPlugin.options.template)
       : path.resolve(rootDir, htmlPlugin.options.template)
   } else if (existsSync(path.resolve(rootDir, 'public/index.html'))) {
     indexPath = path.resolve(rootDir, 'public/index.html')
