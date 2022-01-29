@@ -21,6 +21,7 @@ describe('parseWebpackConfig', () => {
     const configPath: string = path.resolve('tests/out-parse/webpack.config.js');
     const webpackConfig: WebpackConfig = await parseWebpackConfig(configPath)
     expect(webpackConfig.entry).toEqual('./main.js');
+    expect(webpackConfig.plugins.length).toBe(1)
   });
 
   test('parse build/webpack.dev.conf.js', async () => {
@@ -51,11 +52,17 @@ describe('parseWebpackConfig', () => {
 })
 
 test('parseVueCliConfig', async () => {
-  const srcPath: string = path.resolve('tests/testdata/transform-vue-cli/vue.config.js')
-  const destPath: string = path.resolve('tests/out-parse/vue.config.js')
+  const srcPath: string = path.resolve('tests/testdata/transform-vue-cli/vue.temp.config.js')
+  const destPath: string = path.resolve('tests/out-parse/vue.temp.config.js')
   fs.copyFileSync(srcPath, destPath)
 
-  const configPath: string = path.resolve('tests/out-parse/vue.config.js');
+  const configPath: string = path.resolve('tests/out-parse/vue.temp.config.js');
   const vueCliConfig: VueCliConfig = await parseVueCliConfig(configPath)
   expect(vueCliConfig.baseUrl).toEqual('/src');
+  expect(vueCliConfig.productionSourceMap).toBe(true)
+  expect(Boolean(vueCliConfig.configureWebpack)).toBe(true)
+  expect(Boolean(vueCliConfig.chainWebpack)).toBe(true)
+  expect(Boolean(vueCliConfig.devServer)).toBe(true)
+  expect(Boolean(vueCliConfig.css.loaderOptions)).toBe(true)
+  expect(Boolean(vueCliConfig.pluginOptions)).toBe(true)
 });

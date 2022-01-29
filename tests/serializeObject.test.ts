@@ -135,4 +135,16 @@ test('serializeObject', () => {
       '    }\n' +
       '}'
   )
+  const objF = objB
+  const resultF = serializeObject(objF, '  ')
+  expect(resultF).toMatch(
+    '{\n' +
+      '    key1: {\n' +
+      '      key3: false,\n' +
+      '      key4: 0,\n' +
+      "      key5: '0',\n" +
+      "      abbreviatedKey: 'abbreviatedKey'\n" +
+      '    }\n' +
+      '  }'
+  )
 })

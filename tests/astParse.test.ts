@@ -6,7 +6,8 @@ import {
     ParsingResultOccurrence,
     FileInfo,
     TransformationParams,
-    TransformationResult
+    TransformationResult,
+    ParsingResultProperty
 } from '../src/ast-parse/astParse'
 import { Config } from '../src/config/config'
 import fs from "fs";
@@ -15,8 +16,14 @@ import {astTransform as removeHtmlLangTransform} from "../src/ast-parse/transfor
 import {astTransform as indexHtmlVueCliTransform} from "../src/ast-parse/transformations/indexHtmlTransformationVueCli";
 import {astTransform as indexHtmlWebpackTransform} from "../src/ast-parse/transformations/indexHtmlTransformationWebpack";
 import {astTransform as lazyLoadingRoutesTransform} from "../src/ast-parse/transformations/lazyLoadingRoutesTransformation";
+import {astTransform as chainWebpackTransformation} from '../src/ast-parse/transformations/chainWebpackTransformation';
 import { astParse as findJsxInScriptParser } from '../src/ast-parse/parsers/findJsxInScriptParser'
 import { astParse as findRequireContext } from '../src/ast-parse/parsers/findRequireContext'
+import { astParse as findWebpackConfigProperties } from '../src/ast-parse/parsers/findWebpackConfigProperties';
+import { astParse as findChainWebpackConfigProperties } from '../src/ast-parse/parsers/findChainWebpackConfigProperties';
+import { ParsingResult } from '../src/ast-parse/astParse';
+
+const parsingResult: ParsingResult = []
 
 beforeAll(() => {
     const srcPath = path.resolve('tests/testdata/ast-parse')
@@ -39,7 +46,7 @@ test('addJsxTransformation', async () => {
             rootDir: filePath
         }
     }
-    const result = await addJsxTransform(fileInfo, config)
+    const result = await addJsxTransform(fileInfo, config, null)
     expect(result.content).toContain('lang="tsx"')
 })
 
@@ -55,8 +62,43 @@ test('removeHtmlLangInTemplateTransformation', async () => {
             rootDir: filePath
         }
     }
-    const result = await removeHtmlLangTransform(fileInfo, config)
+    const result = await removeHtmlLangTransform(fileInfo, config, null)
     expect(result.content).not.toContain('lang="html"')
+})
+
+test('findWebpackConfigProperties',  () => {
+    const filePath: string = path.resolve('tests/out-ast-parse/vue.config.js')
+    const source: string = readSync(filePath).replace(/\r\n/g, '\n')
+    const fileInfo: FileInfo = {
+        path: filePath,
+        source: source
+    }
+    const result: ParsingResultOccurrence[] | ParsingResultProperty[][] | null = findWebpackConfigProperties(fileInfo)
+    expect(result.length).toBe(2)
+    expect(result[0]).toMatchObject([{ name: 'resolve', type: 'object' }])
+    expect(result[1]).toMatchObject([
+        { name: 'plugins', type: 'object' },  
+        { name: 'push', type: 'function' }    
+    ])
+    parsingResult['FindWebpackConfigProperties'] = result
+})
+
+test('findChainWebpackConfigProperties',  () => {
+    const filePath: string = path.resolve('tests/out-ast-parse/vue.config.js')
+    const source: string = readSync(filePath).replace(/\r\n/g, '\n')
+    const fileInfo: FileInfo = {
+        path: filePath,
+        source: source
+    }
+    const result: ParsingResultOccurrence[] | ParsingResultProperty[][] | null = findChainWebpackConfigProperties(fileInfo)
+    expect(result.length).toBe(3)
+    // line number of chainWebpack node
+    expect(result[0].offsetBegin).toBe(37)
+    // line number of config.plugin('html') node
+    expect(result[1].offsetBegin).toBe(41)
+    // line number of config.plugin('html') node block
+    expect(result[2].offsetBegin).toBe(41)
+    parsingResult['FindChainWebpackConfigProperties'] = result
 })
 
 test('indexHtmlTransformationVueCli', async () => {
@@ -77,12 +119,13 @@ test('indexHtmlTransformationVueCli', async () => {
     }
     const mainJsPath = path.resolve(rootDir, 'src/main.js')
     writeSync(mainJsPath, '')
-    const result: TransformationResult = await indexHtmlVueCliTransform(fileInfo, transformationParams)
+    const result: TransformationResult = await indexHtmlVueCliTransform(fileInfo, transformationParams, null)
     expect(result.content).not.toMatch('<script type="module" src="src/main.js"></script>')
     expect(result.content).toMatch('{0}')
     expect(result.content).toMatch(`process.env['BASE_URL']`)
     expect(result.content).toMatch(`process.env['NODE_ENV']`)
     expect(result.content).toMatch(`process.env['VUE_APP_ICON']`)
+    expect(result.content).toMatch(`<title><%= title %></title>`)
     removeSync(filePath)
     removeSync(mainJsPath)
 })
@@ -105,12 +148,13 @@ test('indexHtmlTransformationWebpack', async () => {
     }
     const mainJsPath = path.resolve(rootDir, 'src/main.js')
     writeSync(mainJsPath, '')
-    const result: TransformationResult = await indexHtmlWebpackTransform(fileInfo, transformationParams)
+    const result: TransformationResult = await indexHtmlWebpackTransform(fileInfo, transformationParams, null)
     expect(result.content).not.toMatch('<script type="module" src="src/main.js"></script>')
     expect(result.content).toMatch('{0}')
     expect(result.content).toMatch(`process.env['BASE_URL']`)
     expect(result.content).toMatch(`process.env['NODE_ENV']`)
     expect(result.content).toMatch(`process.env['VUE_APP_ICON']`)
+    expect(result.content).toMatch(`<title><%= title %></title>`)
     removeSync(filePath)
     removeSync(mainJsPath)
 })
@@ -125,8 +169,25 @@ test('lazyLoadingRoutesTransformation', async () => {
     const transformationParams: TransformationParams = {
         config: {}
     }
-    const result: TransformationResult = await lazyLoadingRoutesTransform(fileInfo, transformationParams)
+    const result: TransformationResult = await lazyLoadingRoutesTransform(fileInfo, transformationParams, null)
     expect(result.content).toMatch('() => import("../components/test.vue")')
+})
+
+test('chainWebpackTransformation', async () => {
+    const filePath: string = path.resolve('tests/out-ast-parse/vue.config.js')
+    const source: string = readSync(filePath).replace(/\r\n/g, '\n')
+    const fileInfo: FileInfo = {
+        path: filePath,
+        source: source
+    }
+    const transformationParams: TransformationParams = {
+        config: {
+            rootDir:  path.resolve('tests/out-ast-parse')
+        }
+    }
+    const result: TransformationResult = await chainWebpackTransformation(fileInfo, transformationParams, parsingResult)
+    expect(fs.existsSync(path.resolve('tests/out-ast-parse/vue.temp.config.js'))).toBe(true)
+    expect(result.content).toMatch('htmlPluginOptions:')
 })
 
 test('findJsxInScriptParser',  () => {
@@ -136,7 +197,7 @@ test('findJsxInScriptParser',  () => {
         path: filePath,
         source: source
     }
-    const result: ParsingResultOccurrence[] | null = findJsxInScriptParser(fileInfo)
+    const result: ParsingResultOccurrence[] | ParsingResultProperty[][] | null = findJsxInScriptParser(fileInfo)
     expect(result.length).toBeGreaterThan(0)
 })
 
@@ -147,7 +208,7 @@ test('findRequireContext',  () => {
         path: filePath,
         source: source
     }
-    const result: ParsingResultOccurrence[] | null = findRequireContext(fileInfo)
+    const result: ParsingResultOccurrence[] | ParsingResultProperty[][] | null = findRequireContext(fileInfo)
     expect(result.length).toBeGreaterThan(0)
 })
 
