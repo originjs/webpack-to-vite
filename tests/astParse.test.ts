@@ -20,7 +20,7 @@ import {astTransform as chainWebpackTransformation} from '../src/ast-parse/trans
 import { astParse as findJsxInScriptParser } from '../src/ast-parse/parsers/findJsxInScriptParser'
 import { astParse as findRequireContext } from '../src/ast-parse/parsers/findRequireContext'
 import { astParse as findWebpackConfigProperties } from '../src/ast-parse/parsers/findWebpackConfigProperties';
-import { astParse as findChainWebpackConfigProperties } from '../src/ast-parse/parsers/findChainWebpackConfigProperties';
+import { astParse as findHtmlPluginChain } from '../src/ast-parse/parsers/findHtmlPluginChain';
 import { ParsingResult } from '../src/ast-parse/astParse';
 
 const parsingResult: ParsingResult = {}
@@ -83,14 +83,14 @@ test('findWebpackConfigProperties',  () => {
     parsingResult['FindWebpackConfigProperties'] = result
 })
 
-test('findChainWebpackConfigProperties',  () => {
+test('findHtmlPluginChain',  () => {
     const filePath: string = path.resolve('tests/out-ast-parse/vue.config.js')
     const source: string = readSync(filePath).replace(/\r\n/g, '\n')
     const fileInfo: FileInfo = {
         path: filePath,
         source: source
     }
-    const result = findChainWebpackConfigProperties(fileInfo) as ParsingResultOccurrence[] | null
+    const result = findHtmlPluginChain(fileInfo) as ParsingResultOccurrence[] | null
     expect(result.length).toBe(3)
     // line number of chainWebpack node
     expect(result[0].offsetBegin).toBe(37)
@@ -98,7 +98,7 @@ test('findChainWebpackConfigProperties',  () => {
     expect(result[1].offsetBegin).toBe(41)
     // line number of config.plugin('html') node block
     expect(result[2].offsetBegin).toBe(41)
-    parsingResult['FindChainWebpackConfigProperties'] = result
+    parsingResult['FindHtmlPluginChain'] = result
 })
 
 test('indexHtmlTransformationVueCli', async () => {

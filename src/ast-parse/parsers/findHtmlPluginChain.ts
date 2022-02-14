@@ -1,5 +1,6 @@
 import type { Node } from 'vue-eslint-parser/ast/nodes'
 import * as parser from 'vue-eslint-parser'
+import type { ArrowFunctionExpression, FunctionExpression } from 'jscodeshift'
 import type { ASTParse, ParserType } from './index'
 import { PARSER_TYPES } from '../../constants/constants'
 import type {
@@ -7,6 +8,7 @@ import type {
   ParsingResultOccurrence
 } from '../astParse'
 import { parseScriptSfc } from '../../utils/astUtils'
+import { recordConver } from '../../utils/report'
 
 export const astParse: ASTParse = (fileInfo: FileInfo) => {
   let nodePaths: Node[]
@@ -27,7 +29,7 @@ export const astParse: ASTParse = (fileInfo: FileInfo) => {
   }
 
   const results: ParsingResultOccurrence[] = []
-  let chainWebpackNode: Node
+  let chainWebpackNode: ArrowFunctionExpression | FunctionExpression
   let paramName: string
 
   nodePaths.forEach(root => {
@@ -40,29 +42,35 @@ export const astParse: ASTParse = (fileInfo: FileInfo) => {
         const isFunctionalNode: boolean = node.type === 'ObjectProperty' &&
           (node.value.type === 'ArrowFunctionExpression' ||
           node.value.type === 'FunctionExpression')
-        if (isChainWebpackNode && isFunctionalNode) {
-          chainWebpackNode = node.value
-          const chainWebpackResult: ParsingResultOccurrence = {
-            fileInfo: fileInfo,
-            offsetBegin: node.loc.start.line,
-            offsetEnd: node.loc.end.line,
-            type: parserType
-          }
-          // results[0]: chainWebpackNode
-          results.push(chainWebpackResult)
-          // get param name
-          if (node.value.params && node.value.params.length &&
-            node.value.params[0].type === 'Identifier') {
-            paramName = node.value.params[0].name
-          }
+        const isChainWebpackFunctionalNode: boolean = node.type === 'ObjectMethod' &&
+          node.key.type === 'Identifier' &&
+          node.key.name === 'chainWebpack'
+        if ((isChainWebpackNode && isFunctionalNode) || isChainWebpackFunctionalNode) {
+          chainWebpackNode = isChainWebpackFunctionalNode ? node : node.value
         }
       },
       leaveNode () {}
     })
   })
 
+  const chainWebpackResult: ParsingResultOccurrence = {
+    fileInfo: fileInfo,
+    offsetBegin: chainWebpackNode.loc.start.line,
+    offsetEnd: chainWebpackNode.loc.end.line,
+    type: parserType
+  }
+  // results[0]: chainWebpackNode
+  results.push(chainWebpackResult)
+
   if (chainWebpackNode) {
-    parser.AST.traverseNodes(chainWebpackNode, {
+    // get param name
+    if (chainWebpackNode.params && chainWebpackNode.params.length &&
+      chainWebpackNode.params[0].type === 'Identifier') {
+      paramName = chainWebpackNode.params[0].name
+    }
+
+    const webpackRoot = chainWebpackNode as Node
+    parser.AST.traverseNodes(webpackRoot, {
       enterNode (node: any) {
         // find `config.plugin('html').tap(callback)`
         if (!(node.type === 'CallExpression' &&
@@ -70,7 +78,6 @@ export const astParse: ASTParse = (fileInfo: FileInfo) => {
         node.callee.object.type === 'CallExpression')) {
           return
         }
-
         const isConfigNode: boolean = node.callee.object.callee.type === 'MemberExpression' &&
           node.callee.object.callee.object.type === 'Identifier' &&
           node.callee.object.callee.object.name === paramName
@@ -107,8 +114,8 @@ export const astParse: ASTParse = (fileInfo: FileInfo) => {
               paramName: node.arguments[0].params[0].name
             }
           }
-          // results[1]: config.plugin('html')
-          // results[2]: callback of plugin('html')
+          // results[1]: config.plugin('html') | null
+          // results[2]: callback of plugin('html') | null
           results.push(htmlPluginResult, htmlPluginOptionsResult)
         }
       },
@@ -116,9 +123,10 @@ export const astParse: ASTParse = (fileInfo: FileInfo) => {
     })
   }
 
+  recordConver({ num: 'V08', feat: 'transform functional webpack config' })
   return results
 }
 
 export const extensions: string[] = ['.js', '.ts']
 
-export const parserType: ParserType = PARSER_TYPES.FindChainWebpackConfigProperties
+export const parserType: ParserType = PARSER_TYPES.FindHtmlPluginChain

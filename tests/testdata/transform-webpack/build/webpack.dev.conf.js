@@ -1,5 +1,5 @@
 const webpack = require('webpack')
-const merge = require('webpack-merge')
+const webpackMerge = require('webpack-merge')
 const baseWebpackConfig = require('./webpack.base.conf.js')
 const path = require("path");
 
@@ -7,7 +7,7 @@ const entry = {
   app: './app.js'
 }
 
-module.exports = merge(baseWebpackConfig, {
+module.exports = webpackMerge.merge(baseWebpackConfig, {
   entry: entry,
   devtools: '#cheap-module-eval-source-map',
   alias: {

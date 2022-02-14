@@ -39,9 +39,12 @@ export const astParse: ASTParse = (fileInfo: FileInfo) => {
         const isFunctionalNode: boolean = node.type === 'ObjectProperty' &&
           (node.value.type === 'ArrowFunctionExpression' ||
           node.value.type === 'FunctionExpression')
+        const isConfigureWebpackFunctionalNode: boolean = node.type === 'ObjectMethod' &&
+          node.key.type === 'Identifier' &&
+          node.key.name === 'configureWebpack'
         // find configureWebpack
-        if (isConfigureWebpackNode && isFunctionalNode) {
-          configureWebpackNode = node.value
+        if ((isConfigureWebpackNode && isFunctionalNode) || isConfigureWebpackFunctionalNode) {
+          configureWebpackNode = isConfigureWebpackFunctionalNode ? node : node.value
         }
       },
       leaveNode () {}
