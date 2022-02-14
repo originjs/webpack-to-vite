@@ -107,12 +107,12 @@ Legend of annotations:
   * Import `injectHtml` and `minifyHtml` from `html-webpack-plugin` and use them like this:
   ```js
   plugins: [
-    injectHtml: ({
+    injectHtml({
       data: {
         title: value
       }
     }),
-    minifyHtml: ({
+    minifyHtml({
       minifyCss: true
     })
   ]

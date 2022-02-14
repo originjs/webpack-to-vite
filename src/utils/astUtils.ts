@@ -32,6 +32,9 @@ export function parseScriptSfc (fileInfo: FileInfo, lang?: string) : any {
   return scriptAST
 }
 
+// In order to get properties of `config` from declaration statement, capture
+// node whose type is identifier and collect their names as result
+// eg: `config.resolve.alias = {}` -> [{ type: 'object', name: 'resolve'}, { type: 'object', name: 'alias'}]
 export function parseIdentifierFromBodyNodes (bodyNodes: any[], paramName: string): ParsingResultProperty[][] {
   const identifierResult = []
 
@@ -48,8 +51,8 @@ export function parseIdentifierFromBodyNodes (bodyNodes: any[], paramName: strin
   }
 
   const getIdentifier = ({ node, type, attrs }): boolean => {
-    if (node.type === 'MemberExpression' &&
-          node.object.type === 'Identifier') {
+    if (node.type === 'MemberExpression' && node.object.type === 'Identifier') {
+      // return whether this property belongs to `config`
       if (node.object.name === paramName) {
         if (node.property.type === 'Identifier') {
           attrs.push({ name: node.property.name, type: getTypeName(type) })
@@ -63,6 +66,7 @@ export function parseIdentifierFromBodyNodes (bodyNodes: any[], paramName: strin
         return false
       }
     } else if (node.type === 'MemberExpression') {
+      // nested property
       if (getIdentifier({ node: node.object, type: node.object.type, attrs })) {
         if (node.property.type === 'Identifier') {
           attrs.push({ name: node.property.name, type: getTypeName(type) })
@@ -76,17 +80,21 @@ export function parseIdentifierFromBodyNodes (bodyNodes: any[], paramName: strin
         return false
       }
     } else if (node.type === 'CallExpression') {
+      // function declaration from nested property
       return getIdentifier({ node: node.callee, type: 'CallExpression', attrs })
     } else if (node.type === 'ExpressionStatement' &&
       node.expression.type === 'AssignmentExpression' &&
       node.expression.left.type === 'MemberExpression'
     ) {
+      // statement like `config.key = ...`
       return getIdentifier({ node: node.expression.left, type: node.expression.left.type, attrs })
     } else if (node.type === 'ExpressionStatement' &&
       node.expression.type === 'CallExpression'
     ) {
+      // function declaration
       return getIdentifier({ node: node.expression.callee, type: 'CallExpression', attrs })
     } else if (node.type === 'IfStatement' && node.consequent.type === 'BlockStatement') {
+      // statement like `if () else {}`
       node.consequent.body.forEach(bodyNode => {
         const payload = {
           node: bodyNode,

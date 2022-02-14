@@ -15,7 +15,7 @@ import type { ESLintProgram } from 'vue-eslint-parser/ast'
 import type { Config } from '../config/config'
 import { cliInstance } from '../cli/cli'
 import { pathFormat, readSync, writeSync } from '../utils/file'
-import { VUE_CONFIG_HTML_PLUGIN } from '../constants/constants'
+import { PARSER_TYPES, VUE_CONFIG_HTML_PLUGIN } from '../constants/constants'
 
 export type FileInfo = {
   path: string
@@ -85,7 +85,6 @@ export async function astParseRoot (
   const transformationParams: TransformationParams = {
     config: config
   }
-  cliInstance.setTotal(cliInstance.total + resolvedPaths.length)
 
   for (const key in parsersMap) {
     for (const filePath of resolvedPaths) {
@@ -151,7 +150,7 @@ export async function astParseRoot (
         webpackConfig = vueConfig.configureWebpack
       } else if (vueConfig.configureWebpack) {
         try {
-          webpackConfig = applyAstParsingResultToConfig(webpackConfig, 'FindWebpackConfigProperties', parsingResults)
+          webpackConfig = applyAstParsingResultToConfig(webpackConfig, PARSER_TYPES.FindWebpackConfigProperties, parsingResults)
           await vueConfig.configureWebpack(webpackConfig)
         } catch (e) {
           console.log(e)

@@ -109,12 +109,12 @@ Options:
   * 从 `html-webpack-plugin` 中引用 `injectHtml` 和 `minifyHtml` 并且配置选项：
   ```js
   plugins: [
-    injectHtml: ({
+    injectHtml({
       data: {
         title: value
       }
     }),
-    minifyHtml: ({
+    minifyHtml({
       minifyCss: true
     })
   ]

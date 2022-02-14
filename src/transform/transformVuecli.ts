@@ -10,7 +10,7 @@ import { RawValue } from '../config/vite'
 import path from 'path'
 import type { TransformContext } from './context'
 import { getVueVersion } from '../utils/version'
-import { DEFAULT_VUE_VERSION, VUE_CONFIG_HTML_PLUGIN } from '../constants/constants'
+import { DEFAULT_VUE_VERSION, PARSER_TYPES, VUE_CONFIG_HTML_PLUGIN } from '../constants/constants'
 import { recordConver } from '../utils/report'
 import type { ServerOptions } from 'vite';
 import type { AstParsingResult } from '../ast-parse/astParse'
@@ -41,7 +41,7 @@ export class VueCliTransformer implements Transformer {
         webpackConfig = vueConfig.configureWebpack
       } else if (vueConfig.configureWebpack && astParsingResult) {
         try {
-          webpackConfig = applyAstParsingResultToConfig(webpackConfig, 'FindWebpackConfigProperties', astParsingResult.parsingResult)
+          webpackConfig = applyAstParsingResultToConfig(webpackConfig, PARSER_TYPES.FindWebpackConfigProperties, astParsingResult.parsingResult)
           await vueConfig.configureWebpack(webpackConfig)
         } catch (e) {
           console.error('\nTransforming configureWebpack config failed. Please manually convert it.')

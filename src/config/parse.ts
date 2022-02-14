@@ -104,7 +104,6 @@ export function applyAstParsingResultToConfig (config: any, parseType: string, p
           break
         } else if (config[name]) {
           property = config[name]
-          continue
         } else if (index + 1 < identifiers.length && identifiers[index + 1].type === 'index') {
           property[name] = []
           property = config[name]

@@ -11,15 +11,13 @@ import { TransformContext } from '../src/transform/context'
 test('initViteConfig', () => {
   const result: ViteConfig = initViteConfig()
 
-  expect(result.resolve).toBe(
-    expect.objectContaining({
+  expect(result.resolve).toMatchObject({
       alias: [
         { find: new RawValue('/^~/'), replacement: '' },
         { find: '', replacement: new RawValue("path.resolve(__dirname,'src')") }
       ],
       extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.vue']
-    })
-  )
+  })
 })
 
 test('getTransformer', () => {
@@ -42,8 +40,7 @@ test('transformImports', () => {
     }
   }
   transformImporters(context)
-  expect(context).toEqual(
-    expect.objectContaining({
+  expect(context).toMatchObject({
       importers: [
         {
           key: "vite-plugin-env-compatible",
@@ -65,8 +62,7 @@ test('transformImports', () => {
           new RawValue('injectHtml()')
         ]
       }
-    })
-  )
+  })
 
   let contextVue2: TransformContext = {
     vueVersion: 2,
@@ -76,8 +72,7 @@ test('transformImports', () => {
     }
   }
   transformImporters(contextVue2)
-  expect(contextVue2).toEqual(
-    expect.objectContaining({
+  expect(contextVue2).toMatchObject({
       importers: expect.arrayContaining([
        {
          key: "vite-plugin-vue2",
@@ -89,8 +84,7 @@ test('transformImports', () => {
           new RawValue('createVuePlugin({ jsx: true })')
         ])
       }
-    })
-  )
+  })
 
   let contextVue3: TransformContext = {
     vueVersion: 3,
@@ -100,8 +94,7 @@ test('transformImports', () => {
     }
   }
   transformImporters(contextVue3)
-  expect(contextVue3).toEqual(
-    expect.objectContaining({
+  expect(contextVue3).toMatchObject({
       importers: expect.arrayContaining([
         {
           key: "@vitejs/plugin-vue",
@@ -118,6 +111,5 @@ test('transformImports', () => {
           new RawValue('vueJsx()')
         ])
       }
-    })
-  )
+  })
 })

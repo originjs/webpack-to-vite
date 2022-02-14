@@ -23,7 +23,7 @@ import { astParse as findWebpackConfigProperties } from '../src/ast-parse/parser
 import { astParse as findChainWebpackConfigProperties } from '../src/ast-parse/parsers/findChainWebpackConfigProperties';
 import { ParsingResult } from '../src/ast-parse/astParse';
 
-const parsingResult: ParsingResult = []
+const parsingResult: ParsingResult = {}
 
 beforeAll(() => {
     const srcPath = path.resolve('tests/testdata/ast-parse')
@@ -73,7 +73,7 @@ test('findWebpackConfigProperties',  () => {
         path: filePath,
         source: source
     }
-    const result: ParsingResultOccurrence[] | ParsingResultProperty[][] | null = findWebpackConfigProperties(fileInfo)
+    const result = findWebpackConfigProperties(fileInfo) as ParsingResultProperty[][]
     expect(result.length).toBe(2)
     expect(result[0]).toMatchObject([{ name: 'resolve', type: 'object' }])
     expect(result[1]).toMatchObject([
@@ -90,7 +90,7 @@ test('findChainWebpackConfigProperties',  () => {
         path: filePath,
         source: source
     }
-    const result: ParsingResultOccurrence[] | ParsingResultProperty[][] | null = findChainWebpackConfigProperties(fileInfo)
+    const result = findChainWebpackConfigProperties(fileInfo) as ParsingResultOccurrence[] | null
     expect(result.length).toBe(3)
     // line number of chainWebpack node
     expect(result[0].offsetBegin).toBe(37)
@@ -197,7 +197,7 @@ test('findJsxInScriptParser',  () => {
         path: filePath,
         source: source
     }
-    const result: ParsingResultOccurrence[] | ParsingResultProperty[][] | null = findJsxInScriptParser(fileInfo)
+    const result = findJsxInScriptParser(fileInfo) as ParsingResultOccurrence[]
     expect(result.length).toBeGreaterThan(0)
 })
 
@@ -208,7 +208,7 @@ test('findRequireContext',  () => {
         path: filePath,
         source: source
     }
-    const result: ParsingResultOccurrence[] | ParsingResultProperty[][] | null = findRequireContext(fileInfo)
+    const result = findRequireContext(fileInfo) as ParsingResultOccurrence[]
     expect(result.length).toBeGreaterThan(0)
 })
 
