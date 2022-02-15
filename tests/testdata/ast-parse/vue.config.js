@@ -42,6 +42,7 @@ module.exports = {
       args[0].title = 'Webpack App';
       args[0].template = '123'
       args[0].templateContent = '<html></html>'
+      args[0].minify.minifyCSS = true
       return args;
     });
   },

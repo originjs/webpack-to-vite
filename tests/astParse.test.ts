@@ -21,6 +21,7 @@ import { astParse as findJsxInScriptParser } from '../src/ast-parse/parsers/find
 import { astParse as findRequireContext } from '../src/ast-parse/parsers/findRequireContext'
 import { astParse as findWebpackConfigProperties } from '../src/ast-parse/parsers/findWebpackConfigProperties';
 import { astParse as findHtmlPluginChain } from '../src/ast-parse/parsers/findHtmlPluginChain';
+import { astParse as findHtmlConfigProperties } from '../src/ast-parse/parsers/findHtmlConfigProperties';
 import { ParsingResult } from '../src/ast-parse/astParse';
 
 const parsingResult: ParsingResult = {}
@@ -101,6 +102,81 @@ test('findHtmlPluginChain',  () => {
     parsingResult['FindHtmlPluginChain'] = result
 })
 
+test('chainWebpackTransformation', async () => {
+    const filePath: string = path.resolve('tests/out-ast-parse/vue.config.js')
+    const source: string = readSync(filePath).replace(/\r\n/g, '\n')
+    const fileInfo: FileInfo = {
+        path: filePath,
+        source: source
+    }
+    const transformationParams: TransformationParams = {
+        config: {
+            rootDir:  path.resolve('tests/out-ast-parse')
+        }
+    }
+    const result: TransformationResult = await chainWebpackTransformation(fileInfo, transformationParams, parsingResult)
+    expect(fs.existsSync(path.resolve('tests/out-ast-parse/vue.temp.config.js'))).toBe(true)
+    expect(result.content).toMatch('htmlPluginOptions:')
+})
+
+test('findHtmlConfigProperties',  () => {
+    const filePath: string = path.resolve('tests/out-ast-parse/vue.temp.config.js')
+    const source: string = readSync(filePath).replace(/\r\n/g, '\n')
+    const fileInfo: FileInfo = {
+        path: filePath.replace('vue.temp.config.js', 'vue.config.js'),
+        source: source
+    }
+    const result = findHtmlConfigProperties(fileInfo) as ParsingResultProperty[][]
+    expect(result.length).toBe(4)
+    expect(result).toMatchObject([
+        [
+            {
+                name: 0,
+                type: 'index'
+            },
+            {
+                name: 'title',
+                type: 'object'
+            }
+        ],
+        [
+            {
+                name: 0,
+                type: 'index'
+            },
+            {
+                name: 'template',
+                type: 'object'
+            }
+        ],
+        [
+            {
+                name: 0,
+                type: 'index'
+            },
+            {
+                name: 'templateContent',
+                type: 'object'
+            }
+        ],
+        [
+            {
+                name: 0,
+                type: 'index'
+            },
+            {
+                name: 'minify',
+                type: 'object'
+            },
+            {
+                name: 'minifyCSS',
+                type: 'object'
+            }
+        ],
+    ])
+    parsingResult['FindHtmlConfigProperties'] = result
+})
+
 test('indexHtmlTransformationVueCli', async () => {
     const oldFilePath: string = path.resolve('tests/out-ast-parse/vue-cli-index.html')
     const filePath: string = path.resolve('tests/out-ast-parse/index.html')
@@ -171,23 +247,6 @@ test('lazyLoadingRoutesTransformation', async () => {
     }
     const result: TransformationResult = await lazyLoadingRoutesTransform(fileInfo, transformationParams, null)
     expect(result.content).toMatch('() => import("../components/test.vue")')
-})
-
-test('chainWebpackTransformation', async () => {
-    const filePath: string = path.resolve('tests/out-ast-parse/vue.config.js')
-    const source: string = readSync(filePath).replace(/\r\n/g, '\n')
-    const fileInfo: FileInfo = {
-        path: filePath,
-        source: source
-    }
-    const transformationParams: TransformationParams = {
-        config: {
-            rootDir:  path.resolve('tests/out-ast-parse')
-        }
-    }
-    const result: TransformationResult = await chainWebpackTransformation(fileInfo, transformationParams, parsingResult)
-    expect(fs.existsSync(path.resolve('tests/out-ast-parse/vue.temp.config.js'))).toBe(true)
-    expect(result.content).toMatch('htmlPluginOptions:')
 })
 
 test('findJsxInScriptParser',  () => {

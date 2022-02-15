@@ -21,7 +21,7 @@ export const parsersMap: {
 } = {
   FindJsxInScript,
   FindRequireContextParser,
-  // parse chain config in order
+  // parse chain webpack config
   FindHtmlPluginChain,
   FindHtmlConfigProperties,
   // parse webpack config
