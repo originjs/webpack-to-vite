@@ -31,8 +31,9 @@ export const transformationMap: {
 } = {
   addJsxTransformation,
   removeHtmlLangInTemplateTransformation,
+  lazyLoadingRoutesTransformation,
+  // transform in order
   chainWebpackTransformation,
   indexHtmlTransformationVueCli,
-  indexHtmlTransformationWebpack,
-  lazyLoadingRoutesTransformation
+  indexHtmlTransformationWebpack
 }

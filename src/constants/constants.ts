@@ -26,5 +26,6 @@ export const PARSER_TYPES = {
   FindJsxInScript: 'FindJsxInScript',
   FindRequireContextParser: 'FindRequireContextParser',
   FindWebpackConfigProperties: 'FindWebpackConfigProperties',
+  FindChainConfigProperties: 'FindChainConfigProperties',
   FindHtmlPluginChain: 'FindHtmlPluginChain'
 }

@@ -3,6 +3,7 @@ import * as FindJsxInScript from './findJsxInScriptParser'
 import * as FindRequireContextParser from './findRequireContext'
 import * as FindWebpackConfigProperties from './findWebpackConfigProperties'
 import * as FindHtmlPluginChain from './findHtmlPluginChain'
+import * as FindChainConfigProperties from './findChainConfigProperties'
 import type { PARSER_TYPES } from '../../constants/constants'
 
 export type ASTParse<Params = void> = {
@@ -20,6 +21,9 @@ export const parsersMap: {
 } = {
   FindJsxInScript,
   FindRequireContextParser,
-  FindWebpackConfigProperties,
-  FindHtmlPluginChain
+  // parse chain config in order
+  FindHtmlPluginChain,
+  FindChainConfigProperties,
+  // parse webpack config
+  FindWebpackConfigProperties
 }
