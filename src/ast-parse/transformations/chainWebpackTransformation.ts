@@ -66,7 +66,7 @@ export const astTransform: ASTTransformation = async (
   return result
 }
 
-export const needReparse: boolean = false
+export const needReparse: boolean = true
 
 export const needWriteToOriginFile: boolean = false
 

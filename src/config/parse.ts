@@ -102,14 +102,14 @@ export function applyAstParsingResultToConfig (config: any, parseType: string, p
             property[name] = {}
           }
           break
-        } else if (config[name]) {
-          property = config[name]
+        } else if (property[name]) {
+          property = property[name]
         } else if (index + 1 < identifiers.length && identifiers[index + 1].type === 'index') {
           property[name] = []
-          property = config[name]
+          property = property[name]
         } else {
           property[name] = {}
-          property = config[name]
+          property = property[name]
         }
       }
     })

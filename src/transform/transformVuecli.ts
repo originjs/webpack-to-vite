@@ -10,13 +10,14 @@ import { RawValue } from '../config/vite'
 import path from 'path'
 import type { TransformContext } from './context'
 import { getVueVersion } from '../utils/version'
-import { DEFAULT_VUE_VERSION, PARSER_TYPES, VUE_CONFIG_HTML_PLUGIN } from '../constants/constants'
+import { DEFAULT_VUE_VERSION, PARSER_TYPES } from '../constants/constants'
 import { recordConver } from '../utils/report'
 import type { ServerOptions } from 'vite';
 import type { AstParsingResult } from '../ast-parse/astParse'
 import { relativePathFormat } from '../utils/file'
 import { serializeObject } from '../generate/render'
 import type { InjectOptions } from '../config/config'
+import { getHtmlPluginConfig } from '../utils/config'
 
 /**
  * parse vue.config.js options and transform to vite.config.js
@@ -62,26 +63,9 @@ export class VueCliTransformer implements Transformer {
         }
       }
 
-      let htmlPlugin: any
-      if (webpackConfig.plugins) {
-        htmlPlugin = webpackConfig.plugins.find((p: any) =>
-          p.constructor.name === 'HtmlWebpackPlugin' &&
-        (!p.filename || p.filename === 'index.html'))
-        if (htmlPlugin) {
-          htmlPlugin.options = htmlPlugin.options || htmlPlugin.userOptions
-        }
-      }
-      // vueConfig.chainWebpack => plugin('html')
-      if (vueConfig[VUE_CONFIG_HTML_PLUGIN]) {
-        const htmlPluginArgs = [{}]
-        vueConfig[VUE_CONFIG_HTML_PLUGIN](htmlPluginArgs)
-        if (!htmlPlugin) {
-          htmlPlugin = {}
-        }
-        const { options = {} } = htmlPlugin
-        const mergedOptions = Object.assign({}, options, htmlPluginArgs[0])
-        htmlPlugin.options = mergedOptions
-      }
+      webpackConfig = merge(chainableConfig.toConfig(), webpackConfig)
+
+      const htmlPlugin = getHtmlPluginConfig(vueConfig, webpackConfig, astParsingResult?.parsingResult)
 
       // Base public path
       config.base =

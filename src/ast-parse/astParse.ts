@@ -15,7 +15,8 @@ import type { ESLintProgram } from 'vue-eslint-parser/ast'
 import type { Config } from '../config/config'
 import { cliInstance } from '../cli/cli'
 import { pathFormat, readSync, writeSync } from '../utils/file'
-import { PARSER_TYPES, TRANSFORMATION_TYPES, VUE_CONFIG_HTML_PLUGIN } from '../constants/constants'
+import { PARSER_TYPES, TRANSFORMATION_TYPES } from '../constants/constants'
+import { getHtmlPluginConfig } from '../utils/config'
 
 export type FileInfo = {
   path: string
@@ -204,26 +205,8 @@ export async function astParseRoot (
 
     webpackConfig = merge(chainableConfig.toConfig(), webpackConfig)
 
-    let htmlPlugin: any
-    if (webpackConfig.plugins) {
-      htmlPlugin = webpackConfig.plugins.find((p: any) =>
-        p.constructor.name === 'HtmlWebpackPlugin' &&
-        (!p.filename || p.filename === 'index.html'))
-      if (htmlPlugin) {
-        htmlPlugin.options = htmlPlugin.options || htmlPlugin.userOptions
-      }
-    }
-    // vueConfig.chainWebpack => plugin('html')
-    if (vueConfig[VUE_CONFIG_HTML_PLUGIN]) {
-      const htmlPluginArgs = [{}]
-      vueConfig[VUE_CONFIG_HTML_PLUGIN](htmlPluginArgs)
-      if (!htmlPlugin) {
-        htmlPlugin = {}
-      }
-      const { options = {} } = htmlPlugin
-      const mergedOptions = Object.assign({}, options, htmlPluginArgs[0])
-      htmlPlugin.options = mergedOptions
-    }
+    const htmlPlugin = getHtmlPluginConfig(vueConfig, webpackConfig, parsingResults)
+
     transformationParams.htmlPlugin = htmlPlugin
     transformationParams.context = webpackConfig.context
     return transformationParams
