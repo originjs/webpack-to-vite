@@ -1,7 +1,12 @@
-import { ViteConfig } from '../config/vite'
+import type { ViteConfig } from '../config/vite'
+
+export interface importer {
+    key: string;
+    value: string;
+}
 
 export interface TransformContext {
     vueVersion : number | undefined;
     config : ViteConfig;
-    importers : string[];
+    importers : importer[];
 }

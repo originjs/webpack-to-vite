@@ -1,10 +1,13 @@
-import type { FileInfo, ParsingResultOccurrence } from '../astParse'
+import type { FileInfo, ParsingResultOccurrence, ParsingResultProperty } from '../astParse'
 import * as FindJsxInScript from './findJsxInScriptParser'
 import * as FindRequireContextParser from './findRequireContext'
+import * as FindWebpackConfigProperties from './findWebpackConfigProperties'
+import * as FindHtmlPluginChain from './findHtmlPluginChain'
+import * as FindHtmlConfigProperties from './findHtmlConfigProperties'
 import type { PARSER_TYPES } from '../../constants/constants'
 
 export type ASTParse<Params = void> = {
-  (fileInfo: FileInfo, params: Params): ParsingResultOccurrence[] | null
+  (fileInfo: FileInfo, params?: Params): ParsingResultOccurrence[] | ParsingResultProperty[][] | null
 }
 
 export type ParserType = typeof PARSER_TYPES[keyof typeof PARSER_TYPES]
@@ -17,5 +20,10 @@ export const parsersMap: {
   }
 } = {
   FindJsxInScript,
-  FindRequireContextParser
+  FindRequireContextParser,
+  // parse chain webpack config
+  FindHtmlPluginChain,
+  FindHtmlConfigProperties,
+  // parse webpack config
+  FindWebpackConfigProperties
 }

@@ -33,22 +33,18 @@ describe('genePackageJson', () => {
     fs.copyFileSync(testPostcssConfigPath, postcssConfigPath)
     genePackageJson(packageJsonPath)
     const packageJsonContent = JSON.parse(readSync(packageJsonPath))
-    expect(packageJsonContent.devDependencies).toBe(
-      expect.objectContaining({
+    expect(packageJsonContent.devDependencies).toMatchObject({
         'vite-plugin-env-compatible': expect.any(String),
         'vite-plugin-html': expect.any(String),
         vite: expect.any(String),
         sass: expect.any(String),
         postcss: expect.any(String)
-      })
-    )
-    expect(packageJsonContent.scripts).toBe(
-      expect.objectContaining({
+    })
+    expect(packageJsonContent.scripts).toMatchObject({
         'serve-vite': 'vite',
         'build-vite': 'vite build',
         'preview-vite': 'vite preview'
-      })
-    )
+    })
   })
 
   test('generate vue2 package.json', () => {
@@ -59,11 +55,9 @@ describe('genePackageJson', () => {
     fs.copyFileSync(testPackageJsonPath, packageJsonPath)
     genePackageJson(packageJsonPath)
     const packageJsonContent = JSON.parse(readSync(packageJsonPath))
-    expect(packageJsonContent.devDependencies).toBe(
-      expect.objectContaining({
+    expect(packageJsonContent.devDependencies).toMatchObject({
         'vite-plugin-vue2': expect.any(String)
-      })
-    )
+    })
   })
 
   test('generate vue3 package.json', () => {
@@ -74,13 +68,11 @@ describe('genePackageJson', () => {
     fs.copyFileSync(testPackageJsonPath, packageJsonPath)
     genePackageJson(packageJsonPath)
     const packageJsonContent = JSON.parse(readSync(packageJsonPath))
-    expect(packageJsonContent.devDependencies).toBe(
-      expect.objectContaining({
+    expect(packageJsonContent.devDependencies).toMatchObject({
         '@vue/compiler-sfc': "^3.0.0",
         '@vitejs/plugin-vue': expect.any(String),
         '@vitejs/plugin-vue-jsx': expect.any(String)
-      })
-    )
+    })
   })
 })
 

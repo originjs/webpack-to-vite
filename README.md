@@ -101,18 +101,19 @@ Legend of annotations:
 * ⚠️ B10: CSS Modules
   * In vite, any CSS files ending with `.module.css` is considered a CSS modules file
   * That means you need to covert files with extension of `.css` to files with extension of `.module.css` to implement CSS Modules
-* ⚠️ B11: default values exposed by plugins
-  * The error `htmlWebpackPlugin is not defined` may occur if `index.html` includes `htmlWebpackPlugin.options.variableName`. You need to add a plugin in `vite.config.js` like this:
+* ✅ B11: `html-webpack-plugin` is supported
+  * Options will be applied to plugin `vite-plugin-html`
+  * Variables injected to `index.html` will be transformed. for example, `<%= htmlWebpackPlugin.options.title %>` -> `<%= title %>`
+  * Import `injectHtml` and `minifyHtml` from `html-webpack-plugin` and use them like this:
   ```js
   plugins: [
-    injectHtml: ({
-      injectData: {
-        htmlWebpackPlugin: {
-          options: {
-            variableName: value
-          }
-        }
+    injectHtml({
+      data: {
+        title: value
       }
+    }),
+    minifyHtml({
+      minifyCss: true
     })
   ]
   ```
@@ -177,6 +178,9 @@ Legend of annotations:
     }
   }
   ```
+* ✅ V08: transform functional webpack config
+  * The `webpackConfigure` and `chainWebpack` options could be defined as object or function in `vue.config.js` module
+  * To avoid calling error when they were functional, we initialize config options and generate a temporary file (`vue.temp.config.js`) to reconfig `html-webpack-plugin`
   
 ### Webpack conversion
 > Webpack conversion is based on `webpack.config.js` or `webpack.base.js/webpack.dev.js/webpack.prod.js` or `webpack.build.js/webpack.production.js`, map configuration to `vite.config.js`

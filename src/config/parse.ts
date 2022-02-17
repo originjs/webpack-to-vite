@@ -1,8 +1,9 @@
 import fs from 'fs';
 import path from 'path';
+import chalk from 'chalk';
 import type { WebpackConfig } from './webpack';
 import type { VueCliConfig } from './vuecli';
-import chalk from 'chalk';
+import type { ParsingResult } from '../ast-parse/astParse';
 
 export async function parseWebpackConfig (
   configPath: string
@@ -82,4 +83,36 @@ export async function parseVueCliConfig (
     }
   }
   return vueCliConfig
+}
+
+export function applyAstParsingResultToConfig (config: any, parseType: string, parsingResult: ParsingResult) {
+  if (parsingResult[parseType]) {
+    parsingResult[parseType].forEach(identifiers => {
+      let property = config
+      for (let index = 0; index < identifiers.length; index++) {
+        const { name } = identifiers[index]
+        if (index + 1 < identifiers.length && identifiers[index + 1].type === 'function') {
+          if (Array.prototype[identifiers[index + 1].name]) {
+            property[name] = []
+          } else if (Map.prototype[identifiers[index + 1].name]) {
+            property[name] = new Map()
+          } else if (Set.prototype[identifiers[index + 1].name]) {
+            property[name] = new Set()
+          } else {
+            property[name] = {}
+          }
+          break
+        } else if (property[name]) {
+          property = property[name]
+        } else if (index + 1 < identifiers.length && identifiers[index + 1].type === 'index') {
+          property[name] = []
+          property = property[name]
+        } else {
+          property[name] = {}
+          property = property[name]
+        }
+      }
+    })
+  }
+  return config
 }

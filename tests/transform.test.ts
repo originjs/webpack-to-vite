@@ -11,15 +11,13 @@ import { TransformContext } from '../src/transform/context'
 test('initViteConfig', () => {
   const result: ViteConfig = initViteConfig()
 
-  expect(result.resolve).toBe(
-    expect.objectContaining({
+  expect(result.resolve).toMatchObject({
       alias: [
         { find: new RawValue('/^~/'), replacement: '' },
         { find: '', replacement: new RawValue("path.resolve(__dirname,'src')") }
       ],
       extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.vue']
-    })
-  )
+  })
 })
 
 test('getTransformer', () => {
@@ -42,12 +40,20 @@ test('transformImports', () => {
     }
   }
   transformImporters(context)
-  expect(context).toEqual(
-    expect.objectContaining({
+  expect(context).toMatchObject({
       importers: [
-        "import envCompatible from 'vite-plugin-env-compatible';",
-        "import { injectHtml } from 'vite-plugin-html';",
-        "import { viteCommonjs } from '@originjs/vite-plugin-commonjs';"
+        {
+          key: "vite-plugin-env-compatible",
+          value: "import envCompatible from 'vite-plugin-env-compatible';"
+        },
+        {
+          key: "vite-plugin-html",
+          value: "import { injectHtml } from 'vite-plugin-html';",
+        },
+        {
+          key: "@originjs/vite-plugin-commonjs",
+          value: "import { viteCommonjs } from '@originjs/vite-plugin-commonjs';"
+        }
       ],
       config: {
         plugins: [
@@ -56,8 +62,7 @@ test('transformImports', () => {
           new RawValue('injectHtml()')
         ]
       }
-    })
-  )
+  })
 
   let contextVue2: TransformContext = {
     vueVersion: 2,
@@ -67,18 +72,19 @@ test('transformImports', () => {
     }
   }
   transformImporters(contextVue2)
-  expect(contextVue2).toEqual(
-    expect.objectContaining({
+  expect(contextVue2).toMatchObject({
       importers: expect.arrayContaining([
-        "import { createVuePlugin } from 'vite-plugin-vue2';"
+       {
+         key: "vite-plugin-vue2",
+        value: "import { createVuePlugin } from 'vite-plugin-vue2';"
+       }
       ]),
       config: {
         plugins: expect.arrayContaining([
           new RawValue('createVuePlugin({ jsx: true })')
         ])
       }
-    })
-  )
+  })
 
   let contextVue3: TransformContext = {
     vueVersion: 3,
@@ -88,11 +94,16 @@ test('transformImports', () => {
     }
   }
   transformImporters(contextVue3)
-  expect(contextVue3).toEqual(
-    expect.objectContaining({
+  expect(contextVue3).toMatchObject({
       importers: expect.arrayContaining([
-        "import vue from '@vitejs/plugin-vue';",
-        "import vueJsx from '@vitejs/plugin-vue-jsx';"
+        {
+          key: "@vitejs/plugin-vue",
+          value: "import vue from '@vitejs/plugin-vue';",
+        },
+        {
+          key: "@vitejs/plugin-vue-jsx",
+          value: "import vueJsx from '@vitejs/plugin-vue-jsx';"
+        }
       ]),
       config: {
         plugins: expect.arrayContaining([
@@ -100,6 +111,5 @@ test('transformImports', () => {
           new RawValue('vueJsx()')
         ])
       }
-    })
-  )
+  })
 })

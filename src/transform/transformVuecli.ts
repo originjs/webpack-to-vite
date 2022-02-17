@@ -1,16 +1,23 @@
-import { parseVueCliConfig } from '../config/parse'
+import { applyAstParsingResultToConfig, parseVueCliConfig } from '../config/parse'
 import Config from 'webpack-chain'
 import merge from 'webpack-merge'
-import { initViteConfig, Transformer, transformImporters } from './transformer'
-import { ViteConfig, RawValue } from '../config/vite'
+import type { Configuration } from 'webpack'
+import { existsSync } from 'fs'
+import type { Transformer } from './transformer';
+import { initViteConfig, transformImporters } from './transformer'
+import type { ViteConfig } from '../config/vite';
+import { RawValue } from '../config/vite'
 import path from 'path'
-import { TransformContext } from './context'
+import type { TransformContext } from './context'
 import { getVueVersion } from '../utils/version'
-import { DEFAULT_VUE_VERSION } from '../constants/constants'
+import { DEFAULT_VUE_VERSION, PARSER_TYPES } from '../constants/constants'
 import { recordConver } from '../utils/report'
-import { ServerOptions } from 'vite';
-import { AstParsingResult } from '../ast-parse/astParse'
+import type { ServerOptions } from 'vite';
+import type { AstParsingResult } from '../ast-parse/astParse'
 import { relativePathFormat } from '../utils/file'
+import { serializeObject } from '../generate/render'
+import type { InjectOptions } from '../config/config'
+import { getHtmlPluginConfig } from '../utils/config'
 
 /**
  * parse vue.config.js options and transform to vite.config.js
@@ -26,12 +33,43 @@ export class VueCliTransformer implements Transformer {
       this.context.vueVersion = getVueVersion(rootDir)
       transformImporters(this.context, astParsingResult)
       const config = this.context.config
-      const vueConfigFile = path.resolve(rootDir, 'vue.config.js')
-      const vueConfig = await parseVueCliConfig(vueConfigFile)
+      const vueConfigPath = existsSync(path.resolve(rootDir, 'vue.temp.config.ts')) ? path.resolve(rootDir, 'vue.temp.config.ts') : path.resolve(rootDir, 'vue.temp.config.js')
+      const vueConfig = await parseVueCliConfig(vueConfigPath)
+
+      let webpackConfig: Configuration = {}
+      // vueConfig.configureWebpack
+      if (vueConfig.configureWebpack && typeof vueConfig.configureWebpack !== 'function') {
+        webpackConfig = vueConfig.configureWebpack
+      } else if (vueConfig.configureWebpack && astParsingResult) {
+        try {
+          webpackConfig = applyAstParsingResultToConfig(webpackConfig, PARSER_TYPES.FindWebpackConfigProperties, astParsingResult.parsingResult)
+          await vueConfig.configureWebpack(webpackConfig)
+        } catch (e) {
+          console.error('\nTransforming configureWebpack config failed. Please manually convert it.')
+          console.error(e)
+          console.log('skip transforming the configureWebpack...')
+        }
+      }
+
+      // vueConfig.chainWebpack
+      const chainableConfig = new Config()
+      if (vueConfig.chainWebpack) {
+        try {
+          await vueConfig.chainWebpack(chainableConfig)
+        } catch (e) {
+          console.error('\nTransforming chainWebpack config failed. Please manually convert it.')
+          console.error(e)
+          console.log('skip transforming the chainWebpack...')
+        }
+      }
+
+      webpackConfig = merge(chainableConfig.toConfig(), webpackConfig)
+
+      const htmlPlugin = getHtmlPluginConfig(vueConfig, webpackConfig, astParsingResult?.parsingResult)
 
       // Base public path
       config.base =
-            process.env.PUBLIC_URL || vueConfig.publicPath || vueConfig.baseUrl
+            process.env.PUBLIC_URL || vueConfig.publicPath || vueConfig.baseUrl || htmlPlugin?.options?.publicPath
       recordConver({ num: 'V01', feat: 'base public path' })
 
       // css options
@@ -79,35 +117,17 @@ export class VueCliTransformer implements Transformer {
             vueConfig.productionSourceMap ||
             css.sourceMap
       recordConver({ num: 'V03', feat: 'build options' })
+
       // alias
-      const chainableConfig = new Config()
-      if (vueConfig.chainWebpack) {
-        try {
-          vueConfig.chainWebpack(chainableConfig)
-        } catch (e) {
-          console.error('\nTransforming chainWebpack config failed. Please manually convert it.')
-          console.error(e)
-          console.log('skip transforming the chainWebpack...')
-        }
-      }
       const aliasOfChainWebpack = chainableConfig.resolve.alias.entries()
       const aliasOfConfigureWebpackObjectMode =
             vueConfig?.configureWebpack?.resolve?.alias || {}
       const aliasOfConfigureFunctionMode = (() => {
         if (typeof vueConfig.configureWebpack === 'function') {
-          let originConfig
-          let res
-          try {
-            originConfig = chainableConfig.toConfig()
-            res = vueConfig.configureWebpack(originConfig)
-          } catch (e) {
-            console.error('\nTransforming configureWebpack config failed. Please manually convert it.')
-            console.error(e)
-            console.log('skip transforming the configureWebpack...')
-          }
-          originConfig = merge(originConfig, res)
-          if (res) {
-            return res.resolve.alias || {}
+          let originConfig = chainableConfig.toConfig()
+          originConfig = merge(originConfig, webpackConfig)
+          if (webpackConfig) {
+            return webpackConfig.resolve?.alias || {}
           }
           return (originConfig.resolve && originConfig.resolve.alias) || {}
         }
@@ -130,6 +150,69 @@ export class VueCliTransformer implements Transformer {
 
       config.resolve.alias = defaultAlias
       recordConver({ num: 'V05', feat: 'resolve.alias options' })
+
+      // html-webpack-plugin
+      if (htmlPlugin && htmlPlugin.options) {
+        // injectData
+        const injectHtmlPluginOption: InjectOptions = {}
+        const data = {
+          title: 'Vite App'
+        }
+        Object.keys(htmlPlugin.options).forEach(key => {
+          if ((key === 'title' || key === 'favicon') && htmlPlugin.options[key]) {
+            data[key] = htmlPlugin.options[key]
+          }
+        })
+        if (htmlPlugin.options?.templateParameters) {
+          Object.assign(data, htmlPlugin.options.templateParameters)
+        }
+        injectHtmlPluginOption.data = data
+        if (htmlPlugin.options?.meta) {
+          injectHtmlPluginOption.tags = []
+          Object.keys(htmlPlugin.options.meta).forEach(key => {
+            if (htmlPlugin.options.meta[key]) {
+              injectHtmlPluginOption.tags.push({
+                tag: 'meta',
+                attrs: {
+                  name: key,
+                  content: htmlPlugin.options.meta[key],
+                  injectTo: 'head'
+                }
+              })
+            }
+          })
+        }
+        this.context.config.plugins = this.context.config.plugins || []
+        const injectHtmlPluginIndex = this.context.config.plugins.findIndex(p => p.value === 'injectHtml()')
+        if (injectHtmlPluginIndex >= 0) {
+          this.context.config.plugins[injectHtmlPluginIndex] = new RawValue('injectHtml(' + serializeObject(injectHtmlPluginOption, '    ') + ')')
+        } else {
+          this.context.config.plugins.push(new RawValue('injectHtml(' + serializeObject(injectHtmlPluginOption, '    ') + ')'))
+        }
+        if (this.context.importers.findIndex(importer => importer.key === 'vite-plugin-html') < 0) {
+          this.context.importers.push({
+            key: 'vite-plugin-html',
+            value: 'import { injectHtml } from \'vite-plugin-html\';'
+          })
+        }
+        // minify
+        if (htmlPlugin.options?.minify) {
+          const vitePluginHtmlImporterIndex = this.context.importers.findIndex(importer => importer.key === 'vite-plugin-html')
+          if (vitePluginHtmlImporterIndex >= 0) {
+            const minifyHtmlImporter = 'import { injectHtml, minifyHtml } from \'vite-plugin-html\';'
+            this.context.importers[vitePluginHtmlImporterIndex].value = minifyHtmlImporter
+          } else {
+            this.context.importers.push({
+              key: 'vite-plugin-html',
+              value: 'import { minifyHtml } from \'vite-plugin-html\';'
+            })
+          }
+          this.context.config.plugins = this.context.config.plugins || []
+          this.context.config.plugins.push(new RawValue('minifyHtml(' + serializeObject(htmlPlugin.options.minify, '    ') + ')'))
+        }
+      }
+      recordConver({ num: 'B11', feat: 'html-webpack-plugin is supported' })
+
       return config
     }
 

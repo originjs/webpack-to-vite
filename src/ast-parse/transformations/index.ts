@@ -1,7 +1,8 @@
 import type {
   FileInfo,
   TransformationResult,
-  TransformationParams
+  TransformationParams,
+  ParsingResult
 } from '../astParse'
 import type { TRANSFORMATION_TYPES } from '../../constants/constants'
 
@@ -10,9 +11,10 @@ import * as removeHtmlLangInTemplateTransformation from './removeHtmlLangInTempl
 import * as indexHtmlTransformationVueCli from './indexHtmlTransformationVueCli'
 import * as indexHtmlTransformationWebpack from './indexHtmlTransformationWebpack'
 import * as lazyLoadingRoutesTransformation from './lazyLoadingRoutesTransformation'
+import * as chainWebpackTransformation from './chainWebpackTransformation'
 
 export type ASTTransformation<Params = TransformationParams> = {
-  (fileInfo: FileInfo, params: Params): Promise<TransformationResult> | null
+  (fileInfo: FileInfo, params: Params, parsingResults: ParsingResult): Promise<TransformationResult> | null
 }
 
 export type TransformationType =
@@ -29,7 +31,9 @@ export const transformationMap: {
 } = {
   addJsxTransformation,
   removeHtmlLangInTemplateTransformation,
+  lazyLoadingRoutesTransformation,
+  // transform in order
+  chainWebpackTransformation,
   indexHtmlTransformationVueCli,
-  indexHtmlTransformationWebpack,
-  lazyLoadingRoutesTransformation
+  indexHtmlTransformationWebpack
 }
