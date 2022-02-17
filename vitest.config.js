@@ -8,6 +8,6 @@ export default defineConfig({
       extensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node']
     },
     testTimeout: 2000,
-    global: true
+    globals: true
   }
 })

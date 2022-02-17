@@ -80,10 +80,12 @@ export async function astParseRoot (
     `!${replacedRootDir}/**/node_modules`,
     `!${replacedRootDir}/**/dist`
   ])
+  const parsersCount = Object.keys(parsersMap).length
+  const transformationCount = Object.keys(transformationMap).length
   const parsingResults: ParsingResult = {}
   const transformationResults: AstTransformationResult = {}
 
-  const excuteParse = (parser, fileInfo, extension: string) => {
+  const executeParse = (parser, fileInfo, extension: string) => {
     const { path: filePath } = fileInfo
     let parsingResult: ParsingResultOccurrence[] | ParsingResultProperty[][] | null
 
@@ -115,7 +117,7 @@ export async function astParseRoot (
     )
   }
 
-  const excuteTransform = async (transformation, transformationParams: TransformationParams, fileInfo, extension: string) => {
+  const executeTransform = async (transformation, transformationParams: TransformationParams, fileInfo, extension: string) => {
     const { path: filePath, source } = fileInfo
     let transformationResultContent: string = source
     let tempTransformationResult: TransformationResult | null
@@ -155,6 +157,7 @@ export async function astParseRoot (
 
     if (transformation.needReparse) {
       fileInfo.source = transformationResultContent
+      cliInstance.setTotal(cliInstance.total + resolvedPaths.length * parsersCount)
       // iter all parsers
       for (const key in parsersMap) {
         cliInstance.increment({ doSomething: `AST Parsing: ${filePath}` })
@@ -165,7 +168,7 @@ export async function astParseRoot (
         if (!extensions.includes(extension)) {
           continue
         }
-        excuteParse(parser, fileInfo, extension)
+        executeParse(parser, fileInfo, extension)
       }
     }
     if (transformation.needWriteToOriginFile) {
@@ -212,6 +215,8 @@ export async function astParseRoot (
     return transformationParams
   }
 
+  cliInstance.setTotal(cliInstance.total + resolvedPaths.length * (parsersCount + transformationCount))
+
   // iter all parsers
   for (const key in parsersMap) {
     for (const filePath of resolvedPaths) {
@@ -231,7 +236,7 @@ export async function astParseRoot (
         path: filePath,
         source: source
       }
-      excuteParse(parser, fileInfo, extension)
+      executeParse(parser, fileInfo, extension)
     }
   }
 
@@ -262,7 +267,7 @@ export async function astParseRoot (
         source: source
       }
 
-      await excuteTransform(transformation, transformationParams, fileInfo, extension)
+      await executeTransform(transformation, transformationParams, fileInfo, extension)
     }
   }
 

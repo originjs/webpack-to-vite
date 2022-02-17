@@ -7,7 +7,7 @@ import * as FindHtmlConfigProperties from './findHtmlConfigProperties'
 import type { PARSER_TYPES } from '../../constants/constants'
 
 export type ASTParse<Params = void> = {
-  (fileInfo: FileInfo, params: Params): ParsingResultOccurrence[] | ParsingResultProperty[][] | null
+  (fileInfo: FileInfo, params?: Params): ParsingResultOccurrence[] | ParsingResultProperty[][] | null
 }
 
 export type ParserType = typeof PARSER_TYPES[keyof typeof PARSER_TYPES]

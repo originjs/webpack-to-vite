@@ -49,7 +49,7 @@ export async function start (config: Config): Promise<void> {
       console.log(chalk.red(`Project path is not correct : ${config.rootDir}`))
       return
     }
-    cliInstance.start(20, 0, { doSomething: 'Transformation begins...' }) // The current feature that can be converted is 20.
+    cliInstance.start(22, 0, { doSomething: 'Transformation begins...' }) // The current feature that can be converted is 20.
     const cwd = process.cwd()
     const rootDir = path.resolve(config.rootDir)
 
