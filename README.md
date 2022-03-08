@@ -358,3 +358,34 @@ Legend of annotations:
 * ⚠️ O09: if you encountered build error `[rollup-plugin-dynamic-import-variables] Unexpected token`, you need to remove empty attr `srcset` or `srcset=""` in `<img>` label.
 * ⚠️ O10: Vite can't resolve some static asset, e.g. `.PNG`, you can put it in `assetsInclude` option like `assetsInclude: ['**.PNG']`
 * ⚠️ O11: support `.md` markdown file as vue component, you need to add [`vite-plugin-md`](https://github.com/antfu/vite-plugin-md) plugin.
+* ⚠️ O12: The error `Uncaught ReferenceError: global is not defined`, see also [here](https://github.com/vitejs/vite/issues/2618#issuecomment-820919951)
+  * > For reference, if you only need to shim global, you can add `<script>window.global = window;</script>` to your `index.html`
+* ⚠️ O13: Support load SVG files as Vue components
+  * ... or when the following error is encountered
+  ```
+  Uncaught (in promise) DOMException: Failed to execute 'createElement' on 'Document': The tag name provided ('/@fs/D:/project/example/node_modules/@example/example.svg') is not a valid name.
+  ```
+  * add [`vite-svg-loader`](https://github.com/jpkleemans/vite-svg-loader) plugin for **vue** project
+  * add [`vite-plugin-svgr`](https://www.npmjs.com/package/vite-plugin-svgr) plugin for **react** project
+* ⚠️ O14: Fix the following errors
+  ```
+  [Vue warn]: Component provided template option but runtime compilation is not supported in this build of Vue. Configure your bundler to alias "vue" to "vue/dist/vue.esm-bundler.js".
+  ```
+  * you need to set the alias as follows
+  ```javascript
+  resolve: {
+    alias: [
+      { find: 'vue', replacement: 'vue/dist/vue.esm-bundler.js' }
+    ]
+  }
+  ```
+* ⚠️ O15: You may need to install the [`vite-plugin-optimize-persist`](https://github.com/antfu/vite-plugin-optimize-persist) plugin for the following reasons
+  > Vite's dependencies pre-optimization is cool and can improve the DX a lot. While Vite can smartly detect dynamic dependencies, it's on-demanded natural sometimes make the booting up for complex project quite slow.
+  ```
+  [vite] new dependencies found: @material-ui/icons/Dehaze, @material-ui/core/Box, @material-ui/core/Checkbox, updating...
+  [vite] ✨ dependencies updated, reloading page...
+  [vite] new dependencies found: @material-ui/core/Dialog, @material-ui/core/DialogActions, updating...
+  [vite] ✨ dependencies updated, reloading page...
+  [vite] new dependencies found: @material-ui/core/Accordion, @material-ui/core/AccordionSummary, updating...
+  [vite] ✨ dependencies updated, reloading page...
+  ```

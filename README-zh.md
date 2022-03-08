@@ -372,3 +372,34 @@ Options:
 * ⚠️ O09：如果您遇到构建错误 `[rollup-plugin-dynamic-import-variables] Unexpected token`，则需要删除 `<img>` 标签中的空属性 `srcset` 或 `srcset=""`
 * ⚠️ O10: Vite 无法解析一些静态资源，如`.PNG`，你可以把它放在 `assetsInclude` 选项中，比如 `assetsInclude: ['**.PNG']`
 * ⚠️ O11：支持 `.md` markdown 文件作为 vue 组件，需要添加 [`vite-plugin-md`](https://github.com/antfu/vite-plugin-md) 插件
+* ⚠️ O12: 该错误 `Uncaught ReferenceError: global is not defined`, 参阅[这里](https://github.com/vitejs/vite/issues/2618#issuecomment-820919951)
+  * > 作为参考，如果您只需要垫片 global，您可以将`<script>window.global = window;</script>`添加到您的`index.html`中
+* ⚠️ O13: 支持将SVG文件作为Vue组件加载
+  * ... 或遇到以下错误时
+  ```
+  Uncaught (in promise) DOMException: Failed to execute 'createElement' on 'Document': The tag name provided ('/@fs/D:/project/example/node_modules/@example/example.svg') is not a valid name.
+  ```
+  * 添加 [`vite-svg-loader`](https://github.com/jpkleemans/vite-svg-loader) 插件用于 **vue** 项目
+  * 添加 [`vite-plugin-svgr`](https://www.npmjs.com/package/vite-plugin-svgr) 插件用于 **react** 项目
+* ⚠️ O14: 修复以下错误
+  ```
+  [Vue warn]: Component provided template option but runtime compilation is not supported in this build of Vue. Configure your bundler to alias "vue" to "vue/dist/vue.esm-bundler.js".
+  ```
+  * 您需要设置别名，如下所示
+  ```javascript
+  resolve: {
+    alias: [
+      { find: 'vue', replacement: 'vue/dist/vue.esm-bundler.js' }
+    ]
+  }
+  ```
+* ⚠️ O15: 出于以下原因，您可能需要安装 [`vite-plugin-optimize-persist`](https://github.com/antfu/vite-plugin-optimize-persist) 插件
+  > Vite 的依赖预构建是很酷的，大大地提升了开发体验。虽然 Vite 可以智能地检测动态依赖关系，但它的按需检测行为有时会使复杂项目的启动相当缓慢。
+  ```
+  [vite] new dependencies found: @material-ui/icons/Dehaze, @material-ui/core/Box, @material-ui/core/Checkbox, updating...
+  [vite] ✨ dependencies updated, reloading page...
+  [vite] new dependencies found: @material-ui/core/Dialog, @material-ui/core/DialogActions, updating...
+  [vite] ✨ dependencies updated, reloading page...
+  [vite] new dependencies found: @material-ui/core/Accordion, @material-ui/core/AccordionSummary, updating...
+  [vite] ✨ dependencies updated, reloading page...
+  ```
