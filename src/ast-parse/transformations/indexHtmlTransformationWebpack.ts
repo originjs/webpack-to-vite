@@ -150,7 +150,7 @@ export const astTransform: ASTTransformation = async (
   })
 
   // use vite-plugin-html to replace html-webpack-plugin
-  transformedHtml = transformedHtml.replace(/htmlWebpackPlugin.(options|files)./g, '')
+  transformedHtml = transformedHtml.replace(/htmlWebpackPlugin\.(options|files)\./g, '')
 
   const result: TransformationResult = {
     fileInfo: fileInfo,

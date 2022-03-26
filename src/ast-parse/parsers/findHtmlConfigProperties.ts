@@ -11,13 +11,13 @@ import { parseIdentifierFromBodyNodes, parseScriptSfc } from '../../utils/astUti
 
 export const astParse: ASTParse = (fileInfo: FileInfo) => {
   let nodePaths: Node[]
-  if (/vue.config.js$/.test(fileInfo.path)) {
+  if (/vue\.config\.js$/.test(fileInfo.path)) {
     const context = parseScriptSfc(fileInfo)
     if (!context || !context.__paths) {
       return null
     }
     nodePaths = context.__paths
-  } else if (/vue.config.ts$/.test(fileInfo.path)) {
+  } else if (/vue\.config\.ts$/.test(fileInfo.path)) {
     const context = parseScriptSfc(fileInfo, 'ts')
     if (!context || !context.__paths) {
       return null
