@@ -145,7 +145,7 @@ export const astTransform: ASTTransformation = async (
   recordConver({ num: 'V06', feat: 'client-side env variables' })
 
   // use vite-plugin-html to replace html-webpack-plugin
-  transformedHtml = transformedHtml.replace(/htmlWebpackPlugin.(options|files)./g, '')
+  transformedHtml = transformedHtml.replace(/htmlWebpackPlugin\.(options|files)\./g, '')
 
   const result: TransformationResult = {
     fileInfo: fileInfo,

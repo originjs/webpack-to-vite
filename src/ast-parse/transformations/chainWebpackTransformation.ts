@@ -22,7 +22,7 @@ export const astTransform: ASTTransformation = async (
   if (transformationParams.config.projectType === 'webpack') {
     return null
   }
-  if (!/vue.config.(js|ts)$/.test(fileInfo.path)) {
+  if (!/vue\.config\.(js|ts)$/.test(fileInfo.path)) {
     return null
   }
 

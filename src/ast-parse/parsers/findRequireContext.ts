@@ -11,13 +11,13 @@ import { parseVueSfc, parseScriptSfc } from '../../utils/astUtils'
 
 export const astParse: ASTParse = (fileInfo: FileInfo) => {
   let nodePaths: Node[]
-  if (/.vue$/.test(fileInfo.path)) {
+  if (/\.vue$/.test(fileInfo.path)) {
     const context: VueSFCContext = parseVueSfc(fileInfo)
     if (!context.scriptAST || !context.scriptAST.__paths) {
       return null
     }
     nodePaths = context.scriptAST.__paths
-  } else if (/.ts$/.test(fileInfo.path)) {
+  } else if (/\.ts$/.test(fileInfo.path)) {
     const context = parseScriptSfc(fileInfo, 'ts')
     if (!context || !context.__paths) {
       return null
