@@ -63,7 +63,7 @@
     "yorkie": "^2.0.0"
   },
   "dependencies": {
-    "@originjs/vue-sfc-ast-parser": "^1.0.1",
+    "@originjs/vue-sfc-ast-parser": "^1.0.2",
     "chalk": "^4.1.1",
     "cli-progress": "^3.9.0",
     "commander": "^7.2.0",
