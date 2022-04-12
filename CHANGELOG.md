@@ -1,3 +1,13 @@
+## [1.1.1](https://github.com/originjs/webpack-to-vite/compare/v1.1.0...v1.1.1) (2022-04-12)
+
+
+### Bug Fixes
+
+* incorrect regexp ([#92](https://github.com/originjs/webpack-to-vite/issues/92)) ([901eee8](https://github.com/originjs/webpack-to-vite/commit/901eee8a37cc5176263f8e15e23edef63e9603e9))
+* upgrade dep ([#95](https://github.com/originjs/webpack-to-vite/issues/95)) ([1ee4810](https://github.com/originjs/webpack-to-vite/commit/1ee481070136559ec658b58100bbbc7c93f4f7f7))
+
+
+
 # [1.1.0](https://github.com/originjs/webpack-to-vite/compare/v1.0.6...v1.1.0) (2022-02-17)
 
 
