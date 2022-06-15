@@ -16,7 +16,7 @@ export const astTransform: ASTTransformation = async (
   transformationParams?: TransformationParams,
   parsingResult?: ParsingResult
 ) => {
-  if (!transformationParams || !transformationParams.config.rootDir) {
+  if (!transformationParams || !transformationParams.rootDir) {
     return null
   }
   if (transformationParams.config.projectType === 'webpack') {
@@ -26,7 +26,7 @@ export const astTransform: ASTTransformation = async (
     return null
   }
 
-  const rootDir: string = transformationParams.config.rootDir
+  const rootDir: string = transformationParams.rootDir
   const extension: string = (/\.([^.]*)$/.exec(fileInfo.path) || [])[0]
 
   // transform vueConfig.chainWebpack

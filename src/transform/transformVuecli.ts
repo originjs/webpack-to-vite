@@ -14,7 +14,7 @@ import { DEFAULT_VUE_VERSION, PARSER_TYPES } from '../constants/constants'
 import { recordConver } from '../utils/report'
 import type { ServerOptions } from 'vite';
 import type { AstParsingResult } from '../ast-parse/astParse'
-import { relativePathFormat } from '../utils/file'
+import { pathFormat, relativePathFormat } from '../utils/file'
 import { serializeObject } from '../generate/render'
 import type { InjectOptions } from '../config/config'
 import { getHtmlPluginConfig } from '../utils/config'
@@ -260,7 +260,7 @@ export class VueCliTransformer implements Transformer {
       const preProcessor = pluginOptions['style-resources-loader'].preProcessor;
       const patterns = pluginOptions['style-resources-loader'].patterns;
       patterns.forEach(pattern => {
-        additionalData = additionalData + '@import "' + pattern.slice(rootDir.length + 1).replace(/\\/g, '/') + '";';
+        additionalData = additionalData + '@import "' + pathFormat(pattern.slice(rootDir.length + 1)) + '";';
       });
       if (preProcessor === 'less') {
         if (config?.css?.preprocessorOptions?.less?.additionalData) {

@@ -47,6 +47,7 @@ export type ParsingResultProperty = {
 
 export type TransformationParams = {
   config: Config
+  rootDir: string
   context?: string
   htmlPlugin?: any
 }
@@ -245,7 +246,8 @@ export async function astParseRoot (
     const transformation = transformationMap[key]
 
     let transformationParams: TransformationParams = {
-      config: config
+      config,
+      rootDir
     }
     if (key === TRANSFORMATION_TYPES.indexHtmlTransformationVueCli) {
       transformationParams = await setTransformParamsWithHtmlConfig(transformationParams)

@@ -110,9 +110,8 @@ test('chainWebpackTransformation', async () => {
         source: source
     }
     const transformationParams: TransformationParams = {
-        config: {
-            rootDir:  path.resolve('tests/out-ast-parse')
-        }
+        rootDir:  path.resolve('tests/out-ast-parse'),
+        config: {}
     }
     const result: TransformationResult = await chainWebpackTransformation(fileInfo, transformationParams, parsingResult)
     expect(fs.existsSync(path.resolve('tests/out-ast-parse/vue.temp.config.js'))).toBe(true)
@@ -188,8 +187,8 @@ test('indexHtmlTransformationVueCli', async () => {
     }
     const rootDir: string = path.dirname(filePath)
     const transformationParams: TransformationParams = {
+        rootDir,
         config: {
-            rootDir: rootDir,
             projectType: 'vue-cli'
         }
     }
@@ -217,8 +216,8 @@ test('indexHtmlTransformationWebpack', async () => {
     }
     const rootDir: string = path.dirname(filePath)
     const transformationParams: TransformationParams = {
+        rootDir,
         config: {
-            rootDir: rootDir,
             projectType: 'webpack'
         }
     }
@@ -243,6 +242,7 @@ test('lazyLoadingRoutesTransformation', async () => {
         source: source
     }
     const transformationParams: TransformationParams = {
+        rootDir: '',
         config: {}
     }
     const result: TransformationResult = await lazyLoadingRoutesTransform(fileInfo, transformationParams, null)

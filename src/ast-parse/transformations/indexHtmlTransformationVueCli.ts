@@ -25,7 +25,7 @@ export const astTransform: ASTTransformation = async (
   fileInfo: FileInfo,
   transformationParams?: TransformationParams
 ) => {
-  if (!transformationParams || !transformationParams.config.rootDir) {
+  if (!transformationParams || !transformationParams.rootDir) {
     return null
   }
 
@@ -33,7 +33,7 @@ export const astTransform: ASTTransformation = async (
     return null
   }
 
-  const rootDir: string = transformationParams.config.rootDir
+  const rootDir: string = transformationParams.rootDir
 
   const { htmlPlugin, context } = transformationParams
   let indexPath: string
