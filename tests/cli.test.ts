@@ -23,13 +23,6 @@ function runSync(
   return result
 }
 
-beforeAll(() => {
-  mkdirSync(path.resolve('tests/out-cli-webpack'), { recursive: true })
-})
-afterAll(() => {
-  rmdirSync(path.resolve('tests/out-cli-webpack'), { recursive: true })
-})
-
 test('webpack-to-vite -v, --version', () => {
   const { stdout, status } = runSync(['--version'])
   expect(stdout).toContain(version)
@@ -43,20 +36,24 @@ test('webpack-to-vite -h, --help', () => {
 })
 
 test('webpack-to-vite -d, --rootDir <path>', () => {
-  const { status } = runSync(['-d', path.resolve('tests/out-cli-webpack')])
-  expect(existsSync(path.resolve('tests/out-cli-webpack-toVite'))).toEqual(true)
+  mkdirSync('./out-rootDir-webpack', { recursive: true })
+  const { status } = runSync(['-d', './out-rootDir-webpack'])
+  expect(existsSync('./out-rootDir-webpack-toVite')).toEqual(true)
   expect(status).toEqual(0)
-  rmdirSync(path.resolve('tests/out-cli-webpack-toVite'), { recursive: true })
+  rmdirSync('./out-rootDir-webpack', { recursive: true })
+  rmdirSync('./out-rootDir-webpack-toVite', { recursive: true })
 })
 
 test('webpack-to-vite -c, --cover', () => {
+    mkdirSync('./out-cover-webpack', { recursive: true })
   const { status } = runSync([
     '-d',
-    path.resolve('tests/out-cli-webpack'),
+    path.resolve('./out-cover-webpack'),
     '-c'
   ])
-  expect(existsSync(path.resolve('tests/out-cli-webpack-toVite'))).toEqual(
+  expect(existsSync('./out-cover-webpack-toVite')).toEqual(
     false
   )
+  rmdirSync('./out-cover-webpack', { recursive: true })
   expect(status).toEqual(0)
 })

@@ -14,8 +14,8 @@
     "prebuild": "del-cli dist/",
     "build": "tsc -p tsconfig.json",
     "postbuild": "cpy \"template/*\" ../dist/src --cwd=src/ --no-overwrite --parents",
-    "test": "vitest",
-    "test:run": "vitest run",
+    "test": "npm run build && vitest",
+    "test:run": "npm run build && vitest run",
     "test:coverage": "vitest run --coverage",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s"
   },
