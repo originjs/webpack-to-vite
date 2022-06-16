@@ -59,9 +59,16 @@ export async function start (config: Config): Promise<void> {
       const pathDetails: string[] = pathFormat(rootDir).split('/')
       const projectName: string = pathDetails.pop()
       rootDir = path.join(...pathDetails, `${projectName}-toVite`)
+      let e: Error
       if (!fs.existsSync(rootDir)) {
         console.log(`copying project files to '${rootDir}'...`)
-        copyDirSync(rawDir, rootDir)
+        e = copyDirSync(rawDir, rootDir)
+      }
+      if (e) {
+        if (fs.existsSync(rootDir)) {
+          fs.rmdirSync(rootDir, { recursive: true })
+        }
+        throw e
       }
     }
 

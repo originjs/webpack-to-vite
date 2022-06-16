@@ -27,7 +27,7 @@ afterAll(() => {
   rmdirSync('./out-rootDir-webpack', { recursive: true })
   rmdirSync('./out-rootDir-webpack-toVite', { recursive: true })
   rmdirSync('./out-cover-webpack', { recursive: true })
-}, 3000)
+}, 2000)
 
 test('webpack-to-vite -v, --version', () => {
   const { stdout, status } = runSync(['--version'])
@@ -43,7 +43,8 @@ test('webpack-to-vite -h, --help', () => {
 
 test('webpack-to-vite -d, --rootDir <path>', () => {
   mkdirSync('./out-rootDir-webpack', { recursive: true })
-  const { status } = runSync(['-d', './out-rootDir-webpack'])
+  const { stdout, status } = runSync(['-d', './out-rootDir-webpack'])
+  console.log(stdout)
   expect(existsSync('./out-rootDir-webpack-toVite')).toEqual(true)
   expect(status).toEqual(0)
 })

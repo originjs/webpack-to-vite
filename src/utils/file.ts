@@ -42,7 +42,7 @@ export function relativePathFormat (rootDir: string, filePath: string): string {
   return pathFormat(path.relative(rootDir, path.resolve(rootDir, filePath)))
 }
 
-export function copyDirSync (src: string, dest: string): void {
+export function copyDirSync (src: string, dest: string): Error {
   try {
     fs.mkdirSync(dest, { recursive: true });
     const entries = fs.readdirSync(src, { withFileTypes: true });
@@ -53,10 +53,11 @@ export function copyDirSync (src: string, dest: string): void {
 
       entry.isDirectory() ? copyDirSync(srcPath, destPath) : fs.copyFileSync(srcPath, destPath);
     }
+    return null
   } catch (e) {
     console.log()
     console.log('failed to copy files')
-    throw e
+    return e
   }
 }
 
