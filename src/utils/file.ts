@@ -56,6 +56,7 @@ export function copyDirSync (src: string, dest: string): void {
   } catch (e) {
     console.log()
     console.log('failed to copy files')
+    throw e
   }
 }
 
