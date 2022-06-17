@@ -53,16 +53,16 @@ export const astParse: ASTParse = (fileInfo: FileInfo) => {
     })
   })
 
-  const chainWebpackResult: ParsingResultOccurrence = {
-    fileInfo: fileInfo,
-    offsetBegin: chainWebpackNode.loc.start.line,
-    offsetEnd: chainWebpackNode.loc.end.line,
-    type: parserType
-  }
-  // results[0]: chainWebpackNode
-  results.push(chainWebpackResult)
-
   if (chainWebpackNode) {
+    const chainWebpackResult: ParsingResultOccurrence = {
+      fileInfo: fileInfo,
+      offsetBegin: chainWebpackNode.loc.start.line,
+      offsetEnd: chainWebpackNode.loc.end.line,
+      type: parserType
+    }
+    // results[0]: chainWebpackNode
+    results.push(chainWebpackResult)
+
     // get param name
     if (chainWebpackNode.params && chainWebpackNode.params.length &&
       chainWebpackNode.params[0].type === 'Identifier') {
