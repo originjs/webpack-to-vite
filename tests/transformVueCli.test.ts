@@ -81,11 +81,6 @@ describe('VueCliTransformer', () => {
             new RawValue('viteCommonjs()'),
             new RawValue('envCompatible()'),
             new RawValue(`injectHtml({\n` +
-              `      data: {\n` +
-              `        title: 'Webpack App',\n` +
-              `        favicon: './favicon.ico',\n` +
-              `        foo: 'bar'\n` +
-              `      },\n` +
               `      tags: [\n` +
               `        {\n` +
               `          tag: 'meta',\n` +
@@ -95,7 +90,12 @@ describe('VueCliTransformer', () => {
               `            injectTo: 'head'\n` +
               `          }\n` +
               `        }\n` +
-              `      ]\n` +
+              `      ],\n` +
+              `      data: {\n` +
+              `        title: 'Webpack App',\n` +
+              `        favicon: './favicon.ico',\n` +
+              `        foo: 'bar'\n` +
+              `      }\n` +
               `    })`),
             new RawValue(`minifyHtml({\n` +
               `      minifyJS: true,\n` +
