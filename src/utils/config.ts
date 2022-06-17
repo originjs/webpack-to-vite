@@ -1,4 +1,7 @@
+import path from 'path'
+import fs from 'fs'
 import { applyAstParsingResultToConfig } from '../config/parse'
+import { readSync } from './file'
 import { PARSER_TYPES, VUE_CONFIG_HTML_PLUGIN } from '../constants/constants'
 
 export function getHtmlPluginConfig (vueConfig, webpackConfig, parsingResult) {
@@ -27,4 +30,18 @@ export function getHtmlPluginConfig (vueConfig, webpackConfig, parsingResult) {
     htmlPlugin.options = mergedOptions
   }
   return htmlPlugin
+}
+
+export function getProjectName (rootDir: string): string {
+  const defaultName = 'Vite App'
+  const jsonPath = path.resolve(rootDir, 'package.json')
+  if (!fs.existsSync(jsonPath)) {
+    return defaultName
+  }
+  const source = readSync(jsonPath)
+  const jsonObj = JSON.parse(source)
+  if (!jsonObj || !jsonObj.name) {
+    return defaultName
+  }
+  return jsonObj.name
 }

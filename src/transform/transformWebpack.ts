@@ -15,7 +15,6 @@ import { isObject } from '../utils/common'
 import { recordConver } from '../utils/report'
 import type { AstParsingResult } from '../ast-parse/astParse'
 import { getVueVersion } from '../utils/version'
-import type { InjectOptions } from '../config/config'
 import { relativePathFormat } from '../utils/file'
 
 // convert webpack.config.js => vite.config.js
@@ -154,12 +153,8 @@ export class WebpackTransformer implements Transformer {
       }
       recordConver({ num: 'W05', feat: 'define options' })
 
-      const injectHtmlPluginOption: InjectOptions = {}
-      const data = {
-        title: 'Vite App'
-      }
       // html-webpack-plugin
-      transformWebpackHtmlPlugin(htmlPlugin, injectHtmlPluginOption, data)
+      transformWebpackHtmlPlugin(htmlPlugin, this.context, rootDir)
       recordConver({ num: 'B11', feat: 'html-webpack-plugin is supported' })
 
       return config

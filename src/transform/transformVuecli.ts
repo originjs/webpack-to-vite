@@ -16,7 +16,6 @@ import { recordConver } from '../utils/report'
 import type { ServerOptions } from 'vite';
 import type { AstParsingResult } from '../ast-parse/astParse'
 import { relativePathFormat } from '../utils/file'
-import type { InjectOptions } from '../config/config'
 import { getHtmlPluginConfig } from '../utils/config'
 
 /**
@@ -151,12 +150,8 @@ export class VueCliTransformer implements Transformer {
       config.resolve.alias = defaultAlias
       recordConver({ num: 'V05', feat: 'resolve.alias options' })
 
-      const injectHtmlPluginOption: InjectOptions = {}
-      const data = {
-        title: 'Vite App'
-      }
       // html-webpack-plugin
-      transformWebpackHtmlPlugin(htmlPlugin, injectHtmlPluginOption, data)
+      transformWebpackHtmlPlugin(htmlPlugin, this.context, rootDir)
       recordConver({ num: 'B11', feat: 'html-webpack-plugin is supported' })
 
       return config

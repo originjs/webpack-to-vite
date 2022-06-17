@@ -8,6 +8,7 @@ import type { AstParsingResult } from '../ast-parse/astParse';
 import type { WebpackPluginInstance } from 'webpack';
 import type { InjectOptions } from '../config/config';
 import { serializeObject } from '../generate/render';
+import { getProjectName } from '../utils/config';
 
 /**
  * general implementation for vue.config.js and webpack.config.js
@@ -101,7 +102,11 @@ export function transformImporters (context: TransformContext, astParsingResult?
   context.config.plugins = plugins
 }
 
-export function transformWebpackHtmlPlugin (htmlPlugin: WebpackPluginInstance, injectHtmlPluginOption: InjectOptions, data) {
+export function transformWebpackHtmlPlugin (htmlPlugin: WebpackPluginInstance, context: TransformContext, rootDir: string) {
+  const injectHtmlPluginOption: InjectOptions = {}
+  const data = {
+    title: getProjectName(rootDir)
+  }
   if (htmlPlugin && htmlPlugin.options) {
     // injectData
     Object.keys(htmlPlugin.options).forEach(key => {
@@ -127,34 +132,35 @@ export function transformWebpackHtmlPlugin (htmlPlugin: WebpackPluginInstance, i
         }
       })
     }
-    this.context.config.plugins = this.context.config.plugins || []
-    const injectHtmlPluginIndex = this.context.config.plugins.findIndex(p => p.value === 'injectHtml()')
-    if (injectHtmlPluginIndex >= 0) {
-      this.context.config.plugins[injectHtmlPluginIndex] = new RawValue('injectHtml(' + serializeObject(injectHtmlPluginOption, '    ') + ')')
-    } else {
-      this.context.config.plugins.push(new RawValue('injectHtml(' + serializeObject(injectHtmlPluginOption, '    ') + ')'))
-    }
-    if (this.context.importers.findIndex(importer => importer.key === 'vite-plugin-html') < 0) {
-      this.context.importers.push({
-        key: 'vite-plugin-html',
-        value: 'import { injectHtml } from \'vite-plugin-html\';'
-      })
-    }
+    context.config.plugins = context.config.plugins || []
+
     // minify
     if (htmlPlugin.options?.minify) {
-      const vitePluginHtmlImporterIndex = this.context.importers.findIndex(importer => importer.key === 'vite-plugin-html')
+      const vitePluginHtmlImporterIndex = context.importers.findIndex(importer => importer.key === 'vite-plugin-html')
       if (vitePluginHtmlImporterIndex >= 0) {
         const minifyHtmlImporter = 'import { injectHtml, minifyHtml } from \'vite-plugin-html\';'
-        this.context.importers[vitePluginHtmlImporterIndex].value = minifyHtmlImporter
+        context.importers[vitePluginHtmlImporterIndex].value = minifyHtmlImporter
       } else {
-        this.context.importers.push({
+        context.importers.push({
           key: 'vite-plugin-html',
           value: 'import { minifyHtml } from \'vite-plugin-html\';'
         })
       }
-      this.context.config.plugins = this.context.config.plugins || []
-      this.context.config.plugins.push(new RawValue('minifyHtml(' + serializeObject(htmlPlugin.options.minify, '    ') + ')'))
+      context.config.plugins = context.config.plugins || []
+      context.config.plugins.push(new RawValue('minifyHtml(' + serializeObject(htmlPlugin.options.minify, '    ') + ')'))
     }
   }
   injectHtmlPluginOption.data = data
+  const injectHtmlPluginIndex = context.config.plugins.findIndex(p => p.value === 'injectHtml()')
+  if (injectHtmlPluginIndex >= 0) {
+    context.config.plugins[injectHtmlPluginIndex] = new RawValue('injectHtml(' + serializeObject(injectHtmlPluginOption, '    ') + ')')
+  } else {
+    context.config.plugins.push(new RawValue('injectHtml(' + serializeObject(injectHtmlPluginOption, '    ') + ')'))
+  }
+  if (context.importers.findIndex(importer => importer.key === 'vite-plugin-html') < 0) {
+    context.importers.push({
+      key: 'vite-plugin-html',
+      value: 'import { injectHtml } from \'vite-plugin-html\';'
+    })
+  }
 }
