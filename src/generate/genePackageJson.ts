@@ -54,6 +54,9 @@ export function genePackageJson (rawPath: string, outPath: string, astParsingRes
   }
 
   // add vite dev script
+  if (!packageJson.scripts) {
+    packageJson.scripts = {}
+  }
   packageJson.scripts['serve-vite'] = 'vite'
   packageJson.scripts['build-vite'] = 'vite build'
   packageJson.scripts['preview-vite'] = 'vite preview'
@@ -81,7 +84,7 @@ export function getGreaterVersion (versionA: string, versionB: string): string {
 export function processDependencies (
   originDependencies: object,
   targetDependencies: object,
-  restDependencies: object
+  restDependencies: object,
 ): {
   targetDependencies: object,
   restDependencies: object
@@ -99,6 +102,6 @@ export function processDependencies (
   })
   return {
     targetDependencies,
-    restDependencies
+    restDependencies,
   }
 }
