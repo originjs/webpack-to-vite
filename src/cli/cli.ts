@@ -56,9 +56,8 @@ export async function start (config: Config): Promise<void> {
     console.log(chalk.green(`Project path: ${rootDir}`))
     if (!config.cover) {
       const rawDir: string = rootDir
-      const pathDetails: string[] = pathFormat(rootDir).split('/')
-      const projectName: string = pathDetails.pop()
-      rootDir = path.join(...pathDetails, `${projectName}-toVite`)
+      const projectName: string = path.basename(rawDir)
+      rootDir = path.join(path.dirname(rawDir), `${projectName}-toVite`)
       let e: Error
       if (!fs.existsSync(rootDir)) {
         console.log(`copying project files to '${rootDir}'...`)
