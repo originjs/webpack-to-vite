@@ -1,1 +1,4 @@
-tests/
+tests
+node_modules
+dist
+coverage
