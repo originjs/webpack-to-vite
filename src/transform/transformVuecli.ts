@@ -29,11 +29,12 @@ export class VueCliTransformer implements Transformer {
       importers: []
     }
 
-    public async transform (rootDir: string, astParsingResult?: AstParsingResult): Promise<ViteConfig> {
+    public async transform (rootDir: string, astParsingResult?: AstParsingResult, outDir?: string): Promise<ViteConfig> {
       this.context.vueVersion = getVueVersion(rootDir)
       transformImporters(this.context, astParsingResult)
       const config = this.context.config
-      const vueConfigPath = existsSync(path.resolve(rootDir, 'vue.temp.config.ts')) ? path.resolve(rootDir, 'vue.temp.config.ts') : path.resolve(rootDir, 'vue.temp.config.js')
+      const vueConfigDir = outDir || rootDir
+      const vueConfigPath = existsSync(path.resolve(vueConfigDir, 'vue.temp.config.ts')) ? path.resolve(vueConfigDir, 'vue.temp.config.ts') : path.resolve(vueConfigDir, 'vue.temp.config.js')
       const vueConfig = await parseVueCliConfig(vueConfigPath)
 
       let webpackConfig: Configuration = {}

@@ -52,20 +52,19 @@ export async function start (config: Config): Promise<void> {
       return
     }
 
-    let rootDir: string = path.resolve(config.rootDir)
+    const rootDir: string = path.resolve(config.rootDir)
+    let outDir: string = path.resolve(config.rootDir)
     console.log(chalk.green(`Project path: ${rootDir}`))
     if (!config.cover) {
-      const rawDir: string = rootDir
-      const pathDetails: string[] = pathFormat(rootDir).split('/')
-      const projectName: string = pathDetails.pop()
-      rootDir = path.join(...pathDetails, `${projectName}-toVite`)
-      if (!fs.existsSync(rootDir)) {
-        console.log(`copying project files to '${rootDir}'...`)
+      const projectName: string = path.basename(rootDir)
+      outDir = path.join(path.dirname(rootDir), `${projectName}-toVite`)
+      if (!fs.existsSync(outDir)) {
+        console.log(`copying project files to '${outDir}'...`)
         try {
-          copyDirSync(rawDir, rootDir, ['node_modules'])
+          copyDirSync(rootDir, outDir, ['node_modules'])
         } catch (e) {
-          if (fs.existsSync(rootDir)) {
-            fs.rmdirSync(rootDir, { recursive: true })
+          if (fs.existsSync(outDir)) {
+            fs.rmdirSync(outDir, { recursive: true })
           }
           throw e
         }
@@ -75,30 +74,30 @@ export async function start (config: Config): Promise<void> {
     cliInstance.start(TRANSFORMATION_RULE_COUNT, 0, { doSomething: 'Transformation begins...' }) // The current feature that can be converted is 20.
     const cwd = process.cwd()
 
-    const astParsingResult: AstParsingResult = await astParseRoot(rootDir, config)
-    genePackageJson(path.resolve(rootDir, 'package.json'), astParsingResult)
+    const astParsingResult: AstParsingResult = await astParseRoot(rootDir, outDir, config)
+    genePackageJson(path.resolve(rootDir, 'package.json'), path.resolve(outDir, 'package.json'), astParsingResult)
 
-    await geneViteConfig(rootDir, rootDir, config, astParsingResult)
+    await geneViteConfig(rootDir, outDir, config, astParsingResult)
 
     // generate index.html must be after generate vite.config.js
-    await geneIndexHtml(rootDir, config, astParsingResult)
-    printReport(rootDir, beginTime) // output conversion
+    await geneIndexHtml(rootDir, outDir, config, astParsingResult)
+    printReport(outDir, beginTime) // output conversion
 
     // remove temp files
-    if (existsSync(path.resolve(rootDir, 'vue.temp.config.ts'))) {
-      removeSync(path.resolve(rootDir, 'vue.temp.config.ts'))
-    } else if (existsSync(path.resolve(rootDir, 'vue.temp.config.js'))) {
-      removeSync(path.resolve(rootDir, 'vue.temp.config.js'))
+    if (existsSync(path.resolve(outDir, 'vue.temp.config.ts'))) {
+      removeSync(path.resolve(outDir, 'vue.temp.config.ts'))
+    } else if (existsSync(path.resolve(outDir, 'vue.temp.config.js'))) {
+      removeSync(path.resolve(outDir, 'vue.temp.config.js'))
     }
 
     console.log(chalk.green('************************ Done ! ************************'))
-    const pkgManager = fs.existsSync(path.resolve(rootDir, 'yarn.lock'))
+    const pkgManager = fs.existsSync(path.resolve(outDir, 'yarn.lock'))
       ? 'yarn'
       : 'npm'
 
     console.log(chalk.green('Now please run:\n'))
-    if (rootDir !== cwd) {
-      console.log(chalk.green(`cd ${pathFormat(path.relative(cwd, rootDir))}`))
+    if (outDir !== cwd) {
+      console.log(chalk.green(`cd ${pathFormat(path.relative(cwd, outDir))}`))
     }
 
     console.log(chalk.green(`${pkgManager === 'yarn' ? 'yarn' : 'npm install'}`))

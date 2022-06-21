@@ -13,7 +13,7 @@ import type { AstParsingResult } from '../ast-parse/astParse';
 export interface Transformer{
     context: TransformContext;
 
-    transform(rootDir: string, astParsingResult?: AstParsingResult): Promise<ViteConfig>;
+    transform(rootDir: string, astParsingResult?: AstParsingResult, outDir?: string): Promise<ViteConfig>;
 
 }
 

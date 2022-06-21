@@ -47,7 +47,7 @@ export type ParsingResultProperty = {
 
 export type TransformationParams = {
   config: Config
-  rootDir: string
+  outDir?: string
   context?: string
   htmlPlugin?: any
 }
@@ -73,6 +73,7 @@ export type AstParsingResult = {
 
 export async function astParseRoot (
   rootDir: string,
+  outDir: string,
   config: Config
 ): Promise<AstParsingResult> {
   const replacedRootDir: string = pathFormat(rootDir)
@@ -119,7 +120,7 @@ export async function astParseRoot (
   }
 
   const executeTransform = async (transformation, transformationParams: TransformationParams, fileInfo, extension: string) => {
-    const { path: filePath, source } = fileInfo
+    let { path: filePath, source } = fileInfo
     let transformationResultContent: string = source
     let tempTransformationResult: TransformationResult | null
 
@@ -173,15 +174,16 @@ export async function astParseRoot (
       }
     }
     if (transformation.needWriteToOriginFile) {
+      filePath = filePath.replace(path.dirname(filePath), outDir)
       writeSync(filePath, transformationResultContent)
     }
   }
 
   // add parseVueCliConfig to transformationParams
   const setTransformParamsWithHtmlConfig = async (transformationParams: TransformationParams) => {
-    const vueConfigPath = existsSync(path.resolve(replacedRootDir, 'vue.temp.config.ts'))
-      ? path.resolve(replacedRootDir, 'vue.temp.config.ts')
-      : path.resolve(replacedRootDir, 'vue.temp.config.js')
+    const vueConfigPath = existsSync(path.resolve(outDir, 'vue.temp.config.ts'))
+      ? path.resolve(outDir, 'vue.temp.config.ts')
+      : path.resolve(outDir, 'vue.temp.config.js')
     const vueConfig = await parseVueCliConfig(vueConfigPath)
 
     // vueConfig.configureWebpack
@@ -246,11 +248,13 @@ export async function astParseRoot (
     const transformation = transformationMap[key]
 
     let transformationParams: TransformationParams = {
-      config,
-      rootDir
+      config
     }
     if (key === TRANSFORMATION_TYPES.indexHtmlTransformationVueCli) {
       transformationParams = await setTransformParamsWithHtmlConfig(transformationParams)
+    }
+    if (key === TRANSFORMATION_TYPES.chainWebpackTransformation) {
+      transformationParams.outDir = outDir
     }
 
     for (const filePath of resolvedPaths) {

@@ -9,9 +9,9 @@ import { minVersion, gt } from 'semver'
 import type { AstParsingResult } from '../ast-parse/astParse'
 
 // TODO: compatible with vue2 and vue3
-export function genePackageJson (packageJsonPath: string, astParsingResult?: AstParsingResult): void {
-  const rootDir = path.dirname(packageJsonPath)
-  const source = readSync(packageJsonPath)
+export function genePackageJson (rawPath: string, outPath: string, astParsingResult?: AstParsingResult): void {
+  const rootDir = path.dirname(rawPath)
+  const source = readSync(rawPath)
   if (source === '') {
     console.log(chalk.red(`read package.json error, path: ${rootDir}`))
   }
@@ -66,7 +66,7 @@ export function genePackageJson (packageJsonPath: string, astParsingResult?: Ast
   packageJson.dependencies = result.restDependencies
   packageJson.devDependencies = result.targetDependencies
 
-  writeSync(packageJsonPath, JSON.stringify(packageJson, null, 2))
+  writeSync(outPath, JSON.stringify(packageJson, null, 2))
   recordConver({ num: 'B01', feat: 'add package.json' })
 }
 

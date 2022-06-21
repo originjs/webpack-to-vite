@@ -25,15 +25,15 @@ export const astTransform: ASTTransformation = async (
   fileInfo: FileInfo,
   transformationParams?: TransformationParams
 ) => {
-  if (!transformationParams || !transformationParams.rootDir) {
+  if (!transformationParams) {
     return null
   }
 
-  if (transformationParams.config.projectType !== 'webpack') {
+  const rootDir: string = transformationParams.config?.rootDir
+  if (!rootDir || transformationParams.config.projectType !== 'webpack') {
     return null
   }
 
-  const rootDir: string = transformationParams.rootDir
   const webpackConfig = await parseWebpackConfig(path.resolve(rootDir, 'webpack.config.js'))
   let htmlPlugin: any
   if (webpackConfig.plugins) {

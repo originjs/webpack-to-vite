@@ -10,10 +10,11 @@ import { parseVueCliConfig, parseWebpackConfig } from '../config/parse'
 
 export async function geneIndexHtml (
   rootDir: string,
+  outDir: string,
   config: Config,
   astParsingResult?: AstParsingResult
 ): Promise<void> {
-  const outputIndexPath: string = path.resolve(rootDir, 'index.html')
+  const outputIndexPath: string = path.resolve(outDir, 'index.html')
   const projectType: string = config.projectType
 
   let entries: Map<string, string[]> = new Map()
