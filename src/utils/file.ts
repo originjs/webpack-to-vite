@@ -42,23 +42,29 @@ export function relativePathFormat (rootDir: string, filePath: string): string {
   return pathFormat(path.relative(rootDir, path.resolve(rootDir, filePath)))
 }
 
-export function copyDirSync (src: string, dest: string): Error {
-  try {
-    fs.mkdirSync(dest, { recursive: true });
-    const entries = fs.readdirSync(src, { withFileTypes: true });
+export function copyDirSync (src: string, dest: string, excludes?: string[]) {
+  const rawDir = src
+  const copy = (src: string, dest: string, excludes?: string[]) => {
+    try {
+      fs.mkdirSync(dest, { recursive: true });
+      const entries = fs.readdirSync(src, { withFileTypes: true });
 
-    for (const entry of entries) {
-      const srcPath = path.join(src, entry.name);
-      const destPath = path.join(dest, entry.name);
-
-      entry.isDirectory() ? copyDirSync(srcPath, destPath) : fs.copyFileSync(srcPath, destPath);
+      for (const entry of entries) {
+        const srcPath = path.join(src, entry.name);
+        const destPath = path.join(dest, entry.name);
+        const entryRelativePath = path.relative(rawDir, srcPath)
+        if (excludes && excludes.includes(entryRelativePath)) {
+          continue
+        }
+        entry.isDirectory() ? copy(srcPath, destPath, excludes) : fs.copyFileSync(srcPath, destPath);
+      }
+    } catch (e) {
+      console.log()
+      console.log('failed to copy files')
+      throw e
     }
-    return null
-  } catch (e) {
-    console.log()
-    console.log('failed to copy files')
-    return e
   }
+  return copy(src, dest, excludes)
 }
 
 export function renameSync (oldPath: string, newPath: string): void {
