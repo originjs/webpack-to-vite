@@ -35,8 +35,7 @@ test('webpack-to-vite -h, --help', () => {
   expect(status).toEqual(0)
 })
 
-// TODO: fix fs option error on linux
-test.skip('webpack-to-vite -d, --rootDir <path>', () => {
+test('webpack-to-vite -d, --rootDir <path>', () => {
   mkdirSync('./out-rootDir-webpack', { recursive: true })
   const { status } = runSync(['-d', './out-rootDir-webpack'])
   expect(existsSync('./out-rootDir-webpack-toVite')).toEqual(true)
