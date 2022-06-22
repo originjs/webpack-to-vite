@@ -57,7 +57,7 @@
     "vite": "^2.9.12",
     "vite-plugin-env-compatible": "^1.0.0",
     "vite-plugin-vue2": "^1.6.2",
-    "vitest": "^0.15.1",
+    "vitest": "^0.15.2",
     "vue-loader": "^15.9.7",
     "webpack": "^5.59.1",
     "yorkie": "^2.0.0"
