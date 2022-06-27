@@ -25,6 +25,8 @@ export interface TemplateData {
 }
 
 // export from 'vite-plugin-html'
+// Copyright (c) 2020-present, Vben
+// MIT License applied: https://github.com/vbenjs/vite-plugin-html/blob/main/LICENSE
 export interface InjectOptions {
     /**
      *  @description Data injected into the html template
