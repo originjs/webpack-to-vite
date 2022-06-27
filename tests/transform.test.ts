@@ -48,7 +48,7 @@ test('transformImports', () => {
         },
         {
           key: "vite-plugin-html",
-          value: "import { injectHtml } from 'vite-plugin-html';",
+          value: "import { createHtmlPlugin } from 'vite-plugin-html';",
         },
         {
           key: "@originjs/vite-plugin-commonjs",
@@ -59,7 +59,7 @@ test('transformImports', () => {
         plugins: [
           new RawValue('viteCommonjs()'),
           new RawValue('envCompatible()'),
-          new RawValue('injectHtml()')
+          new RawValue('createHtmlPlugin()')
         ]
       }
   })

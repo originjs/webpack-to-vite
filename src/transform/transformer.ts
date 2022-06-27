@@ -6,7 +6,7 @@ import { WebpackTransformer } from './transformWebpack';
 import { recordConver } from '../utils/report'
 import type { AstParsingResult } from '../ast-parse/astParse';
 import type { WebpackPluginInstance } from 'webpack';
-import type { InjectOptions } from '../config/config';
+import type { UserOptions, InjectOptions } from '../config/config';
 import { serializeObject } from '../generate/render';
 import { getProjectName } from '../utils/config';
 
@@ -88,7 +88,7 @@ export function transformImporters (context: TransformContext, astParsingResult?
   })
   context.importers.push({
     key: 'vite-plugin-html',
-    value: 'import { injectHtml } from \'vite-plugin-html\';'
+    value: 'import { createHtmlPlugin } from \'vite-plugin-html\';'
   })
   context.importers.push({
     key: '@originjs/vite-plugin-commonjs',
@@ -97,12 +97,14 @@ export function transformImporters (context: TransformContext, astParsingResult?
   // TODO scan files to determine whether you need to add the plugin
   plugins.push(new RawValue('viteCommonjs()'))
   plugins.push(new RawValue('envCompatible()'))
-  plugins.push(new RawValue('injectHtml()'))
+  plugins.push(new RawValue('createHtmlPlugin()'))
 
   context.config.plugins = plugins
 }
 
 export function transformWebpackHtmlPlugin (htmlPlugin: WebpackPluginInstance, context: TransformContext, rootDir: string) {
+  const userOptions: UserOptions = {}
+
   const injectHtmlPluginOption: InjectOptions = {}
   const data = {
     title: getProjectName(rootDir)
@@ -136,31 +138,23 @@ export function transformWebpackHtmlPlugin (htmlPlugin: WebpackPluginInstance, c
 
     // minify
     if (htmlPlugin.options?.minify) {
-      const vitePluginHtmlImporterIndex = context.importers.findIndex(importer => importer.key === 'vite-plugin-html')
-      if (vitePluginHtmlImporterIndex >= 0) {
-        const minifyHtmlImporter = 'import { injectHtml, minifyHtml } from \'vite-plugin-html\';'
-        context.importers[vitePluginHtmlImporterIndex].value = minifyHtmlImporter
-      } else {
-        context.importers.push({
-          key: 'vite-plugin-html',
-          value: 'import { minifyHtml } from \'vite-plugin-html\';'
-        })
-      }
-      context.config.plugins = context.config.plugins || []
-      context.config.plugins.push(new RawValue('minifyHtml(' + serializeObject(htmlPlugin.options.minify, '    ') + ')'))
+      userOptions.minify = htmlPlugin.options.minify
     }
   }
+
   injectHtmlPluginOption.data = data
-  const injectHtmlPluginIndex = context.config.plugins.findIndex(p => p.value === 'injectHtml()')
+  userOptions.inject = injectHtmlPluginOption
+
+  const injectHtmlPluginIndex = context.config.plugins.findIndex(p => p.value === 'createHtmlPlugin()')
   if (injectHtmlPluginIndex >= 0) {
-    context.config.plugins[injectHtmlPluginIndex] = new RawValue('injectHtml(' + serializeObject(injectHtmlPluginOption, '    ') + ')')
+    context.config.plugins[injectHtmlPluginIndex] = new RawValue('createHtmlPlugin(' + serializeObject(userOptions, '    ') + ')')
   } else {
-    context.config.plugins.push(new RawValue('injectHtml(' + serializeObject(injectHtmlPluginOption, '    ') + ')'))
+    context.config.plugins.push(new RawValue('createHtmlPlugin(' + serializeObject(userOptions, '    ') + ')'))
   }
   if (context.importers.findIndex(importer => importer.key === 'vite-plugin-html') < 0) {
     context.importers.push({
       key: 'vite-plugin-html',
-      value: 'import { injectHtml } from \'vite-plugin-html\';'
+      value: 'import { createHtmlPlugin } from \'vite-plugin-html\';'
     })
   }
 }

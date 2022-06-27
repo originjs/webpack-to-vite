@@ -80,29 +80,31 @@ describe('VueCliTransformer', () => {
         expect(viteConfig.plugins).toMatchObject([
             new RawValue('viteCommonjs()'),
             new RawValue('envCompatible()'),
-            new RawValue(`injectHtml({\n` +
-              `      tags: [\n` +
-              `        {\n` +
-              `          tag: 'meta',\n` +
-              `          attrs: {\n` +
-              `            name: 'description',\n` +
-              `            content: 'transform configureWebpack',\n` +
-              `            injectTo: 'head'\n` +
+            new RawValue(`createHtmlPlugin({\n` +
+              `      minify: {\n` +
+              `        minifyJS: true,\n` +
+              `        minifyCSS: true,\n` +
+              `        useShortDoctype: true,\n` +
+              `        collapseWhitespace: true,\n` +
+              `        collapseInlineTagWhitespace: true\n` +
+              `      },\n` +
+              `      inject: {\n` +
+              `        tags: [\n` +
+              `          {\n` +
+              `            tag: 'meta',\n` +
+              `            attrs: {\n` +
+              `              name: 'description',\n` +
+              `              content: 'transform configureWebpack',\n` +
+              `              injectTo: 'head'\n` +
+              `            }\n` +
               `          }\n` +
+              `        ],\n` +
+              `        data: {\n` +
+              `          title: 'Webpack App',\n` +
+              `          favicon: './favicon.ico',\n` +
+              `          foo: 'bar'\n` +
               `        }\n` +
-              `      ],\n` +
-              `      data: {\n` +
-              `        title: 'Webpack App',\n` +
-              `        favicon: './favicon.ico',\n` +
-              `        foo: 'bar'\n` +
               `      }\n` +
-              `    })`),
-            new RawValue(`minifyHtml({\n` +
-              `      minifyJS: true,\n` +
-              `      minifyCSS: true,\n` +
-              `      useShortDoctype: true,\n` +
-              `      collapseWhitespace: true,\n` +
-              `      collapseInlineTagWhitespace: true\n` +
               `    })`)
         ])
     })
