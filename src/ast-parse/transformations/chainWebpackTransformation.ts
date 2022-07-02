@@ -16,21 +16,22 @@ export const astTransform: ASTTransformation = async (
   transformationParams?: TransformationParams,
   parsingResult?: ParsingResult
 ) => {
-  if (!transformationParams || !transformationParams.config.rootDir) {
+  if (!transformationParams || !transformationParams.outDir) {
     return null
   }
-  if (transformationParams.config.projectType === 'webpack') {
+
+  const rootDir: string = transformationParams.config?.rootDir
+  if (!rootDir || transformationParams.config?.projectType === 'webpack') {
     return null
   }
   if (!/vue\.config\.(js|ts)$/.test(fileInfo.path)) {
     return null
   }
 
-  const rootDir: string = transformationParams.config.rootDir
   const extension: string = (/\.([^.]*)$/.exec(fileInfo.path) || [])[0]
 
   // transform vueConfig.chainWebpack
-  const vueConfigTempPath: string = path.resolve(rootDir, `vue.temp.config${extension}`)
+  const vueConfigTempPath: string = path.resolve(transformationParams.outDir, `vue.temp.config${extension}`)
   let vueConfigContent: string = fileInfo.source
   if (parsingResult && parsingResult.FindHtmlPluginChain && parsingResult.FindHtmlPluginChain.length) {
     const chainWebpackResult: any = parsingResult.FindHtmlPluginChain[0]

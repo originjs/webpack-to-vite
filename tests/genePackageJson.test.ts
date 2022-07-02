@@ -31,7 +31,7 @@ describe('genePackageJson', () => {
       'tests/out-package-json/postcss.config.js'
     )
     fs.copyFileSync(testPostcssConfigPath, postcssConfigPath)
-    genePackageJson(packageJsonPath)
+    genePackageJson(packageJsonPath, packageJsonPath)
     const packageJsonContent = JSON.parse(readSync(packageJsonPath))
     expect(packageJsonContent.devDependencies).toMatchObject({
         'vite-plugin-env-compatible': expect.any(String),
@@ -53,7 +53,7 @@ describe('genePackageJson', () => {
     )
     const packageJsonPath = path.resolve('tests/out-package-json/package.json')
     fs.copyFileSync(testPackageJsonPath, packageJsonPath)
-    genePackageJson(packageJsonPath)
+    genePackageJson(packageJsonPath, packageJsonPath)
     const packageJsonContent = JSON.parse(readSync(packageJsonPath))
     expect(packageJsonContent.devDependencies).toMatchObject({
         'vite-plugin-vue2': expect.any(String)
@@ -66,7 +66,7 @@ describe('genePackageJson', () => {
     )
     const packageJsonPath = path.resolve('tests/out-package-json/package.json')
     fs.copyFileSync(testPackageJsonPath, packageJsonPath)
-    genePackageJson(packageJsonPath)
+    genePackageJson(packageJsonPath, packageJsonPath)
     const packageJsonContent = JSON.parse(readSync(packageJsonPath))
     expect(packageJsonContent.devDependencies).toMatchObject({
         '@vue/compiler-sfc': "^3.0.0",

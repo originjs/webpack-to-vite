@@ -1,0 +1,35 @@
+// Vitest Snapshot v1
+
+exports[`webpack-to-vite --help > A1 1`] = `
+"Usage: webpack-to-vite [options] [root]
+
+Options:
+  -v, --version            display version number
+  -d --rootDir <path>      the directory of project to be converted
+  -t --projectType <type>  the type of the project, use vue-cli or webpack
+                           (default: vue-cli)
+  -e --entry <type>        entrance of the entire build process, webpack or
+                           vite will start from those entry files to build, if
+                           no entry file is specified, src/main.ts or
+                           src/main.js will be used as default
+  -c --cover               transformed project files will cover the raw files
+  -h, --help               display help for command
+"
+`;
+
+exports[`webpack-to-vite -h, --help > A1 1`] = `
+"Usage: webpack-to-vite [options] [root]
+
+Options:
+  -v, --version            display version number
+  -d --rootDir <path>      the directory of project to be converted
+  -t --projectType <type>  the type of the project, use vue-cli or webpack
+                           (default: vue-cli)
+  -e --entry <type>        entrance of the entire build process, webpack or
+                           vite will start from those entry files to build, if
+                           no entry file is specified, src/main.ts or
+                           src/main.js will be used as default
+  -c --cover               transformed project files will cover the raw files
+  -h, --help               display help for command
+"
+`;
