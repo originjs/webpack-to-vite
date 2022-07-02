@@ -4,7 +4,8 @@ import merge from 'webpack-merge'
 import type { Configuration } from 'webpack'
 import { existsSync } from 'fs'
 import type { Transformer } from './transformer';
-import { initViteConfig, transformImporters } from './transformer'
+import { transformWebpackHtmlPlugin, initViteConfig, transformImporters } from './transformer';
+
 import type { ViteConfig } from '../config/vite';
 import { RawValue } from '../config/vite'
 import path from 'path'
@@ -15,8 +16,6 @@ import { recordConver } from '../utils/report'
 import type { ServerOptions } from 'vite';
 import type { AstParsingResult } from '../ast-parse/astParse'
 import { pathFormat, relativePathFormat } from '../utils/file'
-import { serializeObject } from '../generate/render'
-import type { InjectOptions } from '../config/config'
 import { getHtmlPluginConfig } from '../utils/config'
 
 /**
@@ -153,65 +152,7 @@ export class VueCliTransformer implements Transformer {
       recordConver({ num: 'V05', feat: 'resolve.alias options' })
 
       // html-webpack-plugin
-      if (htmlPlugin && htmlPlugin.options) {
-        // injectData
-        const injectHtmlPluginOption: InjectOptions = {}
-        const data = {
-          title: 'Vite App'
-        }
-        Object.keys(htmlPlugin.options).forEach(key => {
-          if ((key === 'title' || key === 'favicon') && htmlPlugin.options[key]) {
-            data[key] = htmlPlugin.options[key]
-          }
-        })
-        if (htmlPlugin.options?.templateParameters) {
-          Object.assign(data, htmlPlugin.options.templateParameters)
-        }
-        injectHtmlPluginOption.data = data
-        if (htmlPlugin.options?.meta) {
-          injectHtmlPluginOption.tags = []
-          Object.keys(htmlPlugin.options.meta).forEach(key => {
-            if (htmlPlugin.options.meta[key]) {
-              injectHtmlPluginOption.tags.push({
-                tag: 'meta',
-                attrs: {
-                  name: key,
-                  content: htmlPlugin.options.meta[key],
-                  injectTo: 'head'
-                }
-              })
-            }
-          })
-        }
-        this.context.config.plugins = this.context.config.plugins || []
-        const injectHtmlPluginIndex = this.context.config.plugins.findIndex(p => p.value === 'injectHtml()')
-        if (injectHtmlPluginIndex >= 0) {
-          this.context.config.plugins[injectHtmlPluginIndex] = new RawValue('injectHtml(' + serializeObject(injectHtmlPluginOption, '    ') + ')')
-        } else {
-          this.context.config.plugins.push(new RawValue('injectHtml(' + serializeObject(injectHtmlPluginOption, '    ') + ')'))
-        }
-        if (this.context.importers.findIndex(importer => importer.key === 'vite-plugin-html') < 0) {
-          this.context.importers.push({
-            key: 'vite-plugin-html',
-            value: 'import { injectHtml } from \'vite-plugin-html\';'
-          })
-        }
-        // minify
-        if (htmlPlugin.options?.minify) {
-          const vitePluginHtmlImporterIndex = this.context.importers.findIndex(importer => importer.key === 'vite-plugin-html')
-          if (vitePluginHtmlImporterIndex >= 0) {
-            const minifyHtmlImporter = 'import { injectHtml, minifyHtml } from \'vite-plugin-html\';'
-            this.context.importers[vitePluginHtmlImporterIndex].value = minifyHtmlImporter
-          } else {
-            this.context.importers.push({
-              key: 'vite-plugin-html',
-              value: 'import { minifyHtml } from \'vite-plugin-html\';'
-            })
-          }
-          this.context.config.plugins = this.context.config.plugins || []
-          this.context.config.plugins.push(new RawValue('minifyHtml(' + serializeObject(htmlPlugin.options.minify, '    ') + ')'))
-        }
-      }
+      transformWebpackHtmlPlugin(htmlPlugin, this.context, rootDir)
       recordConver({ num: 'B11', feat: 'html-webpack-plugin is supported' })
 
       return config

@@ -1,4 +1,4 @@
-import { Config, DevServer } from './config'
+import type { Config, DevServer } from './config'
 
 export interface VueCliConfig extends Config {
     baseUrl?: string;

@@ -5,6 +5,10 @@ import { VueCliTransformer } from './transformVuecli';
 import { WebpackTransformer } from './transformWebpack';
 import { recordConver } from '../utils/report'
 import type { AstParsingResult } from '../ast-parse/astParse';
+import type { WebpackPluginInstance } from 'webpack';
+import type { UserOptions, InjectOptions } from '../config/config';
+import { serializeObject } from '../generate/render';
+import { getProjectName } from '../utils/config';
 
 /**
  * general implementation for vue.config.js and webpack.config.js
@@ -84,7 +88,7 @@ export function transformImporters (context: TransformContext, astParsingResult?
   })
   context.importers.push({
     key: 'vite-plugin-html',
-    value: 'import { injectHtml } from \'vite-plugin-html\';'
+    value: 'import { createHtmlPlugin } from \'vite-plugin-html\';'
   })
   context.importers.push({
     key: '@originjs/vite-plugin-commonjs',
@@ -93,7 +97,64 @@ export function transformImporters (context: TransformContext, astParsingResult?
   // TODO scan files to determine whether you need to add the plugin
   plugins.push(new RawValue('viteCommonjs()'))
   plugins.push(new RawValue('envCompatible()'))
-  plugins.push(new RawValue('injectHtml()'))
+  plugins.push(new RawValue('createHtmlPlugin()'))
 
   context.config.plugins = plugins
+}
+
+export function transformWebpackHtmlPlugin (htmlPlugin: WebpackPluginInstance, context: TransformContext, rootDir: string) {
+  const userOptions: UserOptions = {}
+
+  const injectHtmlPluginOption: InjectOptions = {}
+  const data = {
+    title: getProjectName(rootDir)
+  }
+  if (htmlPlugin && htmlPlugin.options) {
+    // injectData
+    Object.keys(htmlPlugin.options).forEach(key => {
+      if ((key === 'title' || key === 'favicon') && htmlPlugin.options[key]) {
+        data[key] = htmlPlugin.options[key]
+      }
+    })
+    if (htmlPlugin.options?.templateParameters) {
+      Object.assign(data, htmlPlugin.options.templateParameters)
+    }
+    if (htmlPlugin.options?.meta) {
+      injectHtmlPluginOption.tags = []
+      Object.keys(htmlPlugin.options.meta).forEach(key => {
+        if (htmlPlugin.options.meta[key]) {
+          injectHtmlPluginOption.tags.push({
+            tag: 'meta',
+            attrs: {
+              name: key,
+              content: htmlPlugin.options.meta[key],
+              injectTo: 'head'
+            }
+          })
+        }
+      })
+    }
+    context.config.plugins = context.config.plugins || []
+
+    // minify
+    if (htmlPlugin.options?.minify) {
+      userOptions.minify = htmlPlugin.options.minify
+    }
+  }
+
+  injectHtmlPluginOption.data = data
+  userOptions.inject = injectHtmlPluginOption
+
+  const injectHtmlPluginIndex = context.config.plugins.findIndex(p => p.value === 'createHtmlPlugin()')
+  if (injectHtmlPluginIndex >= 0) {
+    context.config.plugins[injectHtmlPluginIndex] = new RawValue('createHtmlPlugin(' + serializeObject(userOptions, '    ') + ')')
+  } else {
+    context.config.plugins.push(new RawValue('createHtmlPlugin(' + serializeObject(userOptions, '    ') + ')'))
+  }
+  if (context.importers.findIndex(importer => importer.key === 'vite-plugin-html') < 0) {
+    context.importers.push({
+      key: 'vite-plugin-html',
+      value: 'import { createHtmlPlugin } from \'vite-plugin-html\';'
+    })
+  }
 }
