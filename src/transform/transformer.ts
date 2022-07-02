@@ -17,7 +17,7 @@ import { getProjectName } from '../utils/config';
 export interface Transformer{
     context: TransformContext;
 
-    transform(rootDir: string, astParsingResult?: AstParsingResult): Promise<ViteConfig>;
+    transform(rootDir: string, astParsingResult?: AstParsingResult, outDir?: string): Promise<ViteConfig>;
 
 }
 

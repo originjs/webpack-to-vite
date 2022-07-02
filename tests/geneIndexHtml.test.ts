@@ -29,7 +29,7 @@ describe('geneIndexHtml', () => {
     const config: Config = {
       entry: './pages/app.js'
     }
-    await geneIndexHtml(rootDir, config)
+    await geneIndexHtml(rootDir, rootDir, config)
     const result = readSync(path.resolve(rootDir, 'index.html'))
     expect(result).toMatch('<script type="module" src="pages/app.js"></script>')
   })
@@ -38,7 +38,7 @@ describe('geneIndexHtml', () => {
     const rootDir: string = path.resolve('tests/out-index-html')
     const filePath = path.resolve(rootDir, 'src/main.ts')
     writeSync(filePath, '')
-    await geneIndexHtml(rootDir, {})
+    await geneIndexHtml(rootDir, rootDir, {})
     const result = readSync(path.resolve(rootDir, 'index.html'))
     expect(result).toMatch('<script type="module" src="/src/main.ts"></script>')
     rmdirSync(path.dirname(filePath), { recursive: true })

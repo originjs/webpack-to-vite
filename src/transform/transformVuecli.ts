@@ -15,7 +15,7 @@ import { DEFAULT_VUE_VERSION, PARSER_TYPES } from '../constants/constants'
 import { recordConver } from '../utils/report'
 import type { ServerOptions } from 'vite';
 import type { AstParsingResult } from '../ast-parse/astParse'
-import { relativePathFormat } from '../utils/file'
+import { pathFormat, relativePathFormat } from '../utils/file'
 import { getHtmlPluginConfig } from '../utils/config'
 
 /**
@@ -28,11 +28,12 @@ export class VueCliTransformer implements Transformer {
       importers: []
     }
 
-    public async transform (rootDir: string, astParsingResult?: AstParsingResult): Promise<ViteConfig> {
+    public async transform (rootDir: string, astParsingResult?: AstParsingResult, outDir?: string): Promise<ViteConfig> {
       this.context.vueVersion = getVueVersion(rootDir)
       transformImporters(this.context, astParsingResult)
       const config = this.context.config
-      const vueConfigPath = existsSync(path.resolve(rootDir, 'vue.temp.config.ts')) ? path.resolve(rootDir, 'vue.temp.config.ts') : path.resolve(rootDir, 'vue.temp.config.js')
+      const vueConfigDir = outDir || rootDir
+      const vueConfigPath = existsSync(path.resolve(vueConfigDir, 'vue.temp.config.ts')) ? path.resolve(vueConfigDir, 'vue.temp.config.ts') : path.resolve(vueConfigDir, 'vue.temp.config.js')
       const vueConfig = await parseVueCliConfig(vueConfigPath)
 
       let webpackConfig: Configuration = {}
@@ -201,7 +202,7 @@ export class VueCliTransformer implements Transformer {
       const preProcessor = pluginOptions['style-resources-loader'].preProcessor;
       const patterns = pluginOptions['style-resources-loader'].patterns;
       patterns.forEach(pattern => {
-        additionalData = additionalData + '@import "' + pattern.slice(rootDir.length + 1).replace(/\\/g, '/') + '";';
+        additionalData = additionalData + '@import "' + pathFormat(pattern.slice(rootDir.length + 1)) + '";';
       });
       if (preProcessor === 'less') {
         if (config?.css?.preprocessorOptions?.less?.additionalData) {

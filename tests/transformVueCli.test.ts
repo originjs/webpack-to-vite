@@ -15,7 +15,8 @@ describe('VueCliTransformer', () => {
     })
     test('transform', async () => {
         const transformer: VueCliTransformer = new VueCliTransformer()
-        const viteConfig: ViteConfig = await transformer.transform(path.resolve('tests/out-transform-vue-cli'))
+        const transformPath: string = path.resolve('tests/out-transform-vue-cli')
+        const viteConfig: ViteConfig = await transformer.transform(transformPath)
         expect(viteConfig.base).toBe('/')
         expect(viteConfig.css).toMatchObject({
             preprocessorOptions: {

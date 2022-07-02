@@ -111,8 +111,9 @@ test('chainWebpackTransformation', async () => {
     }
     const transformationParams: TransformationParams = {
         config: {
-            rootDir:  path.resolve('tests/out-ast-parse')
-        }
+            rootDir: path.resolve('tests/out-ast-parse')
+        },
+        outDir: path.resolve('tests/out-ast-parse')
     }
     const result: TransformationResult = await chainWebpackTransformation(fileInfo, transformationParams, parsingResult)
     expect(fs.existsSync(path.resolve('tests/out-ast-parse/vue.temp.config.js'))).toBe(true)
@@ -189,7 +190,7 @@ test('indexHtmlTransformationVueCli', async () => {
     const rootDir: string = path.dirname(filePath)
     const transformationParams: TransformationParams = {
         config: {
-            rootDir: rootDir,
+            rootDir,
             projectType: 'vue-cli'
         }
     }
@@ -218,7 +219,7 @@ test('indexHtmlTransformationWebpack', async () => {
     const rootDir: string = path.dirname(filePath)
     const transformationParams: TransformationParams = {
         config: {
-            rootDir: rootDir,
+            rootDir,
             projectType: 'webpack'
         }
     }
@@ -243,7 +244,9 @@ test('lazyLoadingRoutesTransformation', async () => {
         source: source
     }
     const transformationParams: TransformationParams = {
-        config: {}
+        config: {
+            rootDir: '',
+        }
     }
     const result: TransformationResult = await lazyLoadingRoutesTransform(fileInfo, transformationParams, null)
     expect(result.content).toMatch('() => import("../components/test.vue")')
@@ -274,12 +277,10 @@ test('findRequireContext',  () => {
 test('astParse', async () => {
     const srcPath = path.resolve('tests/testdata/ast-parse')
     const destPath = path.resolve('tests/out-ast-parse')
-    copyDirSync(srcPath, destPath)
-
     const config: Config = {
-        rootDir: destPath
+        rootDir: srcPath
     }
-    const result: AstParsingResult = await astParseRoot(destPath, config)
+    const result: AstParsingResult = await astParseRoot(srcPath, destPath, config)
     Object.keys(result.parsingResult).forEach(key =>
       expect(result.parsingResult[key].length).toBeGreaterThan(0)
     )

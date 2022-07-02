@@ -1,7 +1,9 @@
 import * as fs from 'fs'
+import path from 'path'
 import { table } from 'table'
 import chalk from 'chalk'
 import { cliInstance } from '../cli/cli'
+import { pathFormat } from './file'
 
 interface ConverObj {
   num: string;// 'Number'
@@ -61,15 +63,13 @@ function printReport (dir: string, beginTime: number) {
     flags: 'w', //
     encoding: 'utf8' // utf8编码
   }
-  while (dir[dir.length - 1] === '/') {
-    dir = dir.slice(0, dir.length - 1)
-  }
-  dir += '/'
-  const stdout = fs.createWriteStream(`${dir}conversion.log`, options);
+  const dirPaths: string[] = pathFormat(dir).split('/')
+  const conversionLogPath: string = path.join(...dirPaths, 'conversion.log')
+  const stdout = fs.createWriteStream(conversionLogPath, options);
   const logger = new console.Console(stdout);
   logger.log('--------------------------------------------------')
   logger.log('conversion items successful conversion: \n')
   logger.log(tableStr)
-  console.log(chalk.green(`The report output path is ${dir}conversion.log`));
+  console.log(chalk.green(`The report output path is ${conversionLogPath}`));
 }
 export { recordConver, printReport, sortByNum }
