@@ -17,7 +17,7 @@ import { getProjectName } from '../utils/config';
 export interface Transformer{
     context: TransformContext;
 
-    transform(rootDir: string, astParsingResult?: AstParsingResult, outDir?: string): Promise<ViteConfig>;
+    transform(rootDir: string, astParsingResult?: AstParsingResult): Promise<ViteConfig>;
 
 }
 
@@ -37,7 +37,7 @@ export function initViteConfig () : ViteConfig {
     '.jsx',
     '.tsx',
     '.json',
-    '.vue'
+    '.vue',
   ];
 
   return config;
@@ -59,40 +59,40 @@ export function transformImporters (context: TransformContext, astParsingResult?
   if (context.vueVersion === 3) {
     context.importers.push({
       key: '@vitejs/plugin-vue',
-      value: 'import vue from \'@vitejs/plugin-vue\';'
+      value: 'import vue from \'@vitejs/plugin-vue\';',
     })
     plugins.push(new RawValue('vue()'))
     context.importers.push({
       key: '@vitejs/plugin-vue-jsx',
-      value: 'import vueJsx from \'@vitejs/plugin-vue-jsx\';'
+      value: 'import vueJsx from \'@vitejs/plugin-vue-jsx\';',
     })
     plugins.push(new RawValue('vueJsx()'))
   } else if (context.vueVersion === 2) {
     context.importers.push({
       key: 'vite-plugin-vue2',
-      value: 'import { createVuePlugin } from \'vite-plugin-vue2\';'
+      value: 'import { createVuePlugin } from \'vite-plugin-vue2\';',
     })
     plugins.push(new RawValue('createVuePlugin({ jsx: true })'))
   }
   if (astParsingResult && astParsingResult.parsingResult.FindRequireContextParser && astParsingResult.parsingResult.FindRequireContextParser.length > 0) {
     context.importers.push({
       key: '@originjs/vite-plugin-require-context',
-      value: 'import ViteRequireContext from \'@originjs/vite-plugin-require-context\';'
+      value: 'import ViteRequireContext from \'@originjs/vite-plugin-require-context\';',
     })
     plugins.push(new RawValue('ViteRequireContext()'))
   }
   recordConver({ num: 'B04', feat: 'required plugins' })
   context.importers.push({
     key: 'vite-plugin-env-compatible',
-    value: 'import envCompatible from \'vite-plugin-env-compatible\';'
+    value: 'import envCompatible from \'vite-plugin-env-compatible\';',
   })
   context.importers.push({
     key: 'vite-plugin-html',
-    value: 'import { createHtmlPlugin } from \'vite-plugin-html\';'
+    value: 'import { createHtmlPlugin } from \'vite-plugin-html\';',
   })
   context.importers.push({
     key: '@originjs/vite-plugin-commonjs',
-    value: 'import { viteCommonjs } from \'@originjs/vite-plugin-commonjs\';'
+    value: 'import { viteCommonjs } from \'@originjs/vite-plugin-commonjs\';',
   })
   // TODO scan files to determine whether you need to add the plugin
   plugins.push(new RawValue('viteCommonjs()'))
@@ -107,7 +107,7 @@ export function transformWebpackHtmlPlugin (htmlPlugin: WebpackPluginInstance, c
 
   const injectHtmlPluginOption: InjectOptions = {}
   const data = {
-    title: getProjectName(rootDir)
+    title: getProjectName(rootDir),
   }
   if (htmlPlugin && htmlPlugin.options) {
     // injectData
@@ -128,8 +128,8 @@ export function transformWebpackHtmlPlugin (htmlPlugin: WebpackPluginInstance, c
             attrs: {
               name: key,
               content: htmlPlugin.options.meta[key],
-              injectTo: 'head'
-            }
+              injectTo: 'head',
+            },
           })
         }
       })
@@ -154,7 +154,7 @@ export function transformWebpackHtmlPlugin (htmlPlugin: WebpackPluginInstance, c
   if (context.importers.findIndex(importer => importer.key === 'vite-plugin-html') < 0) {
     context.importers.push({
       key: 'vite-plugin-html',
-      value: 'import { createHtmlPlugin } from \'vite-plugin-html\';'
+      value: 'import { createHtmlPlugin } from \'vite-plugin-html\';',
     })
   }
 }

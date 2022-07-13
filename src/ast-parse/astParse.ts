@@ -74,13 +74,13 @@ export type AstParsingResult = {
 export async function astParseRoot (
   rootDir: string,
   outDir: string,
-  config: Config
+  config: Config,
 ): Promise<AstParsingResult> {
   const replacedRootDir: string = pathFormat(rootDir)
   const resolvedPaths: string[] = globby.sync([
     replacedRootDir,
     `!${replacedRootDir}/**/node_modules`,
-    `!${replacedRootDir}/**/dist`
+    `!${replacedRootDir}/**/dist`,
   ])
   const parsersCount = Object.keys(parsersMap).length
   const transformationCount = Object.keys(transformationMap).length
@@ -98,7 +98,7 @@ export async function astParseRoot (
       if (extension === '.js') {
         console.warn(
           '\nFailed to parse .js file because the content contains invalid JS syntax. ' +
-              'If you are using JSX, make sure to name the file with the .jsx or .tsx extension.'
+              'If you are using JSX, make sure to name the file with the .jsx or .tsx extension.',
         )
       }
       console.error(`AST parsing file failed, filePath: ${filePath}\n`, e)
@@ -115,7 +115,7 @@ export async function astParseRoot (
     }
     parsingResults[parser.parserType].push.apply(
       parsingResults[parser.parserType],
-      parsingResult
+      parsingResult,
     )
   }
 
@@ -129,18 +129,18 @@ export async function astParseRoot (
       tempTransformationResult = await transformation.astTransform(
         fileInfo,
         transformationParams,
-        parsingResults
+        parsingResults,
       )
     } catch (e) {
       if (extension === '.js') {
         console.warn(
           '\n\nFailed to parse .js file because the content contains invalid JS syntax. ' +
-              'If you are using JSX, make sure to name the file with the .jsx or .tsx extension.'
+              'If you are using JSX, make sure to name the file with the .jsx or .tsx extension.',
         )
       }
       console.error(
           `AST parsing and transformation file failed, filePath: ${filePath}\n`,
-          e
+          e,
       )
       console.log('skip parsing the error file...')
       return
@@ -153,7 +153,7 @@ export async function astParseRoot (
       transformationResults[transformation.transformationType] = []
     }
     transformationResults[transformation.transformationType].push(
-      tempTransformationResult
+      tempTransformationResult,
     )
     transformationResultContent = tempTransformationResult.content
 
@@ -181,9 +181,9 @@ export async function astParseRoot (
 
   // add parseVueCliConfig to transformationParams
   const setTransformParamsWithHtmlConfig = async (transformationParams: TransformationParams) => {
-    const vueConfigPath = existsSync(path.resolve(outDir, 'vue.temp.config.ts'))
-      ? path.resolve(outDir, 'vue.temp.config.ts')
-      : path.resolve(outDir, 'vue.temp.config.js')
+    const vueConfigPath = existsSync(path.resolve(rootDir, 'vue.temp.config.ts'))
+      ? path.resolve(rootDir, 'vue.temp.config.ts')
+      : path.resolve(rootDir, 'vue.temp.config.js')
     const vueConfig = await parseVueCliConfig(vueConfigPath)
 
     // vueConfig.configureWebpack
@@ -237,7 +237,7 @@ export async function astParseRoot (
       const source: string = readSync(filePath).replace(/\r\n/g, '\n')
       const fileInfo: FileInfo = {
         path: filePath,
-        source: source
+        source: source,
       }
       executeParse(parser, fileInfo, extension)
     }
@@ -248,7 +248,7 @@ export async function astParseRoot (
     const transformation = transformationMap[key]
 
     let transformationParams: TransformationParams = {
-      config
+      config,
     }
     if (key === TRANSFORMATION_TYPES.indexHtmlTransformationVueCli) {
       transformationParams = await setTransformParamsWithHtmlConfig(transformationParams)
@@ -270,7 +270,7 @@ export async function astParseRoot (
       const source: string = readSync(filePath).replace(/\r\n/g, '\n')
       const fileInfo: FileInfo = {
         path: filePath,
-        source: source
+        source: source,
       }
 
       await executeTransform(transformation, transformationParams, fileInfo, extension)
@@ -279,6 +279,6 @@ export async function astParseRoot (
 
   return {
     parsingResult: parsingResults,
-    transformationResult: transformationResults
+    transformationResult: transformationResults,
   }
 }

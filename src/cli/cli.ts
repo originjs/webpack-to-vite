@@ -14,7 +14,7 @@ import { pathFormat, removeSync, copyDirSync } from '../utils/file'
 import { TRANSFORMATION_RULE_COUNT } from '../constants/constants'
 
 const cliInstance = new cliProgress.SingleBar({
-  format: 'progress [{bar}] {percentage}% | {doSomething} | {value}/{total}'
+  format: 'progress [{bar}] {percentage}% | {doSomething} | {value}/{total}',
 }, cliProgress.Presets.shades_classic)
 
 const beginTime = Date.now()
@@ -37,7 +37,7 @@ export function run (): void {
         rootDir: options.rootDir || root,
         projectType: options.projectType,
         entry: options.entry,
-        cover: options.cover
+        cover: options.cover,
       }
       start(config)
     })
@@ -84,10 +84,10 @@ export async function start (config: Config): Promise<void> {
     printReport(outDir, beginTime) // output conversion
 
     // remove temp files
-    if (existsSync(path.resolve(outDir, 'vue.temp.config.ts'))) {
-      removeSync(path.resolve(outDir, 'vue.temp.config.ts'))
-    } else if (existsSync(path.resolve(outDir, 'vue.temp.config.js'))) {
-      removeSync(path.resolve(outDir, 'vue.temp.config.js'))
+    if (existsSync(path.resolve(rootDir, 'vue.temp.config.ts'))) {
+      removeSync(path.resolve(rootDir, 'vue.temp.config.ts'))
+    } else if (existsSync(path.resolve(rootDir, 'vue.temp.config.js'))) {
+      removeSync(path.resolve(rootDir, 'vue.temp.config.js'))
     }
 
     console.log(chalk.green('************************ Done ! ************************'))
@@ -102,7 +102,7 @@ export async function start (config: Config): Promise<void> {
 
     console.log(chalk.green(`${pkgManager === 'yarn' ? 'yarn' : 'npm install'}`))
     console.log(chalk.green(
-      `${pkgManager === 'yarn' ? 'yarn serve-vite' : 'npm run serve-vite'}`
+      `${pkgManager === 'yarn' ? 'yarn serve-vite' : 'npm run serve-vite'}`,
     ))
     console.log()
   } catch (e) {
