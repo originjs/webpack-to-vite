@@ -17,6 +17,9 @@ $ npx @originjs/webpack-to-vite <project path>
 $ npm install @originjs/webpack-to-vite -g
 $ webpack-to-vite <project path>
 ```
+
+在新目录 `filename-toVite` 下查看和运行转换完成的 Vite 项目.
+
 > 注意：默认转换的是 vue-cli 项目。 传入 `-t webpack` 选项来转换 webpack 项目。
 
 ## 选项
@@ -31,6 +34,7 @@ Options:
   -d --rootDir <path>      要转换的项目目录
   -t --projectType <type>  项目类型，传入 vue-cli 或 webpack（默认：vue-cli）
   -e --entry <type>        整个构建过程的入口，webpack 或 vite 会从那些入口文件开始构建，如果没有指定入口文件，则默认使用 src/main.ts 或 src/main.js
+  -c --cover               使用此选项，转换的项目文件将覆盖原文件
   -h, --help               显示命令帮助
 ```
 
@@ -109,16 +113,21 @@ Options:
   * 从 `html-webpack-plugin` 中引用 `injectHtml` 和 `minifyHtml` 并且配置选项：
   ```js
   plugins: [
-    injectHtml({
-      data: {
-        title: value
+    createHtmlPlugin({
+      inject: {
+        data: {
+          title: value,
+        },
+      },
+      minify: {
+        minifyCss: true
       }
-    }),
-    minifyHtml({
-      minifyCss: true
     })
   ]
   ```
+* ⚠️ B12: 特定的 Vite 插件
+  * 你需要根据项目引入特定的 Vite 插件，该工具并不能做到识别和引入。
+  * 例如，如果之前使用了 `windi.css`，你应该检查 Vite 是否已经支持它，然后参考指导说明，手动引入使用相关的插件（[vite-plugin-windicss](https://windicss.org/integrations/vite.html)）。
 
 ### Vue-CLI 转换项
 > Vue-CLI 转换是将 `vue.config.js` 中的配置，转换后设置到 `vite.config.js` 中
