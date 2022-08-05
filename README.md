@@ -17,6 +17,9 @@ $ npx @originjs/webpack-to-vite <project path>
 $ npm install @originjs/webpack-to-vite -g
 $ webpack-to-vite <project path>
 ```
+
+The converted Vite project could be found in a new directory `filename-toVite`.
+
 > Note: the default conversion is vue-cli project. Pass in the `-t webpack` option to convert a webpack project.
 
 ## Options
@@ -30,7 +33,10 @@ Options:
   -v, --version            display version number
   -d --rootDir <path>      the directory of project to be converted
   -t --projectType <type>  the type of the project, use vue-cli or webpack (default: vue-cli)
-  -e --entry <type>        entrance of the entire build process, webpack or vite will start from those entry files to build, if no entry file is specified, src/main.ts or src/main.js will be used as default
+  -e --entry <type>        entrance of the entire build process, webpack or vite will start from those   
+                           entry files to build, if no entry file is specified, src/main.ts or
+                           src/main.js will be used as default
+  -c --cover               transformed project files will cover the raw files
   -h, --help               display help for command
 ```
 
@@ -104,19 +110,24 @@ Legend of annotations:
 * ✅ B11: `html-webpack-plugin` is supported
   * Options will be applied to plugin `vite-plugin-html`
   * Variables injected to `index.html` will be transformed. for example, `<%= htmlWebpackPlugin.options.title %>` -> `<%= title %>`
-  * Import `injectHtml` and `minifyHtml` from `html-webpack-plugin` and use them like this:
+  * Import `createHtmlPlugin` from `html-webpack-plugin` and use it like this:
   ```js
   plugins: [
-    injectHtml({
-      data: {
-        title: value
+    createHtmlPlugin({
+      inject: {
+        data: {
+          title: value,
+        },
+      },
+      minify: {
+        minifyCss: true
       }
-    }),
-    minifyHtml({
-      minifyCss: true
     })
   ]
   ```
+* ⚠️ B12: specified Vite plugins
+  * You need to import specified Vite plugins based on your project, when this tool can not identify and import them.
+  * For example, if `windi.css` was used before, you should check if Vite has supported it, and then import related plugin ([vite-plugin-windicss](https://windicss.org/integrations/vite.html)) manually refered to its plugin guide.
 
 ### Vue-CLI conversion
 > Vue-CLI conversion is based on `vue.config.js`. Configurations will be transformed and written to `vite.config.js`
