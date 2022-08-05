@@ -120,7 +120,7 @@ export async function astParseRoot (
   }
 
   const executeTransform = async (transformation, transformationParams: TransformationParams, fileInfo, extension: string) => {
-    let { path: filePath, source } = fileInfo
+    const { path: filePath, source } = fileInfo
     let transformationResultContent: string = source
     let tempTransformationResult: TransformationResult | null
 
@@ -174,7 +174,6 @@ export async function astParseRoot (
       }
     }
     if (transformation.needWriteToOriginFile) {
-      filePath = filePath.replace(path.dirname(filePath), outDir)
       writeSync(filePath, transformationResultContent)
     }
   }
