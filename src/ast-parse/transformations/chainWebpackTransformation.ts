@@ -5,7 +5,7 @@ import type {
   FileInfo,
   TransformationResult,
   TransformationParams,
-  ParsingResult
+  ParsingResult,
 } from '../astParse'
 import { getStringLinePosition } from '../../utils/common'
 import { writeSync } from '../../utils/file'
@@ -14,7 +14,7 @@ import { recordConver } from '../../utils/report'
 export const astTransform: ASTTransformation = async (
   fileInfo: FileInfo,
   transformationParams?: TransformationParams,
-  parsingResult?: ParsingResult
+  parsingResult?: ParsingResult,
 ) => {
   if (!transformationParams || !transformationParams.outDir) {
     return null
@@ -31,7 +31,7 @@ export const astTransform: ASTTransformation = async (
   const extension: string = (/\.([^.]*)$/.exec(fileInfo.path) || [])[0]
 
   // transform vueConfig.chainWebpack
-  const vueConfigTempPath: string = path.resolve(transformationParams.outDir, `vue.temp.config${extension}`)
+  const vueConfigTempPath: string = path.resolve(transformationParams.config.rootDir, `vue.temp.config${extension}`)
   let vueConfigContent: string = fileInfo.source
   if (parsingResult && parsingResult.FindHtmlPluginChain && parsingResult.FindHtmlPluginChain.length) {
     const chainWebpackResult: any = parsingResult.FindHtmlPluginChain[0]
@@ -61,7 +61,7 @@ export const astTransform: ASTTransformation = async (
   const result: TransformationResult = {
     fileInfo: fileInfo,
     content: vueConfigContent,
-    type: TRANSFORMATION_TYPES.chainWebpackTransformation
+    type: TRANSFORMATION_TYPES.chainWebpackTransformation,
   }
 
   return result

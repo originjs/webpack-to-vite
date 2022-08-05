@@ -25,14 +25,14 @@ export class VueCliTransformer implements Transformer {
     context : TransformContext = {
       vueVersion: DEFAULT_VUE_VERSION,
       config: initViteConfig(),
-      importers: []
+      importers: [],
     }
 
-    public async transform (rootDir: string, astParsingResult?: AstParsingResult, outDir?: string): Promise<ViteConfig> {
+    public async transform (rootDir: string, astParsingResult?: AstParsingResult): Promise<ViteConfig> {
       this.context.vueVersion = getVueVersion(rootDir)
       transformImporters(this.context, astParsingResult)
       const config = this.context.config
-      const vueConfigDir = outDir || rootDir
+      const vueConfigDir = rootDir
       const vueConfigPath = existsSync(path.resolve(vueConfigDir, 'vue.temp.config.ts')) ? path.resolve(vueConfigDir, 'vue.temp.config.ts') : path.resolve(vueConfigDir, 'vue.temp.config.js')
       const vueConfig = await parseVueCliConfig(vueConfigPath)
 
@@ -138,13 +138,13 @@ export class VueCliTransformer implements Transformer {
         '@': `${rootDir}/src`,
         ...aliasOfConfigureWebpackObjectMode,
         ...aliasOfConfigureFunctionMode,
-        ...aliasOfChainWebpack
+        ...aliasOfChainWebpack,
       }
       Object.keys(alias).forEach((key) => {
         const relativePath = relativePathFormat(rootDir, path.resolve(rootDir, alias[key]))
         defaultAlias.push({
           find: key,
-          replacement: new RawValue(`path.resolve(__dirname, '${relativePath}')`)
+          replacement: new RawValue(`path.resolve(__dirname, '${relativePath}')`),
         })
       })
 
